@@ -1,0 +1,4 @@
+git/
+.vscode/
+debug.log
+__pycache__/
