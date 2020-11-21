@@ -19,7 +19,6 @@ from PIL import Image  # for creating visual of our env
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-FOUR_PLOTS_FIG_SIZE_X = 12
 from constants import SICK, ASYMPTOMATIC, HEALTHY, FOUR_PLOTS_FIG_SIZE_X , FOUR_PLOTS_FIG_SIZE_Y, ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y, SIMULATION_GRAPHICS_SIZE_X, SIMULATION_GRAPHICS_SIZE_Y
 
 logging.basicConfig(
