@@ -19,7 +19,9 @@ from PIL import Image  # for creating visual of our env
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-from constants import SICK, ASYMPTOMATIC, HEALTHY, FOUR_PLOTS_FIG_SIZE_X , FOUR_PLOTS_FIG_SIZE_Y, ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y, SIMULATION_GRAPHICS_SIZE_X, SIMULATION_GRAPHICS_SIZE_Y
+from constants import SICK, ASYMPTOMATIC, HEALTHY, FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y, ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y, \
+    SIMULATION_GRAPHICS_SIZE_X, SIMULATION_GRAPHICS_SIZE_Y, IMR_ARRAY, IMR_ARRAY_P, HEALTH_ARRAY, HEALTH_ARRAY_P, SOCIAL_DISTANCE, EPISODES, TOTAL_NUMBER_OF_AGENTS, \
+    SIZE, RANDOM_LIMIT, AGENTS_MOVEMENT_PERCENTAGE, COLORS_DICT
 
 logging.basicConfig(
     level=logging.INFO,
@@ -27,43 +29,37 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 
-EPISODES = 30
-TOTAL_NUMBER_OF_AGENTS = 500
-SIZE = 500
-RANDOM_LIMIT = 10
-AGENTS_MOVEMENT_PERCENTAGE = 0.8  # percentage of the agents that moves in the step
-
-# BGR
-COLORS_DICT = {0: (0, 0, 255),  # red
-               1: (0, 115, 255),  # orange
-               2: (0, 255, 255),  # yellow
-               3: (255, 0, 196),  # purple
-               4: (0, 0, 0),  # dead is black
-               5: (0, 255, 0)}  # green
-
-HEALTH_ARRAY = [SICK, ASYMPTOMATIC, HEALTHY]
-HEALTH_ARRAY_P = [0.01, 0.001, 0.989]  # probabilities of being of one type
-
-
 def available_random_pos(simulation):
     """
     """
     new_pos_X = 0
     new_pos_Y = 0
+    has_value = False
     for _ in simulation.agent_list:
         new_pos_X = random.randint(0 + RANDOM_LIMIT, SIZE - RANDOM_LIMIT)
         new_pos_Y = random.randint(0 + RANDOM_LIMIT, SIZE - RANDOM_LIMIT)
         tuple_list = [
             agent_.pos_tuple for agent_ in simulation.agent_list]
-        while (new_pos_X, new_pos_Y) in tuple_list or \
-            ((new_pos_X + 1, new_pos_Y) in tuple_list) or \
-            ((new_pos_X + 2, new_pos_Y) in tuple_list) or \
-            ((new_pos_X + 3, new_pos_Y) in tuple_list) or \
-            ((new_pos_X + 4, new_pos_Y) in tuple_list) or \
-                (new_pos_X <= 0 or new_pos_Y <= 0) or \
-                (new_pos_X >= SIZE or new_pos_Y >= SIZE):
-            new_pos_X = random.randint(-RANDOM_LIMIT, RANDOM_LIMIT)
-            new_pos_Y = random.randint(-RANDOM_LIMIT, RANDOM_LIMIT)
+        while not has_value:
+            can_add = False
+            for x_ax in range(SOCIAL_DISTANCE + 1):
+                for y_ax in range(SOCIAL_DISTANCE + 1):
+                    if (new_pos_X + x_ax, new_pos_Y + y_ax) not in tuple_list and \
+                            (new_pos_X - x_ax, new_pos_Y - y_ax) not in tuple_list:
+                        can_add = True
+                    else:
+                        can_add = False
+
+            if can_add and (new_pos_X >= SIZE or new_pos_Y >= SIZE):
+                can_add = False
+
+            if not can_add:
+                new_pos_X = random.randint(
+                    0 + RANDOM_LIMIT, SIZE - RANDOM_LIMIT)
+                new_pos_Y = random.randint(
+                    0 + RANDOM_LIMIT, SIZE - RANDOM_LIMIT)
+            else:
+                has_value = True
 
     return new_pos_X, new_pos_Y
 
@@ -85,6 +81,16 @@ def show_graphic_simulation(simulation):
     cv2.waitKey(200)
 
 
+def show_detailed_data(infected, healed, healthy, dead, simulation):
+    """
+    """
+    logging.info(f" Total Infected people: {sum(infected)}")
+    logging.info(f" Total Healed people: {sum(healed)}")
+    logging.info(f" Remaining Healthy people: {sum(healthy)}")
+    logging.info(f" Total Dead people: {sum(dead)}")
+    logging.info(f" Initial Immune people: {simulation.get_immune_people()}")
+
+
 def main():
     """
     """
@@ -99,15 +105,20 @@ def main():
         health_value = np.random.choice(
             HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
 
+        immune_response_value = np.random.choice(
+            IMR_ARRAY, p=IMR_ARRAY_P, size=(1))[0]
+
         new_simulation.create_agent(
-            new_pos_X, new_pos_Y, health_status=health_value)
+            new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
 
         pbar.set_description("Creating Agents in random positions")
 
-    logging.info(new_simulation.get_infected())
+    logging.info(f"Imunne people: {new_simulation.get_immune_people()}")
+    logging.info(f"Infected people: {new_simulation.get_infected()}")
 
     # ploting the data, this is a bad way but one that works
-    fig = plt.figure(num=1, figsize=(FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y))
+    fig = plt.figure(num=1, figsize=(
+        FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y))
 
     ax = fig.add_subplot(4, 1, 1)
     ax2 = fig.add_subplot(4, 1, 2)
@@ -125,7 +136,10 @@ def main():
     ax2.plot(x, y_infected, color='r', label="Infected")
     ax3.plot(x, y_dead, color='k', label="Dead")
     ax4.plot(x, y_healed, color='y', label="Healed")
-    plt.legend(loc='upper left')
+    ax.legend(loc='upper left')
+    ax2.legend(loc='upper left')
+    ax3.legend(loc='upper left')
+    ax4.legend(loc='upper left')
 
     # Running simulation
     for i in range(2, EPISODES + 1):
@@ -157,8 +171,12 @@ def main():
         gca.xaxis.set_major_locator(MaxNLocator(integer=True))
 
         fig.canvas.draw()
+        if(new_simulation.get_infected() == 0):
+            break
 
-    fig2 = plt.figure(num=2, figsize=(ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y))
+    # adding final chart
+    fig2 = plt.figure(num=2, figsize=(
+        ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y))
     ax_fig2 = fig2.add_subplot(1, 1, 1)
     ax_fig2.plot(x, y_healthy, 'o-', color='g')
     ax_fig2.plot(x, y_infected, 'o-', color='r')
@@ -166,6 +184,9 @@ def main():
     ax_fig2.plot(x, y_healed, 'o-', color='y')
     fig.show()
     plt.show()
+
+    # printing data
+    #show_detailed_data(y_infected, y_healed, y_healthy, y_dead, new_simulation)
 
 
 if __name__ == "__main__":
