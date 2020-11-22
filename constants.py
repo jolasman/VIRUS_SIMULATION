@@ -80,8 +80,8 @@ SIMULATION_GRAPHICS_SIZE_X = 900
 SIMULATION_GRAPHICS_SIZE_Y = 900
 
 
-SOCIAL_DISTANCE = 2 # initial minimal distance between agents
-SOCIAL_DISTANCE_STEP = 1 # can move to a position x y +SOCIAL_DISTANCE_STEP and -SOCIAL_DISTANCE_STEP
+SOCIAL_DISTANCE = 0 # initial minimal distance between agents
+SOCIAL_DISTANCE_STEP = 0 # can move to a position x y +SOCIAL_DISTANCE_STEP and -SOCIAL_DISTANCE_STEP
 CONTAGIOUS_DISTANCE = 2 # distance that triggers a possible contagious if one of the agents is infected
 
 

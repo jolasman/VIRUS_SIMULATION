@@ -97,6 +97,9 @@ def main():
     # Creating simulation instance
     new_simulation = Simulation("Test Simulation")
 
+    # clearing file with real time chat data
+    open('chart_data.txt', 'w').close()
+
     # Creating agents
     pbar = tqdm(range(TOTAL_NUMBER_OF_AGENTS))
     for _ in pbar:
@@ -113,34 +116,27 @@ def main():
 
         pbar.set_description("Creating Agents in random positions")
 
+
+    initial_infected = new_simulation.get_infected()
+    initial_healthy = new_simulation.get_healthy()
+    initial_dead = new_simulation.get_dead()
+    initial_healed = new_simulation.get_healed()
+    
     logging.info(f"Imunne people: {new_simulation.get_immune_people()}")
-    logging.info(f"Infected people: {new_simulation.get_infected()}")
+    logging.info(f"Infected people: {initial_infected}")
 
-    # ploting the data, this is a bad way but one that works
-    fig = plt.figure(num=1, figsize=(
-        FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y))
-
-    ax = fig.add_subplot(4, 1, 1)
-    ax2 = fig.add_subplot(4, 1, 2)
-    ax3 = fig.add_subplot(4, 1, 3)
-    ax4 = fig.add_subplot(4, 1, 4)
-
-    fig.show()
     x = [1]
-    y_healthy = [new_simulation.get_healthy()]
-    y_infected = [new_simulation.get_infected()]
-    y_dead = [new_simulation.get_dead()]
-    y_healed = [new_simulation.get_healed()]
+    y_healthy = [initial_healthy]
+    y_infected = [initial_infected]
+    y_dead = [initial_dead]
+    y_healed = [initial_healed]
 
-    ax.plot(x, y_healthy, color='g', label="Healthy")
-    ax2.plot(x, y_infected, color='r', label="Infected")
-    ax3.plot(x, y_dead, color='k', label="Dead")
-    ax4.plot(x, y_healed, color='y', label="Healed")
-    ax.legend(loc='upper left')
-    ax2.legend(loc='upper left')
-    ax3.legend(loc='upper left')
-    ax4.legend(loc='upper left')
+    # updating file for live chart
+    line = f"{1}, {initial_healthy}, {initial_infected}, {initial_dead}, {initial_healed}\n"
+    with open('chart_data.txt', 'a') as f:
+        f.write(line)
 
+    myfile = open('chart_data.txt', 'a')
     # Running simulation
     for i in range(2, EPISODES + 1):
         # moving agents
@@ -152,27 +148,34 @@ def main():
 
         show_graphic_simulation(new_simulation)
 
+        infected = new_simulation.get_infected()
+        healed = new_simulation.get_healed()
+        healthy = new_simulation.get_healthy()
+        dead = new_simulation.get_dead()
+
+        #saving data for final chart
         x.append(i)
-        y_infected.append(new_simulation.get_infected())
-        y_healed.append(new_simulation.get_healed())
-        y_dead.append(new_simulation.get_dead())
         y_healthy.append(new_simulation.get_healthy())
+        y_infected.append(infected)
+        y_dead.append(dead)
+        y_healed.append(healed)
 
-        # adding more plots
-        ax.plot(x, y_healthy, color='g')
-        ax2.plot(x, y_infected, color='r')
-        ax3.plot(x, y_dead, color='k')
-        ax4.plot(x, y_healed, color='y')
+        # # setting the aces to integers
+        # gca = fig.gca()
+        # gca.set_ylim([0, TOTAL_NUMBER_OF_AGENTS + 100])
+        # gca.yaxis.set_major_locator(MaxNLocator(integer=True))
+        # gca.xaxis.set_major_locator(MaxNLocator(integer=True))
 
-        # setting the aces to integers
-        gca = fig.gca()
-        gca.set_ylim([0, TOTAL_NUMBER_OF_AGENTS + 100])
-        gca.yaxis.set_major_locator(MaxNLocator(integer=True))
-        gca.xaxis.set_major_locator(MaxNLocator(integer=True))
+        # fig.canvas.draw()
 
-        fig.canvas.draw()
-        if(new_simulation.get_infected() == 0):
+        # updating file for live chart
+        line = f"{i}, {healthy}, {infected}, {dead}, {healed}\n"
+        with open('chart_data.txt', 'a') as f:
+            f.write(line)     
+
+        if(infected == 0):
             break
+    
 
     # adding final chart
     fig2 = plt.figure(num=2, figsize=(
@@ -182,7 +185,6 @@ def main():
     ax_fig2.plot(x, y_infected, 'o-', color='r')
     ax_fig2.plot(x, y_dead, 'o-', color='k')
     ax_fig2.plot(x, y_healed, 'o-', color='y')
-    fig.show()
     plt.show()
 
     # printing data
@@ -192,6 +194,7 @@ def main():
 if __name__ == "__main__":
     import argparse
     import sys
+    import time
 
     parser = argparse.ArgumentParser(
         description="Running a simulation for Covid-19 Simulation.")
@@ -202,3 +205,6 @@ if __name__ == "__main__":
 
     print(f"Simulation 1.0")
     main()
+   
+   
+    
