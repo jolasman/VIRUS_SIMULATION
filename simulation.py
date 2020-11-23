@@ -25,7 +25,6 @@ class Simulation:
         Simulating the environment step
         """
         total = round(len(self.agent_list) * p_of_agent_moving)
-        print(f"total: {total}")
         for agent in random.sample(self.agent_list, total):
             has_value = False
 
