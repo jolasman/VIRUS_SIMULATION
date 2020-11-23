@@ -13,11 +13,19 @@ class Simulation:
         self.name = name
         self.agent_list = []
 
+    def update_health_status(self):
+        """
+        Updates the status for each agent
+        """
+        for agent in self.agent_list:
+            agent.set_health_status(self.agent_list)  # changing health status
+
     def random_step(self, random_limit, size,  p_of_agent_moving=1):
         """
         Simulating the environment step
         """
         total = round(len(self.agent_list) * p_of_agent_moving)
+        print(f"total: {total}")
         for agent in random.sample(self.agent_list, total):
             has_value = False
 
@@ -30,14 +38,18 @@ class Simulation:
             tuple_list = [agent_.pos_tuple for agent_ in self.agent_list]
 
             while not has_value:
-                can_add = False
+                can_add = True
+                x_loop_must_break = False
                 for x_ax in range(SOCIAL_DISTANCE_STEP + 1):
                     for y_ax in range(SOCIAL_DISTANCE_STEP + 1):
-                        if (new_pos_X + x_ax, new_pos_Y + y_ax) not in tuple_list and \
-                                (new_pos_X - x_ax, new_pos_Y - y_ax) not in tuple_list:
-                            can_add = True
-                        else:
+                        if (new_pos_X + x_ax, new_pos_Y + y_ax) in tuple_list or \
+                            (new_pos_X + x_ax, new_pos_Y - y_ax) in tuple_list or \
+                            (new_pos_X - x_ax, new_pos_Y + y_ax) in tuple_list or\
+                                (new_pos_X - x_ax, new_pos_Y - y_ax) in tuple_list:
                             can_add = False
+                            x_loop_must_break = True
+                    if x_loop_must_break:
+                        break
 
                 if can_add and (new_pos_X >= size or new_pos_Y >= size or new_pos_X < 0 or new_pos_Y < 0):
                     can_add = False
@@ -51,7 +63,6 @@ class Simulation:
                     has_value = True
 
             agent.set_position(new_pos_X, new_pos_Y)
-            agent.set_health_status(self.agent_list)  # changing health status
 
     def create_agent(self, pos_X, pos_Y, name=None, age=None, health_status=None,
                      immune_system_response=None):
@@ -71,7 +82,7 @@ class Simulation:
                 # initializing value
                 if agent.infected_days is None:
                     agent.infected_days = 0
-                
+
                 # infected threshould where people recover
                 elif agent.infected_days == INFECTED_DAYS_THRESHOLD_FOR_INFECTED:
                     value = random.random()
@@ -88,7 +99,8 @@ class Simulation:
                 elif agent.infected_days == INFECTED_DAYS_THRESHOLD_FOR_DEAD:
                     if agent.immune_system_response == IMR_DEADLY_INFECTED:
                         agent.health_status = DEAD
-                        agent.recovered = True # the agent actually did not recovered bu we avoid iterations using the first if condition
+                        # the agent actually did not recovered bu we avoid iterations using the first if condition
+                        agent.recovered = True
                     agent.infected_days += 1
 
                 # infected threshould where people stop being contagious

@@ -29,6 +29,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 
+
 def available_random_pos(simulation):
     """
     """
@@ -41,14 +42,18 @@ def available_random_pos(simulation):
         tuple_list = [
             agent_.pos_tuple for agent_ in simulation.agent_list]
         while not has_value:
-            can_add = False
+            can_add = True
+            x_loop_must_break = False
             for x_ax in range(SOCIAL_DISTANCE + 1):
                 for y_ax in range(SOCIAL_DISTANCE + 1):
-                    if (new_pos_X + x_ax, new_pos_Y + y_ax) not in tuple_list and \
-                            (new_pos_X - x_ax, new_pos_Y - y_ax) not in tuple_list:
-                        can_add = True
-                    else:
+                    if (new_pos_X + x_ax, new_pos_Y + y_ax) in tuple_list or \
+                        (new_pos_X + x_ax, new_pos_Y - y_ax) in tuple_list or \
+                        (new_pos_X - x_ax, new_pos_Y + y_ax) in tuple_list or\
+                            (new_pos_X - x_ax, new_pos_Y - y_ax) in tuple_list:
                         can_add = False
+                        x_loop_must_break = True
+                if x_loop_must_break:
+                    break
 
             if can_add and (new_pos_X >= SIZE or new_pos_Y >= SIZE):
                 can_add = False
@@ -91,7 +96,7 @@ def show_detailed_data(infected, healed, healthy, dead, simulation):
     logging.info(f" Initial Immune people: {simulation.get_immune_people()}")
 
 
-def main():
+def main(random_simulation, graphics_simulation):
     """
     """
     # Creating simulation instance
@@ -100,28 +105,31 @@ def main():
     # clearing file with real time chat data
     open('chart_data.txt', 'w').close()
 
-    # Creating agents
-    pbar = tqdm(range(TOTAL_NUMBER_OF_AGENTS))
-    for _ in pbar:
-        new_pos_X, new_pos_Y = available_random_pos(new_simulation)
+    if random_simulation:
+        # Creating agents
+        pbar = tqdm(range(TOTAL_NUMBER_OF_AGENTS))
+        for _ in pbar:
+            new_pos_X, new_pos_Y = available_random_pos(new_simulation)
 
-        health_value = np.random.choice(
-            HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
+            health_value = np.random.choice(
+                HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
 
-        immune_response_value = np.random.choice(
-            IMR_ARRAY, p=IMR_ARRAY_P, size=(1))[0]
+            immune_response_value = np.random.choice(
+                IMR_ARRAY, p=IMR_ARRAY_P, size=(1))[0]
 
-        new_simulation.create_agent(
-            new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
+            new_simulation.create_agent(
+                new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
 
-        pbar.set_description("Creating Agents in random positions")
-
+            pbar.set_description("Creating Agents in random positions")
+    else:
+        logging.error(f"Not implement yet")
+        sys.exit()
 
     initial_infected = new_simulation.get_infected()
     initial_healthy = new_simulation.get_healthy()
     initial_dead = new_simulation.get_dead()
     initial_healed = new_simulation.get_healed()
-    
+
     logging.info(f"Imunne people: {new_simulation.get_immune_people()}")
     logging.info(f"Infected people: {initial_infected}")
 
@@ -143,39 +151,34 @@ def main():
         new_simulation.random_step(
             RANDOM_LIMIT, SIZE, AGENTS_MOVEMENT_PERCENTAGE)
 
+        # evaluating agents' health
+        new_simulation.update_health_status()
+
         # healing people
         new_simulation.set_health_status_at_hospital()
 
-        show_graphic_simulation(new_simulation)
+        if graphics_simulation:
+            show_graphic_simulation(new_simulation)
 
         infected = new_simulation.get_infected()
         healed = new_simulation.get_healed()
         healthy = new_simulation.get_healthy()
         dead = new_simulation.get_dead()
 
-        #saving data for final chart
+        # saving data for final chart
         x.append(i)
         y_healthy.append(new_simulation.get_healthy())
         y_infected.append(infected)
         y_dead.append(dead)
         y_healed.append(healed)
 
-        # # setting the aces to integers
-        # gca = fig.gca()
-        # gca.set_ylim([0, TOTAL_NUMBER_OF_AGENTS + 100])
-        # gca.yaxis.set_major_locator(MaxNLocator(integer=True))
-        # gca.xaxis.set_major_locator(MaxNLocator(integer=True))
-
-        # fig.canvas.draw()
-
         # updating file for live chart
         line = f"{i}, {healthy}, {infected}, {dead}, {healed}\n"
         with open('chart_data.txt', 'a') as f:
-            f.write(line)     
+            f.write(line)
 
         if(infected == 0):
             break
-    
 
     # adding final chart
     fig2 = plt.figure(num=2, figsize=(
@@ -198,13 +201,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Running a simulation for Covid-19 Simulation.")
-    # parser.add_argument("-l", "--loop", action="store_true", help="shows output")
+    parser.add_argument("-r", "--random", action="store_true",
+                        help="Runs with Agents initialized at random positions and with random status")
+    parser.add_argument("-g", "--graphics", action="store_true",
+                        help="Shows Graphics for the simulation")
 
-    # args = parser.parse_args()
-    # if args.loop:
+    args = parser.parse_args()
 
     print(f"Simulation 1.0")
-    main()
-   
-   
-    
+    main(random_simulation=args.random, graphics_simulation=args.graphics)
