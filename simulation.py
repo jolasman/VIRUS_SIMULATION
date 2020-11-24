@@ -1,6 +1,6 @@
 from constants import SICK, SICK_P, ASYMPTOMATIC, ASYMPTOMATIC_P, HEALTHY, HEALTHY_P, TOTAL_RECOVERY, WITH_DISEASES_SEQUELAES, DEAD, IMR_IMMUNE, \
     SOCIAL_DISTANCE_STEP, INFECTED_DAYS_THRESHOLD_FOR_INFECTED, INFECTED_DAYS_THRESHOLD_FOR_DEAD, RECOVERY_SEQUELS_P, IMR_DEADLY_INFECTED, INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS, \
-    CONTAGIOUS_DISTANCE, IMR_ASYMPTOMATIC
+    CONTAGIOUS_DISTANCE, IMR_ASYMPTOMATIC, HEALTH_STATUS_DICT
 from agent import Agent
 import random
 from random import sample
@@ -64,7 +64,7 @@ class Simulation:
                     has_value = True
 
             agent.set_position(new_pos_X, new_pos_Y)
-            logging.debug("Agent {agent.id} moved to a new position: {agent.pos_tuple}")
+            logging.debug(f"Agent {agent.id} moved to a new position: {agent.pos_tuple}")
 
     def random_step_no_social_distance(self, random_limit, size,  p_of_agent_moving=1):
         """
@@ -84,7 +84,7 @@ class Simulation:
         for agent in random.sample(self.agent_list, total):
             (new_pos_X, new_pos_Y) = tuple_list.pop()
             agent.set_position(new_pos_X, new_pos_Y)
-            logging.debug("Agent {agent.id} moved to a new position: {agent.pos_tuple}. He does not care about social distance!")
+            logging.debug(f"Agent {agent.id} moved to a new position: {agent.pos_tuple}. He does not care about social distance!")
 
     def create_agent(self, pos_X, pos_Y, name=None, age=None, health_status=None,
                      immune_system_response=None):
@@ -94,7 +94,6 @@ class Simulation:
         new_agent = Agent(pos_X, pos_Y, name=name, age=age, health_status=health_status,
                           immune_system_response=immune_system_response)
         self.agent_list.append(new_agent)
-        logging.debug("New Agent added to the simulation with id: {agent.id}")
 
     def set_health_status_at_hospital(self):
         """
@@ -105,7 +104,7 @@ class Simulation:
                 # initializing value
                 if agent.infected_days is None:
                     agent.infected_days = 0
-                    logging.debug("Agent {agent.id} is now on is day 0 for infected people. He was known as {agent.name}")
+                    logging.debug(f"Agent {agent.id} is now on is day 0 for infected people. He is known as {agent.name}")
 
                 # infected threshould where people recover
                 elif agent.infected_days == INFECTED_DAYS_THRESHOLD_FOR_INFECTED:
@@ -113,20 +112,20 @@ class Simulation:
                     if agent.health_status == SICK or agent.previous_health_status == SICK:
                         if value < RECOVERY_SEQUELS_P:
                             agent.health_status = WITH_DISEASES_SEQUELAES
-                            logging.debug("Agent {agent.id} recovered with sequels from being SICK. He was known as {agent.name}")
+                            logging.debug(f"Agent {agent.id} recovered with sequels from being SICK. He is known as {agent.name}")
                         else:
                             agent.health_status = TOTAL_RECOVERY
-                            logging.debug("Agent {agent.id} recovered totaly from being SICK. He was known as {agent.name}")
+                            logging.debug(f"Agent {agent.id} recovered totaly from being SICK. He is known as {agent.name}")
                     else:
                         agent.health_status = TOTAL_RECOVERY
-                        logging.debug("Agent {agent.id} recovered totaly. He was known as {agent.name}")
+                        logging.debug(f"Agent {agent.id} recovered totaly. He is known as {agent.name}")
                     agent.recovered = True
 
                 # case of deadly infected
                 elif agent.infected_days == INFECTED_DAYS_THRESHOLD_FOR_DEAD:
                     if agent.immune_system_response == IMR_DEADLY_INFECTED:
                         agent.health_status = DEAD
-                        logging.debug("Sadly Agent {agent.id} died. He was known as {agent.name}")
+                        logging.info(f"Sadly Agent {agent.id} died. He was known as {agent.name}")
                         # the agent actually did not recovered bu we avoid iterations using the first if condition
                         agent.recovered = True
                     agent.infected_days += 1
@@ -136,7 +135,7 @@ class Simulation:
                     if agent.health_status != ASYMPTOMATIC:
                         agent.previous_health_status = SICK
                         agent.health_status = ASYMPTOMATIC
-                        logging.debug("Agent {agent.id} is now better and ASYMPTOMATIC. He was known as {agent.name}")
+                        logging.debug(f"Agent {agent.id} is now better and ASYMPTOMATIC. He is known as {agent.name}")
 
                     agent.infected_days += 1
                 else:
@@ -166,7 +165,7 @@ class Simulation:
 
                             if hs_new_value_for_current_agent != -1:
                                 current_agent.health_status = hs_new_value_for_current_agent
-                                logging.debug("Agent {current_agent.id} had an update in his health status: {current_agent.health_status}")
+                                logging.debug(f"Agent {current_agent.id} had an update in his health status: {HEALTH_STATUS_DICT[current_agent.health_status]}")
                                 break
 
     @staticmethod
