@@ -3,22 +3,18 @@ import random
 from random import sample
 from tqdm import tqdm
 import sys
+import math
+
 
 from constants import SICK, SICK_P, ASYMPTOMATIC, ASYMPTOMATIC_P, HEALTHY, HEALTHY_P, TOTAL_RECOVERY, WITH_DISEASES_SEQUELAES, DEAD, IMR_IMMUNE, \
-    SOCIAL_DISTANCE_STEP, INFECTED_DAYS_THRESHOLD_FOR_INFECTED, INFECTED_DAYS_THRESHOLD_FOR_DEAD, RECOVERY_SEQUELS_P, IMR_DEADLY_INFECTED, INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS
+    SOCIAL_DISTANCE_STEP, INFECTED_DAYS_THRESHOLD_FOR_INFECTED, INFECTED_DAYS_THRESHOLD_FOR_DEAD, RECOVERY_SEQUELS_P, IMR_DEADLY_INFECTED, INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS, \
+    CONTAGIOUS_DISTANCE, IMR_ASYMPTOMATIC
 
 
 class Simulation:
     def __init__(self, name):
         self.name = name
         self.agent_list = []
-
-    def update_health_status(self):
-        """
-        Updates the status for each agent
-        """
-        for agent in self.agent_list:
-            agent.set_health_status(self.agent_list)  # changing health status
 
     def random_step(self, random_limit, size,  p_of_agent_moving=1):
         """
@@ -79,9 +75,7 @@ class Simulation:
         random.shuffle(tuple_list)
 
         for agent in random.sample(self.agent_list, total):
-            new_tuple = tuple_list.pop()
-            new_pos_X = new_tuple[0]
-            new_pos_Y = new_tuple[1]
+            (new_pos_X, new_pos_Y) = tuple_list.pop()
             agent.set_position(new_pos_X, new_pos_Y)
 
     def create_agent(self, pos_X, pos_Y, name=None, age=None, health_status=None,
@@ -132,6 +126,59 @@ class Simulation:
                     agent.infected_days += 1
                 else:
                     agent.infected_days += 1
+
+    def update_health_status(self):
+        """
+        Updates the status for each agent
+        """
+        for current_agent in self.agent_list:
+            # creating a tupple list with the position and the health_status of each agent in the simulation
+            tuple_list = [(agent_.pos_tuple, agent_.health_status)
+                          for agent_ in self.agent_list]
+            (x_0, y_0) = current_agent.pos_tuple  # get the agent position
+
+            for ((x_1, y_1), hs_from_agent_in_contact) in tuple_list:  # for each agent in simulation
+                # calculating the distance between the points
+                dist = math.hypot(x_0 - x_1, y_0 - y_1)
+                # if not the agent himself and ( it is not recoverd and inside the contagious range)
+                if dist != 0 and (dist < CONTAGIOUS_DISTANCE and not current_agent.recovered):
+                    # can get the virus, neverthless he got it once before, the recovered instance variable can change
+                    if current_agent.health_status > ASYMPTOMATIC:
+                        hs_new_value_for_current_agent = Simulation.value_based_probability(
+                            hs_from_agent_in_contact, current_agent.immune_system_response)
+
+                        if hs_new_value_for_current_agent != -1:
+                            current_agent.health_status = hs_new_value_for_current_agent
+                            break
+
+    @staticmethod
+    def value_based_probability(health_status, agent_immune_response):
+        """
+        SICK_P| HEALTHY | ASSYMPTOMATIC_P|
+        0____0.4 _____0.9________________1
+        """
+        if health_status > 1 or agent_immune_response == IMR_IMMUNE:
+            return -1  # do not change the agent's healthy status
+        else:
+            random_value = random.random()
+            if random_value <= SICK_P:
+                if agent_immune_response > IMR_ASYMPTOMATIC:
+                    return SICK
+                elif agent_immune_response == IMR_ASYMPTOMATIC:
+                    return ASYMPTOMATIC
+                elif agent_immune_response == IMR_IMMUNE:
+                    return -1
+
+            elif random_value >= SICK_P and random_value <= SICK_P + HEALTHY_P:
+                return HEALTHY
+
+            elif random_value >= 1 - ASYMPTOMATIC_P:
+                if agent_immune_response > IMR_ASYMPTOMATIC:
+                    return SICK
+                elif agent_immune_response == IMR_ASYMPTOMATIC:
+                    return ASYMPTOMATIC
+                elif agent_immune_response == IMR_IMMUNE:
+                    return -1
 
     def get_all_agents(self):
         """

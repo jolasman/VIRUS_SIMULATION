@@ -34,7 +34,7 @@ def generate_random_tuple_list():
     """
     """
     tuple_list = set()
-    while len(tuple_list) < 1500:
+    while len(tuple_list) < TOTAL_NUMBER_OF_AGENTS:
         x = random.randint(0 + RANDOM_LIMIT, SIZE-RANDOM_LIMIT)
         y = random.randint(0 + RANDOM_LIMIT, SIZE-RANDOM_LIMIT)
         tuple_list.add((x, y))
@@ -48,10 +48,7 @@ def generate_random_tuple_list():
 def get_random_pos(random_tuple_list):
     """
     """
-    new_tuple = random_tuple_list.pop()
-    new_pos_X = new_tuple[0]
-    new_pos_Y = new_tuple[1]
-
+    (new_pos_X, new_pos_Y) = random_tuple_list.pop()
     return new_pos_X, new_pos_Y
 
 
