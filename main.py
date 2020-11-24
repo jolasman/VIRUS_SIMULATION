@@ -26,6 +26,7 @@ from constants import SICK, ASYMPTOMATIC, HEALTHY, FOUR_PLOTS_FIG_SIZE_X, FOUR_P
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S",
     handlers=[logging.StreamHandler()],
 )
 
