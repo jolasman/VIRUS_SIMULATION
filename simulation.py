@@ -63,6 +63,27 @@ class Simulation:
 
             agent.set_position(new_pos_X, new_pos_Y)
 
+    def random_step_no_social_distance(self, random_limit, size,  p_of_agent_moving=1):
+        """
+        Simulating the environment step with no care about social distance
+        """
+        tuple_list = set()
+        total = round(len(self.agent_list) * p_of_agent_moving)
+
+        while len(tuple_list) < total:
+            x = random.randint(1, size-1)
+            y = random.randint(1, size-1)
+            tuple_list.add((x, y))
+
+        tuple_list = list(tuple_list)
+        random.shuffle(tuple_list)
+
+        for agent in random.sample(self.agent_list, total):
+            new_tuple = tuple_list.pop()
+            new_pos_X = new_tuple[0]
+            new_pos_Y = new_tuple[1]
+            agent.set_position(new_pos_X, new_pos_Y)
+
     def create_agent(self, pos_X, pos_Y, name=None, age=None, health_status=None,
                      immune_system_response=None):
         """

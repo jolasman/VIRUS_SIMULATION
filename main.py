@@ -21,13 +21,38 @@ from matplotlib.ticker import MaxNLocator
 
 from constants import SICK, ASYMPTOMATIC, HEALTHY, FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y, ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y, \
     SIMULATION_GRAPHICS_SIZE_X, SIMULATION_GRAPHICS_SIZE_Y, IMR_ARRAY, IMR_ARRAY_P, HEALTH_ARRAY, HEALTH_ARRAY_P, SOCIAL_DISTANCE, EPISODES, TOTAL_NUMBER_OF_AGENTS, \
-    SIZE, RANDOM_LIMIT, AGENTS_MOVEMENT_PERCENTAGE, COLORS_DICT
+    SIZE, RANDOM_LIMIT, AGENTS_MOVEMENT_PERCENTAGE, COLORS_DICT, SOCIAL_DISTANCE_STEP
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[logging.StreamHandler()],
 )
+
+
+def generate_random_tuple_list():
+    """
+    """
+    tuple_list = set()
+    while len(tuple_list) < 1500:
+        x = random.randint(0 + RANDOM_LIMIT, SIZE-RANDOM_LIMIT)
+        y = random.randint(0 + RANDOM_LIMIT, SIZE-RANDOM_LIMIT)
+        tuple_list.add((x, y))
+
+    tuple_list = list(tuple_list)
+    random.shuffle(tuple_list)
+
+    return tuple_list
+
+
+def get_random_pos(random_tuple_list):
+    """
+    """
+    new_tuple = random_tuple_list.pop()
+    new_pos_X = new_tuple[0]
+    new_pos_Y = new_tuple[1]
+
+    return new_pos_X, new_pos_Y
 
 
 def available_random_pos(simulation):
@@ -96,6 +121,24 @@ def show_detailed_data(infected, healed, healthy, dead, simulation):
     logging.info(f" Initial Immune people: {simulation.get_immune_people()}")
 
 
+def create_simulation_agents(new_simulation, random_tuple_list):
+    """
+    """
+    if SOCIAL_DISTANCE == 0:
+        new_pos_X, new_pos_Y = get_random_pos(random_tuple_list)
+    else:
+        new_pos_X, new_pos_Y = available_random_pos(new_simulation)
+
+    health_value = np.random.choice(
+        HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
+
+    immune_response_value = np.random.choice(
+        IMR_ARRAY, p=IMR_ARRAY_P, size=(1))[0]
+
+    new_simulation.create_agent(
+        new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
+
+
 def main(random_simulation, graphics_simulation):
     """
     """
@@ -106,25 +149,20 @@ def main(random_simulation, graphics_simulation):
     open('chart_data.txt', 'w').close()
 
     if random_simulation:
+        if SOCIAL_DISTANCE == 0:
+            # Generating random positions to use as starting values
+            random_tuple_list = generate_random_tuple_list()
+
         # Creating agents
         pbar = tqdm(range(TOTAL_NUMBER_OF_AGENTS))
         for _ in pbar:
-            new_pos_X, new_pos_Y = available_random_pos(new_simulation)
-
-            health_value = np.random.choice(
-                HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
-
-            immune_response_value = np.random.choice(
-                IMR_ARRAY, p=IMR_ARRAY_P, size=(1))[0]
-
-            new_simulation.create_agent(
-                new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
-
+            create_simulation_agents(new_simulation, random_tuple_list)
             pbar.set_description("Creating Agents in random positions")
     else:
         logging.error(f"Not implement yet")
         sys.exit()
 
+    # getting initial data about simulation
     initial_infected = new_simulation.get_infected()
     initial_healthy = new_simulation.get_healthy()
     initial_dead = new_simulation.get_dead()
@@ -133,23 +171,27 @@ def main(random_simulation, graphics_simulation):
     logging.info(f"Imunne people: {new_simulation.get_immune_people()}")
     logging.info(f"Infected people: {initial_infected}")
 
+    # initializing the variables to build final chart
     x = [1]
     y_healthy = [initial_healthy]
     y_infected = [initial_infected]
     y_dead = [initial_dead]
     y_healed = [initial_healed]
 
-    # updating file for live chart
+    # updating file qith initial values, for live chart
     line = f"{1}, {initial_healthy}, {initial_infected}, {initial_dead}, {initial_healed}\n"
     with open('chart_data.txt', 'a') as f:
         f.write(line)
 
-    myfile = open('chart_data.txt', 'a')
     # Running simulation
     for i in range(2, EPISODES + 1):
         # moving agents
-        new_simulation.random_step(
-            RANDOM_LIMIT, SIZE, AGENTS_MOVEMENT_PERCENTAGE)
+        if SOCIAL_DISTANCE_STEP == 0:
+            new_simulation.random_step_no_social_distance(
+                RANDOM_LIMIT, SIZE, AGENTS_MOVEMENT_PERCENTAGE)
+        else:
+            new_simulation.random_step(
+                RANDOM_LIMIT, SIZE, AGENTS_MOVEMENT_PERCENTAGE)
 
         # evaluating agents' health
         new_simulation.update_health_status()
