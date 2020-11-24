@@ -1,14 +1,16 @@
 
 import uuid
 import random
-from constants import NAMES_LIST_A, NAMES_LIST_B, NAMES_LIST_C
+from faker import Faker
+fake = Faker()
+
 class Agent:
     def __init__(self, pos_X, pos_Y, name="anonymous", age=None, health_status=0, immune_system_response=0):
         if age is None:
             age = random.randint(0, 100)
 
         if name is None:
-            name = f"{random.choice(NAMES_LIST_A)} {random.choice(NAMES_LIST_B)} {random.choice(NAMES_LIST_C)}"
+            name = fake.name()
 
         if health_status is None:
             health_status = 0
