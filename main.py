@@ -30,6 +30,9 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 
+# TODO
+# Quarentine for people
+# Age based Immune system
 
 def generate_random_tuple_list():
     """
@@ -130,11 +133,14 @@ def create_simulation_agents(new_simulation, random_tuple_list):
     health_value = np.random.choice(
         HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
 
-    immune_response_value = np.random.choice(
-        IMR_ARRAY, p=IMR_ARRAY_P, size=(1))[0]
+    # immune_response_value = np.random.choice(
+    #     IMR_ARRAY, p=IMR_ARRAY_P, size=(1))[0]
+
+    # new_simulation.create_agent(
+    #     new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
 
     new_simulation.create_agent(
-        new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
+        new_pos_X, new_pos_Y, health_status=health_value)
 
 
 def main(random_simulation, graphics_simulation):
