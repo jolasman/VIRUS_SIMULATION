@@ -2,3 +2,5 @@ git/
 .vscode/
 debug.log
 __pycache__/
+chart_data.txt
+testing.py
