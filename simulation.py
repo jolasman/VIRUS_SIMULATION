@@ -192,7 +192,7 @@ class Simulation:
             if(agent.pos_tuple != (QUARENTINE_X, QUARENTINE_Y)):
                 # quarentine zone
                 agent.set_position(QUARENTINE_X, QUARENTINE_Y)
-                # logging.info(f"Agent {agent.id} is now in quarentine. ")
+                logging.debug(f"Agent {agent.id} is now in quarentine. ")
 
         # removing healed people from quarentine
         for agent in self.agent_list:
@@ -208,7 +208,7 @@ class Simulation:
                 list_ = list(tuple_set)
                 (pos_X, pos_Y) = list_.pop()
                 agent.set_position(pos_X, pos_Y)
-                logging.info(
+                logging.debug(
                     f"Agent {agent.id} returns to the environment at {agent.pos_tuple}")
 
     @staticmethod
