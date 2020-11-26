@@ -56,7 +56,8 @@ class Agent:
         """
         def age_probabilities(value, pdir):
             """
-            0______P_DIR_______1
+            0______|P_DIR|_______1
+            0__|ADM_HOSP_P|____|ADM_HOSP_P + ADM_HOSP_ICU_P|___|19/20|___|1/20|__1
             """
             value_d = random.random()
             if value < ADM_HOSP_P:
@@ -64,19 +65,20 @@ class Agent:
                     return IMR_DEADLY_INFECTED
                 else:
                     return IMR_MODERATELY_INFECTED
-            elif value > ADM_HOSP_P and value < ADM_HOSP_ICU_P:
+            elif value > ADM_HOSP_P and value < ADM_HOSP_P + ADM_HOSP_ICU_P:
                 if value_d < pdir:
                     return IMR_DEADLY_INFECTED
                 else:
                     return IMR_HIGHLY_INFECTED
-            else:
+            else:  # prob of being healthy
                 if value_d < pdir:
                     return IMR_DEADLY_INFECTED
-                # 2/3 chances to be ASYMPTOMATIC over IMMUNE
-                elif value_d > pdir and value_d < 2* ((1-pdir) / 3):
-                    return IMR_ASYMPTOMATIC
-                else:
-                    return IMR_IMMUNE
+                elif value_d > pdir:
+                # 19.8/20 chances to be ASYMPTOMATIC over IMMUNE
+                    if value < 19.8 * ((1-pdir) / 20):
+                        return IMR_ASYMPTOMATIC
+                    else:
+                        return IMR_IMMUNE
 
         value = random.random()
         if age <= 9:

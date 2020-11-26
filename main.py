@@ -21,7 +21,7 @@ from matplotlib.ticker import MaxNLocator
 
 from constants import SICK, ASYMPTOMATIC, HEALTHY, FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y, ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y, \
     SIMULATION_GRAPHICS_SIZE_X, SIMULATION_GRAPHICS_SIZE_Y, IMR_ARRAY, IMR_ARRAY_P, HEALTH_ARRAY, HEALTH_ARRAY_P, SOCIAL_DISTANCE, EPISODES, TOTAL_NUMBER_OF_AGENTS, \
-    SIZE, RANDOM_LIMIT, AGENTS_MOVEMENT_PERCENTAGE, COLORS_DICT, SOCIAL_DISTANCE_STEP
+    SIZE, RANDOM_LIMIT, AGENTS_MOVEMENT_PERCENTAGE, COLORS_DICT, SOCIAL_DISTANCE_STEP, QUARENTINE_DAYS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,6 +33,7 @@ logging.basicConfig(
 # TODO
 # Quarentine for people
 # Age based Immune system
+
 
 def generate_random_tuple_list():
     """
@@ -101,7 +102,9 @@ def show_graphic_simulation(simulation):
     # starts an rbg of our size
     env = np.zeros((SIZE, SIZE, 3), dtype=np.uint8)
     for agent in simulation.agent_list:
-        env[agent.pos_X][agent.pos_Y] = COLORS_DICT[agent.health_status]
+        # agents with negative coords are dead or in quarentine
+        if agent.pos_tuple > (0, 0):
+            env[agent.pos_X][agent.pos_Y] = COLORS_DICT[agent.health_status]
 
     # reading to rgb. Apparently. Even tho color definitions are bgr. ???
     img = Image.fromarray(env, 'RGB')
@@ -119,7 +122,8 @@ def show_detailed_data(infected, healed, healthy, dead, simulation):
     logging.info(f" Total Healed people: {sum(healed)}")
     logging.info(f" Remaining Healthy people: {sum(healthy)}")
     logging.info(f" Total Dead people: {sum(dead)}")
-    logging.info(f" Initial Immune people: {simulation.get_immune_people()}")
+    logging.info(
+        f" Initial Immune people: {simulation.get_immune_people_count()}")
 
 
 def create_simulation_agents(new_simulation, random_tuple_list):
@@ -167,12 +171,13 @@ def main(random_simulation, graphics_simulation):
         sys.exit()
 
     # getting initial data about simulation
-    initial_infected = new_simulation.get_infected()
-    initial_healthy = new_simulation.get_healthy()
-    initial_dead = new_simulation.get_dead()
-    initial_healed = new_simulation.get_healed()
+    initial_infected = new_simulation.get_infected_count()
+    initial_healthy = new_simulation.get_healthy_count()
+    initial_dead = new_simulation.get_dead_count()
+    initial_healed = new_simulation.get_healed_count()
+    initial_quarentine = new_simulation.get_quarentine_count()
 
-    logging.info(f"Imunne people: {new_simulation.get_immune_people()}")
+    logging.info(f"Imunne people: {new_simulation.get_immune_people_count()}")
     logging.info(f"Infected people: {initial_infected}")
 
     # initializing the variables to build final chart
@@ -181,9 +186,10 @@ def main(random_simulation, graphics_simulation):
     y_infected = [initial_infected]
     y_dead = [initial_dead]
     y_healed = [initial_healed]
+    y_quarentine = [initial_quarentine]
 
     # updating file qith initial values, for live chart
-    line = f"{1}, {initial_healthy}, {initial_infected}, {initial_dead}, {initial_healed}\n"
+    line = f"{1}, {initial_healthy}, {initial_infected}, {initial_dead}, {initial_healed}, {initial_quarentine}\n"
     with open('chart_data.txt', 'a') as f:
         f.write(line)
 
@@ -197,7 +203,11 @@ def main(random_simulation, graphics_simulation):
             new_simulation.random_step(
                 RANDOM_LIMIT, SIZE, AGENTS_MOVEMENT_PERCENTAGE)
 
-        # evaluating agents' health
+        # moving people between env and quarentine
+        if i > QUARENTINE_DAYS:
+            new_simulation.update_quarentine(SIZE)
+
+        # evaluating agents' health and contacts
         new_simulation.update_health_status()
 
         # healing people
@@ -206,20 +216,22 @@ def main(random_simulation, graphics_simulation):
         if graphics_simulation:
             show_graphic_simulation(new_simulation)
 
-        infected = new_simulation.get_infected()
-        healed = new_simulation.get_healed()
-        healthy = new_simulation.get_healthy()
-        dead = new_simulation.get_dead()
+        infected = new_simulation.get_infected_count()
+        healed = new_simulation.get_healed_count()
+        healthy = new_simulation.get_healthy_count()
+        dead = new_simulation.get_dead_count()
+        quarentine = new_simulation.get_quarentine_count()
 
         # saving data for final chart
         x.append(i)
-        y_healthy.append(new_simulation.get_healthy())
+        y_healthy.append(new_simulation.get_healthy_count())
         y_infected.append(infected)
         y_dead.append(dead)
         y_healed.append(healed)
+        y_quarentine.append(quarentine)
 
         # updating file for live chart
-        line = f"{i}, {healthy}, {infected}, {dead}, {healed}\n"
+        line = f"{i}, {healthy}, {infected}, {dead}, {healed}, {quarentine}\n"
         with open('chart_data.txt', 'a') as f:
             f.write(line)
 
@@ -230,10 +242,13 @@ def main(random_simulation, graphics_simulation):
     fig2 = plt.figure(num=2, figsize=(
         ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y))
     ax_fig2 = fig2.add_subplot(1, 1, 1)
-    ax_fig2.plot(x, y_healthy, 'o-', color='g')
-    ax_fig2.plot(x, y_infected, 'o-', color='r')
-    ax_fig2.plot(x, y_dead, 'o-', color='k')
-    ax_fig2.plot(x, y_healed, 'o-', color='y')
+    ax_fig2.plot(x, y_healthy, 'o-', color='g', label="Healthy")
+    ax_fig2.plot(x, y_infected, 'o-', color='r', label="Infected")
+    ax_fig2.plot(x, y_dead, 'o-', color='k', label="Dead")
+    ax_fig2.plot(x, y_healed, 'o-', color='y', label="Healed")
+    ax_fig2.plot(x, y_quarentine, 'o-', color='b',
+                 label="People in Quarentine")
+    ax_fig2.legend(loc='upper left')
     plt.show()
 
     # printing data

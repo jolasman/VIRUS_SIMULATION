@@ -1,6 +1,6 @@
 from constants import SICK, SICK_P, ASYMPTOMATIC, ASYMPTOMATIC_P, HEALTHY, HEALTHY_P, TOTAL_RECOVERY, WITH_DISEASES_SEQUELAES, DEAD, IMR_IMMUNE, \
     SOCIAL_DISTANCE_STEP, INFECTED_DAYS_THRESHOLD_FOR_INFECTED, INFECTED_DAYS_THRESHOLD_FOR_DEAD, RECOVERY_SEQUELS_P, IMR_DEADLY_INFECTED, INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS, \
-    CONTAGIOUS_DISTANCE, IMR_ASYMPTOMATIC, HEALTH_STATUS_DICT
+    CONTAGIOUS_DISTANCE, IMR_ASYMPTOMATIC, HEALTH_STATUS_DICT, QUARENTINE_X, QUARENTINE_Y, DEAD_X, DEAD_Y, QUARENTINE_PERCENTAGE
 from agent import Agent
 import random
 from random import sample
@@ -28,43 +28,48 @@ class Simulation:
         """
         total = round(len(self.agent_list) * p_of_agent_moving)
         for agent in random.sample(self.agent_list, total):
-            has_value = False
+            if agent.health_status != DEAD and agent.pos_tuple != (QUARENTINE_X, QUARENTINE_Y):
+                has_value = False
 
-            new_pos_X = agent.pos_X + \
-                random.randint(-random_limit, random_limit)
+                new_pos_X = agent.pos_X + \
+                    random.randint(-random_limit, random_limit)
 
-            new_pos_Y = agent.pos_Y + \
-                random.randint(-random_limit, random_limit)
+                new_pos_Y = agent.pos_Y + \
+                    random.randint(-random_limit, random_limit)
 
-            tuple_list = [agent_.pos_tuple for agent_ in self.agent_list]
+                tuple_list = [agent_.pos_tuple for agent_ in self.agent_list]
 
-            while not has_value:
-                can_add = True
-                x_loop_must_break = False
-                for x_ax in range(SOCIAL_DISTANCE_STEP + 1):
-                    for y_ax in range(SOCIAL_DISTANCE_STEP + 1):
-                        if (new_pos_X + x_ax, new_pos_Y + y_ax) in tuple_list or \
-                            (new_pos_X + x_ax, new_pos_Y - y_ax) in tuple_list or \
-                            (new_pos_X - x_ax, new_pos_Y + y_ax) in tuple_list or\
-                                (new_pos_X - x_ax, new_pos_Y - y_ax) in tuple_list:
-                            can_add = False
-                            x_loop_must_break = True
-                    if x_loop_must_break:
-                        break
+                while not has_value:
+                    can_add = True
+                    x_loop_must_break = False
+                    for x_ax in range(SOCIAL_DISTANCE_STEP + 1):
+                        for y_ax in range(SOCIAL_DISTANCE_STEP + 1):
+                            if (new_pos_X + x_ax, new_pos_Y + y_ax) in tuple_list or \
+                                (new_pos_X + x_ax, new_pos_Y - y_ax) in tuple_list or \
+                                (new_pos_X - x_ax, new_pos_Y + y_ax) in tuple_list or\
+                                    (new_pos_X - x_ax, new_pos_Y - y_ax) in tuple_list:
+                                can_add = False
+                                x_loop_must_break = True
+                        if x_loop_must_break:
+                            break
 
-                if can_add and (new_pos_X >= size or new_pos_Y >= size or new_pos_X < 0 or new_pos_Y < 0):
-                    can_add = False
+                    if can_add and (new_pos_X >= size or new_pos_Y >= size or new_pos_X < 0 or new_pos_Y < 0):
+                        can_add = False
 
-                if not can_add:
-                    new_pos_X = agent.pos_X + \
-                        random.randint(-random_limit, random_limit)
-                    new_pos_Y = agent.pos_Y + \
-                        random.randint(-random_limit, random_limit)
-                else:
-                    has_value = True
+                    if not can_add:
+                        new_pos_X = agent.pos_X + \
+                            random.randint(-random_limit, random_limit)
+                        new_pos_Y = agent.pos_Y + \
+                            random.randint(-random_limit, random_limit)
+                    else:
+                        has_value = True
 
-            agent.set_position(new_pos_X, new_pos_Y)
-            logging.debug(f"Agent {agent.id} moved to a new position: {agent.pos_tuple}")
+                agent.set_position(new_pos_X, new_pos_Y)
+                logging.debug(
+                    f"Agent {agent.id} moved to a new position: {agent.pos_tuple}")
+            elif agent.health_status == DEAD:
+                if agent.pos_tuple != (-1, -1):
+                    agent.set_position(-1, -1)
 
     def random_step_no_social_distance(self, random_limit, size,  p_of_agent_moving=1):
         """
@@ -82,9 +87,15 @@ class Simulation:
         random.shuffle(tuple_list)
 
         for agent in random.sample(self.agent_list, total):
-            (new_pos_X, new_pos_Y) = tuple_list.pop()
-            agent.set_position(new_pos_X, new_pos_Y)
-            logging.debug(f"Agent {agent.id} moved to a new position: {agent.pos_tuple}. He does not care about social distance!")
+            # Dead people do not move # quarentine people stay there
+            if agent.health_status != DEAD and agent.pos_tuple != (QUARENTINE_X, QUARENTINE_Y):
+                (new_pos_X, new_pos_Y) = tuple_list.pop()
+                agent.set_position(new_pos_X, new_pos_Y)
+                logging.debug(
+                    f"Agent {agent.id} moved to a new position: {agent.pos_tuple}. He does not care about social distance!")
+            elif agent.health_status == DEAD:
+                if agent.pos_tuple != (DEAD_X, DEAD_Y):
+                    agent.set_position(DEAD_X, DEAD_Y)
 
     def create_agent(self, pos_X, pos_Y, name=None, age=None, health_status=None,
                      immune_system_response=None):
@@ -104,7 +115,8 @@ class Simulation:
                 # initializing value
                 if agent.infected_days is None:
                     agent.infected_days = 0
-                    logging.debug(f"Agent {agent.id} is now on is day 0 for infected people. He is known as {agent.name}")
+                    logging.debug(
+                        f"Agent {agent.id} is now on is day 0 for infected people. He is known as {agent.name}")
 
                 # infected threshould where people recover
                 elif agent.infected_days == INFECTED_DAYS_THRESHOLD_FOR_INFECTED:
@@ -112,22 +124,24 @@ class Simulation:
                     if agent.health_status == SICK or agent.previous_health_status == SICK:
                         if value < RECOVERY_SEQUELS_P:
                             agent.health_status = WITH_DISEASES_SEQUELAES
-                            logging.debug(f"Agent {agent.id} recovered with sequels from being SICK. He is known as {agent.name}")
+                            logging.debug(
+                                f"Agent {agent.id} recovered with sequels from being SICK. He is known as {agent.name}")
                         else:
                             agent.health_status = TOTAL_RECOVERY
-                            logging.debug(f"Agent {agent.id} recovered totaly from being SICK. He is known as {agent.name}")
+                            logging.debug(
+                                f"Agent {agent.id} recovered totaly from being SICK. He is known as {agent.name}")
                     else:
                         agent.health_status = TOTAL_RECOVERY
-                        logging.debug(f"Agent {agent.id} recovered totaly. He is known as {agent.name}")
+                        logging.debug(
+                            f"Agent {agent.id} recovered totaly. He is known as {agent.name}")
                     agent.recovered = True
 
                 # case of deadly infected
                 elif agent.infected_days == INFECTED_DAYS_THRESHOLD_FOR_DEAD:
                     if agent.immune_system_response == IMR_DEADLY_INFECTED:
                         agent.health_status = DEAD
-                        logging.info(f"Sadly Agent {agent.id} died. He was known as {agent.name}")
-                        # the agent actually did not recovered bu we avoid iterations using the first if condition
-                        agent.recovered = True
+                        logging.info(
+                            f"Sadly Agent {agent.id} died. He was known as {agent.name}")
                     agent.infected_days += 1
 
                 # infected threshould where people stop being contagious
@@ -135,7 +149,8 @@ class Simulation:
                     if agent.health_status != ASYMPTOMATIC:
                         agent.previous_health_status = SICK
                         agent.health_status = ASYMPTOMATIC
-                        logging.debug(f"Agent {agent.id} is now better and ASYMPTOMATIC. He is known as {agent.name}")
+                        logging.debug(
+                            f"Agent {agent.id} is now better and ASYMPTOMATIC. He is known as {agent.name}")
 
                     agent.infected_days += 1
                 else:
@@ -165,8 +180,36 @@ class Simulation:
 
                             if hs_new_value_for_current_agent != -1:
                                 current_agent.health_status = hs_new_value_for_current_agent
-                                logging.debug(f"Agent {current_agent.id} had an update in his health status: {HEALTH_STATUS_DICT[current_agent.health_status]}")
+                                logging.debug(
+                                    f"Agent {current_agent.id} had an update in his health status: {HEALTH_STATUS_DICT[current_agent.health_status]}")
                                 break
+
+    def update_quarentine(self, size):
+        """
+        Updates the status for each agent in quarentine
+        """
+        for agent in self.get_infected()[:int(len(self.get_infected()) * QUARENTINE_PERCENTAGE)]:  # only half agents go to quarentine, the others remain indetected by autorities
+            if(agent.pos_tuple != (QUARENTINE_X, QUARENTINE_Y)):
+                # quarentine zone
+                agent.set_position(QUARENTINE_X, QUARENTINE_Y)
+                # logging.info(f"Agent {agent.id} is now in quarentine. ")
+
+        # removing healed people from quarentine
+        for agent in self.agent_list:
+            if agent.health_status > ASYMPTOMATIC and agent.pos_tuple == (QUARENTINE_X, QUARENTINE_Y):
+                tuple_set = set([agent for agent.pos_tuple in self.agent_list])
+                total = len(self.agent_list)
+
+                while len(tuple_set) < total + 1:
+                    x = random.randint(1, size-1)
+                    y = random.randint(1, size-1)
+                    tuple_set.add((x, y))
+
+                list_ = list(tuple_set)
+                (pos_X, pos_Y) = list_.pop()
+                agent.set_position(pos_X, pos_Y)
+                logging.info(
+                    f"Agent {agent.id} returns to the environment at {agent.pos_tuple}")
 
     @staticmethod
     def value_based_probability(health_status, agent_immune_response):
@@ -203,33 +246,47 @@ class Simulation:
         """
         return self.agent_list
 
-    def get_infected(self):
+    def get_quarentine_count(self):
+        """
+        Getting the current state data to build charts
+        """
+        return len([agent for agent in self.agent_list
+                    if agent.pos_tuple == (QUARENTINE_X, QUARENTINE_Y)])
+
+    def get_infected_count(self):
         """
         Getting the current state data to build charts
         """
         return len([x for x in self.agent_list if x.health_status ==
                     SICK or x.health_status == ASYMPTOMATIC])
 
-    def get_healed(self):
+    def get_infected(self):
+        """
+        Getting the current state data to build charts
+        """
+        return [x for x in self.agent_list if x.health_status ==
+                SICK or x.health_status == ASYMPTOMATIC]
+
+    def get_healed_count(self):
         """
         Getting the current state data to build charts
         """
         return len([x for x in self.agent_list if x.health_status ==
                     WITH_DISEASES_SEQUELAES or x.health_status == TOTAL_RECOVERY])
 
-    def get_dead(self):
+    def get_dead_count(self):
         """
         Getting the current state data to build charts
         """
         return len([x for x in self.agent_list if x.health_status == DEAD])
 
-    def get_healthy(self):
+    def get_healthy_count(self):
         """
         Getting the current state data to build charts
         """
         return len([x for x in self.agent_list if x.health_status == HEALTHY])
 
-    def get_immune_people(self):
+    def get_immune_people_count(self):
         """
         Getting the current state data to build charts
         """

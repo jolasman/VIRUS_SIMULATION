@@ -18,20 +18,23 @@ if __name__ == "__main__":
         y_infected = []
         y_dead = []
         y_healed = []
+        y_quarentine = []
         for line in lines:
             if len(line) > 1:
-                x, healthy, infected, dead, healed = line.split(',')
+                x, healthy, infected, dead, healed, quarentine = line.split(',')
                 xs.append(int(x))
                 y_healthy.append(int(healthy))
                 y_infected.append(int(infected))
                 y_dead.append(int(dead))
                 y_healed.append(int(healed))
+                y_quarentine.append(int(quarentine))
 
         ax1.clear()
         ax1.plot(xs, y_healthy, color="g", label="Healthy")
         ax1.plot(xs, y_infected, color='r', label="Infected")
         ax1.plot(xs, y_dead, color='k',  label="Dead")
         ax1.plot(xs, y_healed, color='y', label="Healed")
+        ax1.plot(xs, y_quarentine, color='b', label="People in Quarentine")
         ax1.legend(loc='upper left')
     ani = animation.FuncAnimation(fig, animate, interval=1000)
     plt.show()
