@@ -21,7 +21,8 @@ from matplotlib.ticker import MaxNLocator
 
 from constants import SICK, ASYMPTOMATIC, HEALTHY, FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y, ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y, \
     SIMULATION_GRAPHICS_SIZE_X, SIMULATION_GRAPHICS_SIZE_Y, IMR_ARRAY, IMR_ARRAY_P, HEALTH_ARRAY, HEALTH_ARRAY_P, SOCIAL_DISTANCE, EPISODES, TOTAL_NUMBER_OF_AGENTS, \
-    SIZE, RANDOM_LIMIT, AGENTS_MOVEMENT_PERCENTAGE, COLORS_DICT, SOCIAL_DISTANCE_STEP, QUARENTINE_DAYS
+    SIZE, RANDOM_LIMIT, AGENTS_MOVEMENT_PERCENTAGE, COLORS_DICT, SOCIAL_DISTANCE_STEP, QUARENTINE_DAYS, IMR_IMMUNE, IMR_ASYMPTOMATIC, IMR_MODERATELY_INFECTED, \
+    IMR_HIGHLY_INFECTED, IMR_DEADLY_INFECTED, SICK_NBR, HEALTHY_NBR, IMMMUNE_IMR_NBR, ASYMP_IMR_NBR, MOD_IMR_NBR, HIGH_IMR_NBR, DEAD_IMR_NBR
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,12 +32,49 @@ logging.basicConfig(
 )
 
 # TODO
-# Quarentine for people
-# Age based Immune system
+# After n days people can get the virus again
+# Adding a vaccine
+# Static version where user defines number of people for each type
+
+
+def static_simulation(sick_nbr, healthy_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, high_imr_nbr, dead_imr_nbr):
+    """ Defining number of people for sick healthy and immune people
+    
+    Args:
+        * sick_nbr (Integer): number of sick people
+        * healthy_nbr (Integer): number of healthy people
+        * immmune_imr_nbr (Integer): number of people with immune resposnse system as IMR_IMMUNE
+        * asymp_imr_nbr (Integer): number of with immune resposnse system as IMR_ASYMPTOMATIC
+        * mod_imr_nbr (Integer): number of with immune resposnse system as IMR_MODERATELY_INFECTED
+        * high_imr_nbr (Integer): number of with immune resposnse system as IMR_HIGHLY_INFECTED
+        * dead_imr_nbr (Integer): number of with immune resposnse system as IMR_DEADLY_INFECTED
+
+    Returns:
+        ARRAY, ARRAY: The two arrays with the data to use
+    """
+
+    sick_array = [SICK for x in range(sick_nbr)]
+    healthy_array = [HEALTHY for x in range(healthy_nbr)]
+    hs_array = sick_array + healthy_array
+    random.shuffle(hs_array)
+
+    immune_array = [IMR_IMMUNE for x in range(immmune_imr_nbr)]
+    asymp_array = [IMR_ASYMPTOMATIC for x in range(asymp_imr_nbr)]
+    mod_array = [IMR_MODERATELY_INFECTED for x in range(mod_imr_nbr)]
+    high_array = [IMR_HIGHLY_INFECTED for x in range(high_imr_nbr)]
+    dead_array = [IMR_DEADLY_INFECTED for x in range(dead_imr_nbr)]
+
+    imr_array = immune_array + asymp_array + mod_array + high_array + dead_array
+    random.shuffle(imr_array)
+
+    return hs_array, imr_array
 
 
 def generate_random_tuple_list():
-    """
+    """Builds a list with unique values of X and Y coordinates as tuples
+
+    Returns:
+        Tuple: Tuple of runique random positions
     """
     tuple_list = set()
     while len(tuple_list) < TOTAL_NUMBER_OF_AGENTS:
@@ -51,14 +89,26 @@ def generate_random_tuple_list():
 
 
 def get_random_pos(random_tuple_list):
-    """
+    """Returns the last tuple as x and y variables for the given list of tuples
+
+    Args:
+        random_tuple_list ([type]): [description]
+
+    Returns:
+        pos_X, pos_Y: Two variable with the X and Y positions to use
     """
     (new_pos_X, new_pos_Y) = random_tuple_list.pop()
     return new_pos_X, new_pos_Y
 
 
 def available_random_pos(simulation):
-    """
+    """Returns unique x and y variables based on social distance constant.
+
+    Args:
+        simulation (Simulation): Instance of Simulation class
+
+    Returns:
+        pos_X, pos_Y: Two variable with the X and Y positions to use
     """
     new_pos_X = 0
     new_pos_Y = 0
@@ -97,7 +147,10 @@ def available_random_pos(simulation):
 
 
 def show_graphic_simulation(simulation):
-    """
+    """Builds an image to represent the environment graphically and displays it
+
+    Args:
+        simulation (Simulation): Instance of Simulation class
     """
     # starts an rbg of our size
     env = np.zeros((SIZE, SIZE, 3), dtype=np.uint8)
@@ -118,15 +171,10 @@ def show_graphic_simulation(simulation):
 def show_detailed_data(infected, healed, healthy, dead, simulation):
     """
     """
-    logging.info(f" Total Infected people: {sum(infected)}")
-    logging.info(f" Total Healed people: {sum(healed)}")
-    logging.info(f" Remaining Healthy people: {sum(healthy)}")
-    logging.info(f" Total Dead people: {sum(dead)}")
-    logging.info(
-        f" Initial Immune people: {simulation.get_immune_people_count()}")
+    pass
 
 
-def create_simulation_agents(new_simulation, random_tuple_list):
+def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, imr_data=None):
     """
     """
     if SOCIAL_DISTANCE == 0:
@@ -134,21 +182,28 @@ def create_simulation_agents(new_simulation, random_tuple_list):
     else:
         new_pos_X, new_pos_Y = available_random_pos(new_simulation)
 
-    health_value = np.random.choice(
-        HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
+    if hs_data is None:
+        health_value = np.random.choice(
+            HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
+    else:
+        health_value = hs_data.pop()
 
-    # immune_response_value = np.random.choice(
-    #     IMR_ARRAY, p=IMR_ARRAY_P, size=(1))[0]
-
-    # new_simulation.create_agent(
-    #     new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
+    if imr_data is None:
+        immune_response_value = None
+    else:
+        immune_response_value = imr_data.pop()
 
     new_simulation.create_agent(
-        new_pos_X, new_pos_Y, health_status=health_value)
+        new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
 
 
-def main(random_simulation, graphics_simulation):
-    """
+def main(random_simulation, graphics_simulation, static_beginning):
+    """Runs the simulation
+
+    Args:
+        random_simulation (Boolean): If simulation agent's movement is random based
+        graphics_simulation (Boolean): If show the environment graphically
+        static_beginning (Boolean): If Simulation starts with defined values
     """
     # Creating simulation instance
     new_simulation = Simulation("Test Simulation")
@@ -161,14 +216,24 @@ def main(random_simulation, graphics_simulation):
             # Generating random positions to use as starting values
             random_tuple_list = generate_random_tuple_list()
 
+        if static_beginning:
+            hs_data, imr_data = static_simulation(
+                SICK_NBR, HEALTHY_NBR, IMMMUNE_IMR_NBR, ASYMP_IMR_NBR, MOD_IMR_NBR, HIGH_IMR_NBR, DEAD_IMR_NBR)
+            if len(hs_data) != TOTAL_NUMBER_OF_AGENTS or len(imr_data) != TOTAL_NUMBER_OF_AGENTS:
+                logging.error(
+                    f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({TOTAL_NUMBER_OF_AGENTS})")
+                sys.exit()
+
         # Creating agents
         pbar = tqdm(range(TOTAL_NUMBER_OF_AGENTS))
         for _ in pbar:
-            create_simulation_agents(new_simulation, random_tuple_list)
-            pbar.set_description("Creating Agents in random positions")
-    else:
-        logging.error(f"Not implement yet")
-        sys.exit()
+            if static_beginning is None:  # no static values in the begginging
+                create_simulation_agents(new_simulation, random_tuple_list)
+            else:
+                # static values in the begginging
+                create_simulation_agents(
+                    new_simulation, random_tuple_list, hs_data=hs_data, imr_data=imr_data)
+        pbar.set_description("Creating Agents in random positions")
 
     # getting initial data about simulation
     initial_infected = new_simulation.get_infected_count()
@@ -252,7 +317,7 @@ def main(random_simulation, graphics_simulation):
     plt.show()
 
     # printing data
-    #show_detailed_data(y_infected, y_healed, y_healthy, y_dead, new_simulation)
+    # show_detailed_data(y_infected, y_healed, y_healthy, y_dead, new_simulation)
 
 
 if __name__ == "__main__":
@@ -266,8 +331,11 @@ if __name__ == "__main__":
                         help="Runs with Agents initialized at random positions and with random status")
     parser.add_argument("-g", "--graphics", action="store_true",
                         help="Shows Graphics for the simulation")
+    parser.add_argument("-s", "--static_beginning", action="store_true",
+                        help="Shows Graphics for the simulation")
 
     args = parser.parse_args()
 
     print(f"Simulation 1.0")
-    main(random_simulation=args.random, graphics_simulation=args.graphics)
+    main(random_simulation=args.random, graphics_simulation=args.graphics,
+         static_beginning=args.static_beginning)

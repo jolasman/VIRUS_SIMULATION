@@ -197,19 +197,20 @@ class Simulation:
         # removing healed people from quarentine
         for agent in self.agent_list:
             if agent.health_status > ASYMPTOMATIC and agent.pos_tuple == (QUARENTINE_X, QUARENTINE_Y):
-                tuple_set = set([agent for agent.pos_tuple in self.agent_list])
-                total = len(self.agent_list)
+                if SOCIAL_DISTANCE_STEP == 0:
+                    tuple_set = set([agent for agent.pos_tuple in self.agent_list])
+                    total = len(self.agent_list)
 
-                while len(tuple_set) < total + 1:
-                    x = random.randint(1, size-1)
-                    y = random.randint(1, size-1)
-                    tuple_set.add((x, y))
+                    while len(tuple_set) < total + 1:
+                        x = random.randint(1, size-1)
+                        y = random.randint(1, size-1)
+                        tuple_set.add((x, y))
 
-                list_ = list(tuple_set)
-                (pos_X, pos_Y) = list_.pop()
-                agent.set_position(pos_X, pos_Y)
-                logging.debug(
-                    f"Agent {agent.id} returns to the environment at {agent.pos_tuple}")
+                    list_ = list(tuple_set)
+                    (pos_X, pos_Y) = list_.pop()
+                    agent.set_position(pos_X, pos_Y)
+                    logging.debug(
+                        f"Agent {agent.id} returns to the environment at {agent.pos_tuple}")
 
     @staticmethod
     def value_based_probability(health_status, agent_immune_response):
