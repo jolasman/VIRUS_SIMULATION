@@ -1,5 +1,4 @@
-from constants import IMR_DEADLY_INFECTED, IMR_MODERATELY_INFECTED, IMR_HIGHLY_INFECTED, IMR_ASYMPTOMATIC, IMR_IMMUNE, ADM_HOSP_P, \
-    AGE_P_DIR_ARRAY, ADM_HOSP_ICU_P
+import constants
 import uuid
 import random
 from faker import Faker
@@ -60,42 +59,42 @@ class Agent:
             0__|ADM_HOSP_P|____|ADM_HOSP_P + ADM_HOSP_ICU_P|___|19/20|___|1/20|__1
             """
             value_d = random.random()
-            if value < ADM_HOSP_P:
+            if value < constants.ADM_HOSP_P:
                 if value_d < pdir:
-                    return IMR_DEADLY_INFECTED
+                    return constants.IMR_DEADLY_INFECTED
                 else:
-                    return IMR_MODERATELY_INFECTED
-            elif value > ADM_HOSP_P and value < ADM_HOSP_P + ADM_HOSP_ICU_P:
+                    return constants.IMR_MODERATELY_INFECTED
+            elif value > constants.ADM_HOSP_P and value < constants.ADM_HOSP_P + constants.ADM_HOSP_ICU_P:
                 if value_d < pdir:
-                    return IMR_DEADLY_INFECTED
+                    return constants.IMR_DEADLY_INFECTED
                 else:
-                    return IMR_HIGHLY_INFECTED
+                    return constants.IMR_HIGHLY_INFECTED
             else:  # prob of being healthy
                 if value_d < pdir:
-                    return IMR_DEADLY_INFECTED
+                    return constants.IMR_DEADLY_INFECTED
                 elif value_d > pdir:
                 # 19.8/20 chances to be ASYMPTOMATIC over IMMUNE
                     if value < 19.8 * ((1-pdir) / 20):
-                        return IMR_ASYMPTOMATIC
+                        return constants.IMR_ASYMPTOMATIC
                     else:
-                        return IMR_IMMUNE
+                        return constants.IMR_IMMUNE
 
         value = random.random()
         if age <= 9:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[0])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[0])
         elif age > 9 and age <= 19:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[1])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[1])
         elif age > 19 and age <= 29:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[2])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[2])
         elif age > 29 and age <= 39:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[3])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[3])
         elif age > 39 and age <= 49:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[4])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[4])
         elif age > 49 and age <= 59:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[5])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[5])
         elif age > 59 and age <= 69:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[6])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[6])
         elif age > 69 and age <= 79:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[7])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[7])
         elif age > 79:
-            return age_probabilities(value, AGE_P_DIR_ARRAY[8])
+            return age_probabilities(value, constants.AGE_P_DIR_ARRAY[8])

@@ -20,14 +20,10 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 style.use('fivethirtyeight')
 from matplotlib.ticker import MaxNLocator
-
-from constants import SICK, ASYMPTOMATIC, HEALTHY, FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y, ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y, \
-    SIMULATION_GRAPHICS_SIZE_X, SIMULATION_GRAPHICS_SIZE_Y, IMR_ARRAY, IMR_ARRAY_P, HEALTH_ARRAY, HEALTH_ARRAY_P, SOCIAL_DISTANCE, EPISODES, TOTAL_NUMBER_OF_AGENTS, \
-    SIZE, RANDOM_LIMIT, AGENTS_MOVEMENT_PERCENTAGE, COLORS_DICT, SOCIAL_DISTANCE_STEP, QUARENTINE_DAYS, IMR_IMMUNE, IMR_ASYMPTOMATIC, IMR_MODERATELY_INFECTED, \
-    IMR_HIGHLY_INFECTED, IMR_DEADLY_INFECTED, SICK_NBR, IMMMUNE_IMR_NBR, ASYMP_IMR_NBR, MOD_IMR_NBR, HIGH_IMR_NBR, DEAD_IMR_NBR
+import constants
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=constants.LOG_LEVEL,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
     handlers=[logging.StreamHandler()],
@@ -36,6 +32,8 @@ logging.basicConfig(
 # TODO
 # After n days people can get the virus again
 # Adding a vaccine
+# add mask
+# washing hands
 
 
 def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, high_imr_nbr, dead_imr_nbr):
@@ -53,16 +51,16 @@ def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, hig
        hs_array (List), imr_array (List): The two arrays with the data to use
     """
 
-    sick_array = [SICK for x in range(sick_nbr)]
-    healthy_array = [HEALTHY for x in range(TOTAL_NUMBER_OF_AGENTS - sick_nbr)]
+    sick_array = [constants.SICK for x in range(sick_nbr)]
+    healthy_array = [constants.HEALTHY for x in range(constants.TOTAL_NUMBER_OF_AGENTS - sick_nbr)]
     hs_array = sick_array + healthy_array
     random.shuffle(hs_array)
 
-    immune_array = [IMR_IMMUNE for x in range(immmune_imr_nbr)]
-    asymp_array = [IMR_ASYMPTOMATIC for x in range(asymp_imr_nbr)]
-    mod_array = [IMR_MODERATELY_INFECTED for x in range(mod_imr_nbr)]
-    high_array = [IMR_HIGHLY_INFECTED for x in range(high_imr_nbr)]
-    dead_array = [IMR_DEADLY_INFECTED for x in range(dead_imr_nbr)]
+    immune_array = [constants.IMR_IMMUNE for x in range(immmune_imr_nbr)]
+    asymp_array = [constants.IMR_ASYMPTOMATIC for x in range(asymp_imr_nbr)]
+    mod_array = [constants.IMR_MODERATELY_INFECTED for x in range(mod_imr_nbr)]
+    high_array = [constants.IMR_HIGHLY_INFECTED for x in range(high_imr_nbr)]
+    dead_array = [constants.IMR_DEADLY_INFECTED for x in range(dead_imr_nbr)]
 
     imr_array = immune_array + asymp_array + mod_array + high_array + dead_array
     random.shuffle(imr_array)
@@ -77,9 +75,9 @@ def generate_random_tuple_list():
         tuple_list (Tuple): Tuple of runique random positions
     """
     tuple_list = set()
-    while len(tuple_list) < TOTAL_NUMBER_OF_AGENTS:
-        x = random.randint(0 + RANDOM_LIMIT, SIZE-RANDOM_LIMIT)
-        y = random.randint(0 + RANDOM_LIMIT, SIZE-RANDOM_LIMIT)
+    while len(tuple_list) < constants.TOTAL_NUMBER_OF_AGENTS:
+        x = random.randint(0 + constants.RANDOM_LIMIT, constants.SIZE-constants.RANDOM_LIMIT)
+        y = random.randint(0 + constants.RANDOM_LIMIT, constants.SIZE-constants.RANDOM_LIMIT)
         tuple_list.add((x, y))
 
     tuple_list = list(tuple_list)
@@ -114,15 +112,15 @@ def available_random_pos(simulation):
     new_pos_Y = 0
     has_value = False
     for _ in simulation.agent_list:
-        new_pos_X = random.randint(0 + RANDOM_LIMIT, SIZE - RANDOM_LIMIT)
-        new_pos_Y = random.randint(0 + RANDOM_LIMIT, SIZE - RANDOM_LIMIT)
+        new_pos_X = random.randint(0 + constants.RANDOM_LIMIT, constants.SIZE - constants.RANDOM_LIMIT)
+        new_pos_Y = random.randint(0 + constants.RANDOM_LIMIT, constants.SIZE - constants.RANDOM_LIMIT)
         tuple_list = [
             agent_.pos_tuple for agent_ in simulation.agent_list]
         while not has_value:
             can_add = True
             x_loop_must_break = False
-            for x_ax in range(SOCIAL_DISTANCE + 1):
-                for y_ax in range(SOCIAL_DISTANCE + 1):
+            for x_ax in range(constants.SOCIAL_DISTANCE + 1):
+                for y_ax in range(constants.SOCIAL_DISTANCE + 1):
                     if (new_pos_X + x_ax, new_pos_Y + y_ax) in tuple_list or \
                         (new_pos_X + x_ax, new_pos_Y - y_ax) in tuple_list or \
                         (new_pos_X - x_ax, new_pos_Y + y_ax) in tuple_list or\
@@ -132,14 +130,14 @@ def available_random_pos(simulation):
                 if x_loop_must_break:
                     break
 
-            if can_add and (new_pos_X >= SIZE or new_pos_Y >= SIZE):
+            if can_add and (new_pos_X >= constants.SIZE or new_pos_Y >= constants.SIZE):
                 can_add = False
 
             if not can_add:
                 new_pos_X = random.randint(
-                    0 + RANDOM_LIMIT, SIZE - RANDOM_LIMIT)
+                    0 + constants.RANDOM_LIMIT, constants.SIZE - constants.RANDOM_LIMIT)
                 new_pos_Y = random.randint(
-                    0 + RANDOM_LIMIT, SIZE - RANDOM_LIMIT)
+                    0 + constants.RANDOM_LIMIT, constants.SIZE - constants.RANDOM_LIMIT)
             else:
                 has_value = True
 
@@ -153,16 +151,16 @@ def show_graphic_simulation(simulation):
         simulation (Simulation): Instance of Simulation class
     """
     # starts an rbg of our size
-    env = np.zeros((SIZE, SIZE, 3), dtype=np.uint8)
+    env = np.zeros((constants.SIZE, constants.SIZE, 3), dtype=np.uint8)
     for agent in simulation.agent_list:
         # agents with negative coords are dead or in quarentine
         if agent.pos_tuple > (0, 0):
-            env[agent.pos_X][agent.pos_Y] = COLORS_DICT[agent.health_status]
+            env[agent.pos_X][agent.pos_Y] = constants.COLORS_DICT[agent.health_status]
 
     # reading to rgb. Apparently. Even tho color definitions are bgr. ???
     img = Image.fromarray(env, 'RGB')
     # resizing so we can see our agent in all its glory.
-    img = img.resize((SIMULATION_GRAPHICS_SIZE_X, SIMULATION_GRAPHICS_SIZE_Y))
+    img = img.resize((constants.SIMULATION_GRAPHICS_SIZE_X, constants.SIMULATION_GRAPHICS_SIZE_Y))
 
     cv2.imshow("image", np.array(img))
     cv2.waitKey(200)
@@ -183,14 +181,14 @@ def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, im
         hs_data (list, optional): List with health data status for each agent. Defaults to None.
         imr_data (list, optional): List with immune system response data for each agent. Defaults to None.
     """
-    if SOCIAL_DISTANCE == 0:
+    if constants.SOCIAL_DISTANCE == 0:
         new_pos_X, new_pos_Y = get_random_pos(random_tuple_list)
     else:
         new_pos_X, new_pos_Y = available_random_pos(new_simulation)
 
     if hs_data is None:
         health_value = np.random.choice(
-            HEALTH_ARRAY, p=HEALTH_ARRAY_P, size=(1))[0]
+            constants.HEALTH_ARRAY, p=constants.HEALTH_ARRAY_P, size=(1))[0]
     else:
         health_value = hs_data.pop()
 
@@ -218,20 +216,20 @@ def main(random_simulation, graphics_simulation, static_beginning):
     open('chart_data.txt', 'w').close()
 
     if random_simulation:
-        if SOCIAL_DISTANCE == 0:
+        if constants.SOCIAL_DISTANCE == 0:
             # Generating random positions to use as starting values
             random_tuple_list = generate_random_tuple_list()
 
         if static_beginning:
             hs_data, imr_data = static_simulation(
-                SICK_NBR, IMMMUNE_IMR_NBR, ASYMP_IMR_NBR, MOD_IMR_NBR, HIGH_IMR_NBR, DEAD_IMR_NBR)
-            if len(hs_data) != TOTAL_NUMBER_OF_AGENTS or len(imr_data) != TOTAL_NUMBER_OF_AGENTS:
+                constants.SICK_NBR, constants.IMMMUNE_IMR_NBR, constants.ASYMP_IMR_NBR, constants.MOD_IMR_NBR, constants.HIGH_IMR_NBR, constants.DEAD_IMR_NBR)
+            if len(hs_data) != constants.TOTAL_NUMBER_OF_AGENTS or len(imr_data) != constants.TOTAL_NUMBER_OF_AGENTS:
                 logging.error(
-                    f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({TOTAL_NUMBER_OF_AGENTS})")
+                    f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({constants.TOTAL_NUMBER_OF_AGENTS})")
                 sys.exit()
 
         # Creating agents
-        pbar = tqdm(range(TOTAL_NUMBER_OF_AGENTS))
+        pbar = tqdm(range(constants.TOTAL_NUMBER_OF_AGENTS))
         for _ in pbar:
             if not static_beginning:  # no static values in the begginging
                 create_simulation_agents(new_simulation, random_tuple_list)
@@ -265,18 +263,18 @@ def main(random_simulation, graphics_simulation, static_beginning):
         f.write(line)
 
     # Running simulation
-    for i in range(2, EPISODES + 1):
+    for i in range(2, constants.EPISODES + 1):
         # moving agents
-        if SOCIAL_DISTANCE_STEP == 0:
+        if constants.SOCIAL_DISTANCE_STEP == 0:
             new_simulation.random_step_no_social_distance(
-                SIZE, AGENTS_MOVEMENT_PERCENTAGE)
+                constants.SIZE, constants.AGENTS_MOVEMENT_PERCENTAGE)
         else:
             new_simulation.random_step(
-                RANDOM_LIMIT, SIZE, AGENTS_MOVEMENT_PERCENTAGE)
+                constants.RANDOM_LIMIT, constants.SIZE, constants.AGENTS_MOVEMENT_PERCENTAGE)
 
         # moving people between env and quarentine
-        if i > QUARENTINE_DAYS:
-            new_simulation.update_quarentine(SIZE)
+        if i > constants.QUARENTINE_DAYS:
+            new_simulation.update_quarentine(constants.SIZE)
 
         # evaluating agents' health and contacts
         new_simulation.update_health_status()
@@ -311,7 +309,7 @@ def main(random_simulation, graphics_simulation, static_beginning):
 
     # adding final chart
     fig2 = plt.figure(num=2, figsize=(
-        ALL_DATA_PLOT_FIG_SIZE_X, ALL_DATA_PLOT_FIG_SIZE_Y))
+        constants.ALL_DATA_PLOT_FIG_SIZE_X, constants.ALL_DATA_PLOT_FIG_SIZE_Y))
     ax_fig2 = fig2.add_subplot(1, 1, 1)
     ax_fig2.plot(x, y_healthy, 'o-', color='g', label="Healthy")
     ax_fig2.plot(x, y_infected, 'o-', color='r', label="Infected")

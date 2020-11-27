@@ -1,23 +1,88 @@
 import json
-EPISODES = 500
-TOTAL_NUMBER_OF_AGENTS = 1_000
-SIZE = 200
-RANDOM_LIMIT = 20
-AGENTS_MOVEMENT_PERCENTAGE = 1  # percentage of the agents that moves in the step
-QUARENTINE_X = -10
-QUARENTINE_Y = -10
-DEAD_X = -1
-DEAD_Y = -1
-QUARENTINE_PERCENTAGE = 0.5 # number of people detected and starting quarentine
-QUARENTINE_DAYS = 5 # number of days until peoople goo to quarentine
+import yaml
 
-# Statit simulation values
-SICK_NBR = 200
-IMMMUNE_IMR_NBR = 10
-ASYMP_IMR_NBR = 50
-MOD_IMR_NBR = 190
-HIGH_IMR_NBR = 650
-DEAD_IMR_NBR = 100
+with open('config.yaml') as f:
+    config = yaml.load(f, Loader=yaml.FullLoader)
+
+simulation = config['SIMULATION']['PARAMS']
+static = config['SIMULATION']['STATIC']['PARAMS']
+agent = config['SIMULATION']['AGENT']['PARAMS']
+colors = config['SIMULATION']['VISUALIZATION']['PARAMS']['COLORS_DICT']
+graphic_sizes = config['SIMULATION']['VISUALIZATION']['PARAMS']['SIZES']
+
+LOG_LEVEL = config['LOG_LEVEL']
+EPISODES = simulation['EPISODES']
+TOTAL_NUMBER_OF_AGENTS = simulation['TOTAL_NUMBER_OF_AGENTS']
+SIZE = simulation['SIZE']
+RANDOM_LIMIT = simulation['RANDOM_LIMIT']
+# percentage of the agents that moves in the step
+AGENTS_MOVEMENT_PERCENTAGE = simulation['AGENTS_MOVEMENT_PERCENTAGE']
+QUARENTINE_X = simulation['QUARENTINE_X']
+QUARENTINE_Y = simulation['QUARENTINE_Y']
+DEAD_X = simulation['DEAD_X']
+DEAD_Y = simulation['DEAD_Y']
+# number of people detected and starting quarentine
+QUARENTINE_PERCENTAGE = simulation['QUARENTINE_PERCENTAGE']
+# number of days until peoople goo to quarentine
+QUARENTINE_DAYS = simulation['QUARENTINE_DAYS']
+
+
+# probabilities of being of one type in random simulation with no static values
+HEALTH_ARRAY_P = [agent['HEALTH_ARRAY_SICK_P'],
+                  agent['HEALTH_ARRAY_ASYMP_P'], agent['HEALTH_ARRAY_HEALTHY_P']]
+
+# Probability of recovering but with sequels
+RECOVERY_SEQUELS_P = agent['RECOVERY_SEQUELS_P']
+
+# probability of of being infected when being in contact with a type of agent
+SICK_P = agent['SICK_P']
+ASYMPTOMATIC_P = agent['ASYMPTOMATIC_P']
+HEALTHY_P = agent['HEALTHY_P']
+
+# initial minimal distance between agents
+SOCIAL_DISTANCE = agent['SOCIAL_DISTANCE']
+# can move to a position x y +SOCIAL_DISTANCE_STEP and -SOCIAL_DISTANCE_STEP
+SOCIAL_DISTANCE_STEP = agent['SOCIAL_DISTANCE_STEP']
+# distance that triggers a possible contagious if one of the agents is infected
+CONTAGIOUS_DISTANCE = agent['CONTAGIOUS_DISTANCE']
+
+
+# after X days agents recover
+INFECTED_DAYS_THRESHOLD_FOR_INFECTED = agent['INFECTED_DAYS_THRESHOLD_FOR_INFECTED']
+# people die after X days if immune system type IMR_DEADLY_INFECTED
+INFECTED_DAYS_THRESHOLD_FOR_DEAD = agent['INFECTED_DAYS_THRESHOLD_FOR_DEAD']
+# stop the virus propagation
+INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS = agent['INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS']
+
+# Static simulation values
+SICK_NBR = static['SICK_NBR']
+IMMMUNE_IMR_NBR = static['IMMMUNE_IMR_NBR']
+ASYMP_IMR_NBR = static['ASYMP_IMR_NBR']
+MOD_IMR_NBR = static['MOD_IMR_NBR']
+HIGH_IMR_NBR = static['HIGH_IMR_NBR']
+DEAD_IMR_NBR = static['DEAD_IMR_NBR']
+
+# BGR
+COLORS_DICT = {0: (colors['SICK_COLOR'][0], colors['SICK_COLOR'][1], colors['SICK_COLOR'][2]),
+               1: (colors['ASYMPTOMATIC_COLOR'][0], colors['ASYMPTOMATIC_COLOR'][1], colors['ASYMPTOMATIC_COLOR'][2]),
+               2: (colors['WITH_DISEASES_SEQUELAES_COLOR'][0], colors['WITH_DISEASES_SEQUELAES_COLOR'][1], colors['WITH_DISEASES_SEQUELAES_COLOR'][2]),
+               3: (colors['TOTAL_RECOVERY_COLOR'][0], colors['TOTAL_RECOVERY_COLOR'][1], colors['TOTAL_RECOVERY_COLOR'][2]),
+               4: (colors['DEAD_COLOR'][0], colors['DEAD_COLOR'][1], colors['DEAD_COLOR'][2]),
+               5: (colors['HEALTHY_COLOR'][0], colors['HEALTHY_COLOR'][1], colors['HEALTHY_COLOR'][2])
+               }
+
+# graphics sizes
+FOUR_PLOTS_FIG_SIZE_X = graphic_sizes['FOUR_PLOTS_FIG_SIZE_X']
+FOUR_PLOTS_FIG_SIZE_Y = graphic_sizes['FOUR_PLOTS_FIG_SIZE_Y']
+
+ALL_DATA_PLOT_FIG_SIZE_X = graphic_sizes['ALL_DATA_PLOT_FIG_SIZE_X']
+ALL_DATA_PLOT_FIG_SIZE_Y = graphic_sizes['ALL_DATA_PLOT_FIG_SIZE_Y']
+
+SIMULATION_GRAPHICS_SIZE_X = graphic_sizes['SIMULATION_GRAPHICS_SIZE_X']
+SIMULATION_GRAPHICS_SIZE_Y = graphic_sizes['SIMULATION_GRAPHICS_SIZE_Y']
+
+######################################################################################
+
 # health_status
 SICK = 0
 ASYMPTOMATIC = 1
@@ -26,7 +91,6 @@ TOTAL_RECOVERY = 3  # Total recovery, no symptoms while infected
 DEAD = 4
 HEALTHY = 5
 
-RECOVERY_SEQUELS_P = 0.4
 
 HEALTH_STATUS_DICT = {
     0: "SICK",
@@ -37,26 +101,8 @@ HEALTH_STATUS_DICT = {
     5: "HEALTHY"
 }
 
-# BGR
-COLORS_DICT = {0: (0, 0, 255),  # red
-               1: (0, 115, 255),  # orange
-               2: (255, 0, 196),  # purple
-               3: (0, 255, 255),  # yellow
-               4: (0, 0, 0),  # dead is black
-               5: (0, 255, 0)}  # green
-
-
 # when generating the agents, first iterations values
 HEALTH_ARRAY = [SICK, ASYMPTOMATIC, HEALTHY]
-HEALTH_ARRAY_P = [0.02, 0.001, 0.979]  # probabilities of being of one type
-
-
-# immune_system_response probability, how will be its symptoms
-IMMUNE_P = 0.005  # Immune
-ASYMPTOMATIC_P = 0.2  # Little symptoms and spread
-MODERATELY_INFECTED_P = 0.2  # Moderately symptoms and spread
-HIGHLY_INFECTED_P = 0.5  # Lots of symptoms and virus spread
-DEADLY_INFECTED_P = 0.095  # Cannot handle the virus
 
 # Immune response value
 IMR_IMMUNE = 0
@@ -64,36 +110,6 @@ IMR_ASYMPTOMATIC = 1
 IMR_MODERATELY_INFECTED = 2
 IMR_HIGHLY_INFECTED = 3
 IMR_DEADLY_INFECTED = 4
-
-IMR_ARRAY = [IMR_IMMUNE,
-             IMR_ASYMPTOMATIC,
-             IMR_MODERATELY_INFECTED,
-             IMR_HIGHLY_INFECTED,
-             IMR_DEADLY_INFECTED]
-
-IMR_ARRAY_P = [IMMUNE_P,
-               ASYMPTOMATIC_P,
-               MODERATELY_INFECTED_P,
-               HIGHLY_INFECTED_P,
-               DEADLY_INFECTED_P]
-
-
-# probability of of being infected when being in contact with a type of agent
-SICK_P = 0.8
-ASYMPTOMATIC_P = 0.1
-HEALTHY_P = 0.1
-
-SOCIAL_DISTANCE = 0  # initial minimal distance between agents
-# can move to a position x y +SOCIAL_DISTANCE_STEP and -SOCIAL_DISTANCE_STEP
-SOCIAL_DISTANCE_STEP = 0
-# distance that triggers a possible contagious if one of the agents is infected
-CONTAGIOUS_DISTANCE = 2
-
-
-INFECTED_DAYS_THRESHOLD_FOR_INFECTED = 15  # after X days agents recover
-# people die after X days if immune system type IMR_DEADLY_INFECTED
-INFECTED_DAYS_THRESHOLD_FOR_DEAD = 5
-INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS = 10  # stop the virus propagation
 
 
 # Check this site to see the base for the propability of being deadly infected for age. Updated date : 11/25/2020 12:00 p.m.
@@ -162,14 +178,3 @@ HOME_RECOVERY_P = 1 - (ADM_HOSP_ICU_P + ADM_HOSP_P)
 # print(TOTAL_DEATH / TOTAL_CONF_PEOP_PORTUGAL) 0.015061439139304626
 
 
-
-
-# graphics sizes
-FOUR_PLOTS_FIG_SIZE_X = 8
-FOUR_PLOTS_FIG_SIZE_Y = 8
-
-ALL_DATA_PLOT_FIG_SIZE_X = 12
-ALL_DATA_PLOT_FIG_SIZE_Y = 10
-
-SIMULATION_GRAPHICS_SIZE_X = 900
-SIMULATION_GRAPHICS_SIZE_Y = 900

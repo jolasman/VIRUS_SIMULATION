@@ -1,0 +1,72 @@
+APP_NAME: COVID-19 SImulation
+LOG_LEVEL: INFO
+
+SIMULATION:
+  PARAMS:
+    EPISODES: 500
+    TOTAL_NUMBER_OF_AGENTS: 1_000
+    SIZE: 200
+    RANDOM_LIMIT: 20
+    AGENTS_MOVEMENT_PERCENTAGE: 1 # percentage of the agents that moves in the step
+    QUARENTINE_X: -10
+    QUARENTINE_Y: -10
+    DEAD_X: -1
+    DEAD_Y: -1
+    QUARENTINE_PERCENTAGE: 0.5 # number of people detected and starting quarentine
+    QUARENTINE_DAYS: 5
+    SICK_P: 0.8 # probability of of being infected when being in contact with a type of agent
+    ASYMPTOMATIC_P: 0.1
+    HEALTHY_P: 0.1
+    SOCIAL_DISTANCE: 0 # initial minimal distance between agents
+    # can move to a position x y +SOCIAL_DISTANCE_STEP and -SOCIAL_DISTANCE_STEP
+    SOCIAL_DISTANCE_STEP: 0
+    # distance that triggers a possible contagious if one of the agents is infected
+    CONTAGIOUS_DISTANCE: 2
+    INFECTED_DAYS_THRESHOLD_FOR_INFECTED: 15 # after X days agents recover
+    # people die after X days if immune system type IMR_DEADLY_INFECTED
+    INFECTED_DAYS_THRESHOLD_FOR_DEAD: 5
+    INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS: 10 # stop the virus propagation
+
+  STATIC:
+    PARAMS:
+      SICK_NBR: 200
+      IMMMUNE_IMR_NBR: 10
+      ASYMP_IMR_NBR: 50
+      MOD_IMR_NBR: 190
+      HIGH_IMR_NBR: 650
+      DEAD_IMR_NBR: 100
+  AGENT:
+    PARAMS:
+      HEALTH_ARRAY_SICK_P: 0.02 # probabilities of being of one type in random simulation with no static values
+      HEALTH_ARRAY_ASYMP_P: 0.001
+      HEALTH_ARRAY_HEALTHY_P: 0.979
+      RECOVERY_SEQUELS_P: 0.4 # Probability of recovering but with sequels
+      # probability of of being infected when being in contact with a type of agent
+      SICK_P: 0.8
+      ASYMPTOMATIC_P: 0.1
+      HEALTHY_P: 0.1
+      SOCIAL_DISTANCE: 0 # initial minimal distance between agents
+      # can move to a position x y +SOCIAL_DISTANCE_STEP and -SOCIAL_DISTANCE_STEP
+      SOCIAL_DISTANCE_STEP: 0
+      # distance that triggers a possible contagious if one of the agents is infected
+      CONTAGIOUS_DISTANCE: 2
+      INFECTED_DAYS_THRESHOLD_FOR_INFECTED: 15 # after X days agents recover
+      # people die after X days if immune system type IMR_DEADLY_INFECTED
+      INFECTED_DAYS_THRESHOLD_FOR_DEAD: 5
+      INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS: 10 # stop the virus propagation
+  VISUALIZATION:
+    PARAMS:
+      COLORS_DICT: #BGR
+        SICK_COLOR: [0, 0, 255] # red
+        ASYMPTOMATIC_COLOR: [0, 115, 255] # orange
+        WITH_DISEASES_SEQUELAES_COLOR: [255, 0, 196] # purple
+        TOTAL_RECOVERY_COLOR: [0, 255, 255] # yellow
+        DEAD_COLOR: [0, 0, 0] # dead is black
+        HEALTHY_COLOR: [0, 255, 0] # green
+      SIZES:
+        FOUR_PLOTS_FIG_SIZE_X : 8
+        FOUR_PLOTS_FIG_SIZE_Y : 8
+        ALL_DATA_PLOT_FIG_SIZE_X : 12
+        ALL_DATA_PLOT_FIG_SIZE_Y : 10
+        SIMULATION_GRAPHICS_SIZE_X : 900
+        SIMULATION_GRAPHICS_SIZE_Y : 900
