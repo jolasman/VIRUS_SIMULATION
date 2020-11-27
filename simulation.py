@@ -118,7 +118,7 @@ class Simulation:
                           immune_system_response=immune_system_response)
         self.agent_list.append(new_agent)
 
-    def set_health_status_at_hospital(self):
+    def set_health_status_by_day(self):
         """Updates the agents health status based on the number of days infected with the virus
         """
         for agent in self.agent_list:

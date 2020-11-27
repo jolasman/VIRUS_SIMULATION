@@ -280,7 +280,7 @@ def main(random_simulation, graphics_simulation, static_beginning):
         new_simulation.update_health_status()
 
         # healing people
-        new_simulation.set_health_status_at_hospital()
+        new_simulation.set_health_status_by_day()
 
         if graphics_simulation:
             show_graphic_simulation(new_simulation)
