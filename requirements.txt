@@ -1,0 +1,6 @@
+Faker==4.17.1
+matplotlib==3.3.3
+numpy==1.19.2
+opencv-python==4.4.0.46
+Pillow==8.0.1
+tqdm==4.52.0

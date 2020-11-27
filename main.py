@@ -36,7 +36,6 @@ logging.basicConfig(
 # TODO
 # After n days people can get the virus again
 # Adding a vaccine
-# Static version where user defines number of people for each type
 
 
 def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, high_imr_nbr, dead_imr_nbr):
