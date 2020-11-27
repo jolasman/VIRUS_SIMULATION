@@ -13,7 +13,6 @@ QUARENTINE_DAYS = 5 # number of days until peoople goo to quarentine
 
 # Statit simulation values
 SICK_NBR = 200
-HEALTHY_NBR = 800
 IMMMUNE_IMR_NBR = 10
 ASYMP_IMR_NBR = 50
 MOD_IMR_NBR = 190

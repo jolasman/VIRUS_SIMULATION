@@ -1,11 +1,12 @@
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import style
+from constants import FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y
+style.use('fivethirtyeight')
 
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    import matplotlib.animation as animation
-    from matplotlib import style
-    from constants import FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y
-    style.use('fivethirtyeight')
-
+def chart_5_axes():
+    """Build the chart data
+    """
     fig = plt.figure(num=123456, figsize=(
         FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y))
     ax1 = fig.add_subplot(1, 1, 1)
@@ -38,3 +39,11 @@ if __name__ == "__main__":
         ax1.legend(loc='upper left')
     ani = animation.FuncAnimation(fig, animate, interval=1000)
     plt.show()
+
+
+
+
+if __name__ == "__main__":
+    chart_5_axes()
+
+    

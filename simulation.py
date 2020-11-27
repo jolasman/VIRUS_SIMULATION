@@ -23,8 +23,12 @@ class Simulation:
         self.agent_list = []
 
     def random_step(self, random_limit, size,  p_of_agent_moving=1):
-        """
-        Simulating the environment step
+        """Simulating the environment step
+
+        Args:
+            random_limit (Integer): Maximum number of units on each axe that each agent can move
+                        size (Integer): Environment size
+            p_of_agent_moving (Float, optional): Percentage of agents that move in the step. Defaults to 1.
         """
         total = round(len(self.agent_list) * p_of_agent_moving)
         for agent in random.sample(self.agent_list, total):
@@ -71,9 +75,12 @@ class Simulation:
                 if agent.pos_tuple != (-1, -1):
                     agent.set_position(-1, -1)
 
-    def random_step_no_social_distance(self, random_limit, size,  p_of_agent_moving=1):
-        """
-        Simulating the environment step with no care about social distance
+    def random_step_no_social_distance(self, size,  p_of_agent_moving=1):
+        """Simulating the environment step with no care about social distance
+
+        Args:
+            size (Integer): Environment size
+            p_of_agent_moving (Float, optional): Percentage of agents that move in the step. Defaults to 1.
         """
         tuple_list = set()
         total = round(len(self.agent_list) * p_of_agent_moving)
@@ -99,15 +106,22 @@ class Simulation:
 
     def create_agent(self, pos_X, pos_Y, name=None, age=None, health_status=None,
                      immune_system_response=None):
-        """
-        Getting the current state data to build charts
+        """Create a new agent for the Simulation instance
+
+        Args:
+            pos_X (Integer): X axe position
+            pos_Y (Integer): Y axe position
+            name (String, optional): Agent's name. Defaults to None.
+            age (Integer, optional): Agent's age. Defaults to None.
+            health_status (Integer, optional): Agent's health status. Defaults to None.
+            immune_system_response (Integer, optional): Agent's immune response system type. Defaults to None.
         """
         new_agent = Agent(pos_X, pos_Y, name=name, age=age, health_status=health_status,
                           immune_system_response=immune_system_response)
         self.agent_list.append(new_agent)
 
     def set_health_status_at_hospital(self):
-        """
+        """Updates the agents health status based on the number of days infected with the virus
         """
         for agent in self.agent_list:
             # evaluating time passing by, for all agents
@@ -185,20 +199,23 @@ class Simulation:
                                 break
 
     def update_quarentine(self, size):
-        """
-        Updates the status for each agent in quarentine
+        """Updates the status for each agent in quarentine
+
+        Args:
+
+            size (Integer): Environment size
         """
         for agent in self.get_infected()[:int(len(self.get_infected()) * QUARENTINE_PERCENTAGE)]:  # only half agents go to quarentine, the others remain indetected by autorities
-            if(agent.pos_tuple != (QUARENTINE_X, QUARENTINE_Y)):
-                # quarentine zone
-                agent.set_position(QUARENTINE_X, QUARENTINE_Y)
-                logging.debug(f"Agent {agent.id} is now in quarentine. ")
+            # quarentine zone
+            agent.set_position(QUARENTINE_X, QUARENTINE_Y)
+            logging.debug(f"Agent {agent.id} is now in quarentine. ")
 
         # removing healed people from quarentine
         for agent in self.agent_list:
             if agent.health_status > ASYMPTOMATIC and agent.pos_tuple == (QUARENTINE_X, QUARENTINE_Y):
                 if SOCIAL_DISTANCE_STEP == 0:
-                    tuple_set = set([agent for agent.pos_tuple in self.agent_list])
+                    tuple_set = set(
+                        [agent for agent.pos_tuple in self.agent_list])
                     total = len(self.agent_list)
 
                     while len(tuple_set) < total + 1:
@@ -214,10 +231,20 @@ class Simulation:
 
     @staticmethod
     def value_based_probability(health_status, agent_immune_response):
-        """
+        """Returns the agent new health status based on its immune system type and on the health status of the agent in contact with
+
         SICK_P| HEALTHY | ASSYMPTOMATIC_P|
-        0____0.4 _____0.9________________1
+
+        0____0.4 _________0.9___________________1
+
+        Args:
+            health_status (Integer): Health status of agent in contact with
+            agent_immune_response (Integer): Current agent imune response type
+
+        Returns:
+            Health Status (Integer): Agent new health status
         """
+
         if health_status > 1 or agent_immune_response == IMR_IMMUNE:
             return -1  # do not change the agent's healthy status
         else:
@@ -242,53 +269,69 @@ class Simulation:
                     return -1
 
     def get_all_agents(self):
-        """
-        Simulating the environment step
+        """Returns the list of agents for the Simulation instance
+
+        Returns:
+            agent_list (List): List of agents
         """
         return self.agent_list
 
     def get_quarentine_count(self):
-        """
-        Getting the current state data to build charts
+        """Number of agents in quarentine
+
+        Returns:
+            (Integer): Number of agents
         """
         return len([agent for agent in self.agent_list
                     if agent.pos_tuple == (QUARENTINE_X, QUARENTINE_Y)])
 
     def get_infected_count(self):
+        """Number of agents infected with the virus
+
+        Returns:
+            (Integer): Number of agents
         """
-        Getting the current state data to build charts
-        """
-        return len([x for x in self.agent_list if x.health_status ==
-                    SICK or x.health_status == ASYMPTOMATIC])
+        return len([x for x in self.agent_list if x.pos_tuple != (QUARENTINE_X, QUARENTINE_Y) and (x.health_status ==
+                                                                                                   SICK or x.health_status == ASYMPTOMATIC)])
 
     def get_infected(self):
-        """
-        Getting the current state data to build charts
+        """List of infected agents
+
+        Returns:
+            (List): Infected agents
         """
         return [x for x in self.agent_list if x.health_status ==
                 SICK or x.health_status == ASYMPTOMATIC]
 
     def get_healed_count(self):
-        """
-        Getting the current state data to build charts
+        """Number of healead agents
+
+        Returns:
+            (Integer): Number of agents
         """
         return len([x for x in self.agent_list if x.health_status ==
                     WITH_DISEASES_SEQUELAES or x.health_status == TOTAL_RECOVERY])
 
     def get_dead_count(self):
-        """
-        Getting the current state data to build charts
+        """Number of dead agents
+
+        Returns:
+            (Integer): Number of agents
         """
         return len([x for x in self.agent_list if x.health_status == DEAD])
 
     def get_healthy_count(self):
-        """
-        Getting the current state data to build charts
+        """Number of healthy agents
+
+        Returns:
+            (Integer): Number of agents
         """
         return len([x for x in self.agent_list if x.health_status == HEALTHY])
 
     def get_immune_people_count(self):
-        """
-        Getting the current state data to build charts
+        """Number of immune agents
+
+        Returns:
+            (Integer): Number of agents
         """
         return len([x for x in self.agent_list if x.immune_system_response == IMR_IMMUNE])
