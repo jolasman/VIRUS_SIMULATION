@@ -1,7 +1,7 @@
 import json
 import yaml
 
-with open('config.yaml') as f:
+with open('../config.yaml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 simulation = config['SIMULATION']['PARAMS']
@@ -115,7 +115,7 @@ IMR_DEADLY_INFECTED = 4
 # Check this site to see the base for the propability of being deadly infected for age. Updated date : 11/25/2020 12:00 p.m.
 # https://covid19.min-saude.pt/ponto-de-situacao-atual-em-portugal/
 # using service response saved on file
-with open('data.jsonc') as f:
+with open('../data/data.jsonc') as f:
     data = json.load(f)
 
 LAST_DATA_POSITION = data["features"][-1]["attributes"]
@@ -178,3 +178,4 @@ HOME_RECOVERY_P = 1 - (ADM_HOSP_ICU_P + ADM_HOSP_P)
 # print(TOTAL_DEATH / TOTAL_CONF_PEOP_PORTUGAL) 0.015061439139304626
 
 
+CHART_DATA = '../data/chart_data.txt'

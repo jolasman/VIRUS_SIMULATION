@@ -213,7 +213,7 @@ def main(random_simulation, graphics_simulation, static_beginning):
     new_simulation = Simulation("Test Simulation")
 
     # clearing file with real time chat data
-    open('chart_data.txt', 'w').close()
+    open(constants.CHART_DATA, 'w').close()
 
     if random_simulation:
         if constants.SOCIAL_DISTANCE == 0:
@@ -259,7 +259,7 @@ def main(random_simulation, graphics_simulation, static_beginning):
 
     # updating file qith initial values, for live chart
     line = f"{1}, {initial_healthy}, {initial_infected}, {initial_dead}, {initial_healed}, {initial_quarentine}\n"
-    with open('chart_data.txt', 'a') as f:
+    with open(constants.CHART_DATA, 'a') as f:
         f.write(line)
 
     # Running simulation
@@ -301,7 +301,7 @@ def main(random_simulation, graphics_simulation, static_beginning):
 
         # updating file for live chart
         line = f"{i}, {healthy}, {infected}, {dead}, {healed}, {quarentine}\n"
-        with open('chart_data.txt', 'a') as f:
+        with open(constants.CHART_DATA, 'a') as f:
             f.write(line)
 
         if(infected == 0):

@@ -1,18 +1,19 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
-from constants import FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y
+import constants
 style.use('fivethirtyeight')
+
 
 def chart_5_axes():
     """Build the chart data
     """
     fig = plt.figure(num=123456, figsize=(
-        FOUR_PLOTS_FIG_SIZE_X, FOUR_PLOTS_FIG_SIZE_Y))
+        constants.FOUR_PLOTS_FIG_SIZE_X, constants.FOUR_PLOTS_FIG_SIZE_Y))
     ax1 = fig.add_subplot(1, 1, 1)
 
     def animate(i):
-        graph_data = open('chart_data.txt', 'r').read()
+        graph_data = open(constants.CHART_DATA, 'r').read()
         lines = graph_data.split('\n')
         xs = []
         y_healthy = []
@@ -22,7 +23,8 @@ def chart_5_axes():
         y_quarentine = []
         for line in lines:
             if len(line) > 1:
-                x, healthy, infected, dead, healed, quarentine = line.split(',')
+                x, healthy, infected, dead, healed, quarentine = line.split(
+                    ',')
                 xs.append(int(x))
                 y_healthy.append(int(healthy))
                 y_infected.append(int(infected))
@@ -41,9 +43,5 @@ def chart_5_axes():
     plt.show()
 
 
-
-
 if __name__ == "__main__":
     chart_5_axes()
-
-    
