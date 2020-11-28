@@ -6,7 +6,7 @@ fake = Faker()
 
 
 class Agent:
-    def __init__(self, pos_X, pos_Y, name="anonymous", age=None, health_status=0, immune_system_response=0):
+    def __init__(self, pos_X, pos_Y, name="anonymous", age=None, health_status=0, immune_system_response=0, wear_mask=None):
         if age is None:
             age = random.randint(0, 100)
 
@@ -19,6 +19,9 @@ class Agent:
         if immune_system_response is None:
             immune_system_response = Agent.immune_response_by_age(age)
 
+        if wear_mask is None:
+            wear_mask = bool(random.getrandbits(1))
+
         self.id = uuid.uuid1()
         self.name = name
         self.age = age
@@ -30,6 +33,7 @@ class Agent:
         self.pos_tuple = (self.pos_X, self.pos_Y)
         self.infected_days = None
         self.recovered = False
+        self.wear_mask = wear_mask
 
     def step(self, new_posX, new_posY):
         """
@@ -73,7 +77,7 @@ class Agent:
                 if value_d < pdir:
                     return constants.IMR_DEADLY_INFECTED
                 elif value_d > pdir:
-                # 19.8/20 chances to be ASYMPTOMATIC over IMMUNE
+                    # 19.8/20 chances to be ASYMPTOMATIC over IMMUNE
                     if value < 19.8 * ((1-pdir) / 20):
                         return constants.IMR_ASYMPTOMATIC
                     else:

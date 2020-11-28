@@ -22,6 +22,7 @@ SIMULATION:
       MOD_IMR_NBR: 190
       HIGH_IMR_NBR: 700
       DEAD_IMR_NBR: 50
+      PEOPLE_WEARING_MASK: 50
   AGENT:
     PARAMS:
       HEALTH_ARRAY_SICK_P: 0.02 # probabilities of being of one type in random simulation with no static values
@@ -41,6 +42,10 @@ SIMULATION:
       # people die after X days if immune system type IMR_DEADLY_INFECTED
       INFECTED_DAYS_THRESHOLD_FOR_DEAD: 5
       INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS: 10 # stop the virus propagation
+      CONTAGIOUS_AGENT_MASK: 0.05
+      HEALTHY_AGENT_MASK: 0.15
+      CONTAGIOUS_AGENT_MASK_HEALTHY_MASK: 0.7
+      CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK: 1
   VISUALIZATION:
     PARAMS:
       COLORS_DICT: #BGR
@@ -51,9 +56,9 @@ SIMULATION:
         DEAD_COLOR: [0, 0, 0] # dead is black
         HEALTHY_COLOR: [0, 255, 0] # green
       SIZES:
-        FOUR_PLOTS_FIG_SIZE_X : 8
-        FOUR_PLOTS_FIG_SIZE_Y : 8
-        ALL_DATA_PLOT_FIG_SIZE_X : 12
-        ALL_DATA_PLOT_FIG_SIZE_Y : 10
-        SIMULATION_GRAPHICS_SIZE_X : 900
-        SIMULATION_GRAPHICS_SIZE_Y : 900
+        FOUR_PLOTS_FIG_SIZE_X: 8
+        FOUR_PLOTS_FIG_SIZE_Y: 8
+        ALL_DATA_PLOT_FIG_SIZE_X: 12
+        ALL_DATA_PLOT_FIG_SIZE_Y: 10
+        SIMULATION_GRAPHICS_SIZE_X: 900
+        SIMULATION_GRAPHICS_SIZE_Y: 900

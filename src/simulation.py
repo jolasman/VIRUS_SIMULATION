@@ -103,7 +103,7 @@ class Simulation:
                     agent.set_position(constants.DEAD_X, constants.DEAD_Y)
 
     def create_agent(self, pos_X, pos_Y, name=None, age=None, health_status=None,
-                     immune_system_response=None):
+                     immune_system_response=None, wear_mask=None):
         """Create a new agent for the Simulation instance
 
         Args:
@@ -115,7 +115,7 @@ class Simulation:
             immune_system_response (Integer, optional): Agent's immune response system type. Defaults to None.
         """
         new_agent = Agent(pos_X, pos_Y, name=name, age=age, health_status=health_status,
-                          immune_system_response=immune_system_response)
+                          immune_system_response=immune_system_response, wear_mask=wear_mask)
         self.agent_list.append(new_agent)
 
     def set_health_status_by_day(self):
@@ -170,16 +170,16 @@ class Simulation:
 
     def update_health_status(self):
         """
-        Updates the status for each agent
+        Updates the status for each agent when in contact with other agents
         """
         for current_agent in self.agent_list:
             # creating a tupple list with the position, the health_status, and the infected days of each agent in the simulation
-            tuple_list = [(agent_.pos_tuple, agent_.health_status, agent_.infected_days)
+            tuple_list = [(agent_.pos_tuple, agent_.health_status, agent_.infected_days, agent_.wear_mask)
                           for agent_ in self.agent_list]
             (x_0, y_0) = current_agent.pos_tuple  # get the agent position
 
             # for each agent in simulation
-            for ((x_1, y_1), hs_from_agent_in_contact, inf_day_agent_in_contact) in tuple_list:
+            for ((x_1, y_1), hs_from_agent_in_contact, inf_day_agent_in_contact, wear_mask_agent_in_contact) in tuple_list:
                 # calculating the distance between the points
                 dist = math.hypot(x_0 - x_1, y_0 - y_1)
                 # if not the agent himself and ( it is not recoverd and inside the contagious range) and (agent in contact is sick)
@@ -188,7 +188,7 @@ class Simulation:
                         # can get the virus, neverthless he got it once before, the recovered instance variable can change
                         if current_agent.health_status > constants.ASYMPTOMATIC:
                             hs_new_value_for_current_agent = Simulation.value_based_probability(
-                                hs_from_agent_in_contact, current_agent.immune_system_response)
+                                hs_from_agent_in_contact, current_agent.immune_system_response, wear_mask_agent_in_contact, current_agent.wear_mask)
 
                             if hs_new_value_for_current_agent != -1:
                                 current_agent.health_status = hs_new_value_for_current_agent
@@ -228,7 +228,7 @@ class Simulation:
                         f"Agent {agent.id} returns to the environment at {agent.pos_tuple}")
 
     @staticmethod
-    def value_based_probability(health_status, agent_immune_response):
+    def value_based_probability(health_status, agent_immune_response, wear_mask_agent_in_contact, wear_mask_current_agent):
         """Returns the agent new health status based on its immune system type and on the health status of the agent in contact with
 
         SICK_P| HEALTHY | ASSYMPTOMATIC_P|
@@ -238,6 +238,8 @@ class Simulation:
         Args:
             health_status (Integer): Health status of agent in contact with
             agent_immune_response (Integer): Current agent imune response type
+            wear_mask_agent_in_contact (Boolean): If agent in contact wears a mask
+            wear_mask_current_agent (Boolean): If current agent wears a mask
 
         Returns:
             Health Status (Integer): Agent new health status
@@ -247,7 +249,17 @@ class Simulation:
             return -1  # do not change the agent's healthy status
         else:
             random_value = random.random()
-            if random_value <= constants.SICK_P:
+            # using mask reduces the spread
+            if wear_mask_agent_in_contact:
+                mask_value = constants.CONTAGIOUS_AGENT_MASK
+            elif wear_mask_agent_in_contact and wear_mask_current_agent:
+                mask_value = constants.HEALTHY_AGENT_MASK
+            elif wear_mask_current_agent:
+                mask_value = constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK
+            else:
+                mask_value = constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK
+
+            if random_value <= constants.SICK_P * mask_value:
                 if agent_immune_response > constants.IMR_ASYMPTOMATIC:
                     return constants.SICK
                 elif agent_immune_response == constants.IMR_ASYMPTOMATIC:
@@ -255,17 +267,20 @@ class Simulation:
                 elif agent_immune_response == constants.IMR_IMMUNE:
                     return -1
 
-            elif random_value >= constants.SICK_P and random_value <= constants.SICK_P + constants.HEALTHY_P:
+            elif random_value >= constants.SICK_P * mask_value and \
+                random_value <= constants.SICK_P * mask_value + constants.HEALTHY_P * mask_value:
                 return constants.HEALTHY
 
-            elif random_value >= 1 - constants.ASYMPTOMATIC_P:
+            elif random_value >= 1 - constants.ASYMPTOMATIC_P * mask_value:
                 if agent_immune_response > constants.IMR_ASYMPTOMATIC:
                     return constants.SICK
                 elif agent_immune_response == constants.IMR_ASYMPTOMATIC:
                     return constants.ASYMPTOMATIC
                 elif agent_immune_response == constants.IMR_IMMUNE:
                     return -1
-
+            else:
+                # when agents wear a mask, the probability count is less than 1 so we end up here, where the masks did not allow the contagious
+                return -1
     def get_all_agents(self):
         """Returns the list of agents for the Simulation instance
 
@@ -290,7 +305,7 @@ class Simulation:
             (Integer): Number of agents
         """
         return len([x for x in self.agent_list if x.pos_tuple != (constants.QUARENTINE_X, constants.QUARENTINE_Y) and (x.health_status ==
-                                                                                                   constants.SICK or x.health_status == constants.ASYMPTOMATIC)])
+                                                                                                                       constants.SICK or x.health_status == constants.ASYMPTOMATIC)])
 
     def get_infected(self):
         """List of infected agents
@@ -333,3 +348,11 @@ class Simulation:
             (Integer): Number of agents
         """
         return len([x for x in self.agent_list if x.immune_system_response == constants.IMR_IMMUNE])
+
+    def get_wearing_mask_count(self):
+        """Number of agents wearing mask
+
+        Returns:
+            (Integer): Number of agents
+        """
+        return len([x for x in self.agent_list if x.wear_mask])

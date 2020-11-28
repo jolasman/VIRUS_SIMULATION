@@ -1,3 +1,5 @@
+import constants
+from matplotlib.ticker import MaxNLocator
 __author__ = "Joel Carneiro"
 __copyright__ = "Copyright 2020, Open Source Project"
 __credits__ = ["Joel Carneiro"]
@@ -19,8 +21,6 @@ from PIL import Image  # for creating visual of our env
 import matplotlib.pyplot as plt
 from matplotlib import style
 style.use('fivethirtyeight')
-from matplotlib.ticker import MaxNLocator
-import constants
 
 logging.basicConfig(
     level=constants.LOG_LEVEL,
@@ -32,11 +32,10 @@ logging.basicConfig(
 # TODO
 # After n days people can get the virus again
 # Adding a vaccine
-# add mask
 # washing hands
 
 
-def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, high_imr_nbr, dead_imr_nbr):
+def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, high_imr_nbr, dead_imr_nbr, wear_mask_nbr):
     """ Defining number of people for sick healthy and immune people
 
     Args:
@@ -52,7 +51,8 @@ def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, hig
     """
 
     sick_array = [constants.SICK for x in range(sick_nbr)]
-    healthy_array = [constants.HEALTHY for x in range(constants.TOTAL_NUMBER_OF_AGENTS - sick_nbr)]
+    healthy_array = [constants.HEALTHY for x in range(
+        constants.TOTAL_NUMBER_OF_AGENTS - sick_nbr)]
     hs_array = sick_array + healthy_array
     random.shuffle(hs_array)
 
@@ -61,11 +61,16 @@ def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, hig
     mod_array = [constants.IMR_MODERATELY_INFECTED for x in range(mod_imr_nbr)]
     high_array = [constants.IMR_HIGHLY_INFECTED for x in range(high_imr_nbr)]
     dead_array = [constants.IMR_DEADLY_INFECTED for x in range(dead_imr_nbr)]
-
     imr_array = immune_array + asymp_array + mod_array + high_array + dead_array
     random.shuffle(imr_array)
 
-    return hs_array, imr_array
+    wear_mask_array = [True for x in range(wear_mask_nbr)]
+    no_mask_array = [False for x in range(
+        constants.TOTAL_NUMBER_OF_AGENTS - wear_mask_nbr)]
+    mask_array = wear_mask_array + no_mask_array
+    random.shuffle(mask_array)
+
+    return hs_array, imr_array, mask_array
 
 
 def generate_random_tuple_list():
@@ -76,8 +81,10 @@ def generate_random_tuple_list():
     """
     tuple_list = set()
     while len(tuple_list) < constants.TOTAL_NUMBER_OF_AGENTS:
-        x = random.randint(0 + constants.RANDOM_LIMIT, constants.SIZE-constants.RANDOM_LIMIT)
-        y = random.randint(0 + constants.RANDOM_LIMIT, constants.SIZE-constants.RANDOM_LIMIT)
+        x = random.randint(0 + constants.RANDOM_LIMIT,
+                           constants.SIZE-constants.RANDOM_LIMIT)
+        y = random.randint(0 + constants.RANDOM_LIMIT,
+                           constants.SIZE-constants.RANDOM_LIMIT)
         tuple_list.add((x, y))
 
     tuple_list = list(tuple_list)
@@ -112,8 +119,10 @@ def available_random_pos(simulation):
     new_pos_Y = 0
     has_value = False
     for _ in simulation.agent_list:
-        new_pos_X = random.randint(0 + constants.RANDOM_LIMIT, constants.SIZE - constants.RANDOM_LIMIT)
-        new_pos_Y = random.randint(0 + constants.RANDOM_LIMIT, constants.SIZE - constants.RANDOM_LIMIT)
+        new_pos_X = random.randint(
+            0 + constants.RANDOM_LIMIT, constants.SIZE - constants.RANDOM_LIMIT)
+        new_pos_Y = random.randint(
+            0 + constants.RANDOM_LIMIT, constants.SIZE - constants.RANDOM_LIMIT)
         tuple_list = [
             agent_.pos_tuple for agent_ in simulation.agent_list]
         while not has_value:
@@ -160,7 +169,8 @@ def show_graphic_simulation(simulation):
     # reading to rgb. Apparently. Even tho color definitions are bgr. ???
     img = Image.fromarray(env, 'RGB')
     # resizing so we can see our agent in all its glory.
-    img = img.resize((constants.SIMULATION_GRAPHICS_SIZE_X, constants.SIMULATION_GRAPHICS_SIZE_Y))
+    img = img.resize((constants.SIMULATION_GRAPHICS_SIZE_X,
+                      constants.SIMULATION_GRAPHICS_SIZE_Y))
 
     cv2.imshow("image", np.array(img))
     cv2.waitKey(200)
@@ -172,7 +182,7 @@ def show_detailed_data(infected, healed, healthy, dead, simulation):
     pass
 
 
-def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, imr_data=None):
+def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, imr_data=None, mask_data=None):
     """Adds all agents to the simulation
 
     Args:
@@ -197,8 +207,13 @@ def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, im
     else:
         immune_response_value = imr_data.pop()
 
+    if mask_data is None:
+        wear_mask = None
+    else:
+        wear_mask = mask_data.pop()
+
     new_simulation.create_agent(
-        new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value)
+        new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value, wear_mask=wear_mask)
 
 
 def main(random_simulation, graphics_simulation, static_beginning):
@@ -221,8 +236,8 @@ def main(random_simulation, graphics_simulation, static_beginning):
             random_tuple_list = generate_random_tuple_list()
 
         if static_beginning:
-            hs_data, imr_data = static_simulation(
-                constants.SICK_NBR, constants.IMMMUNE_IMR_NBR, constants.ASYMP_IMR_NBR, constants.MOD_IMR_NBR, constants.HIGH_IMR_NBR, constants.DEAD_IMR_NBR)
+            hs_data, imr_data, mask_data = static_simulation(
+                constants.SICK_NBR, constants.IMMMUNE_IMR_NBR, constants.ASYMP_IMR_NBR, constants.MOD_IMR_NBR, constants.HIGH_IMR_NBR, constants.DEAD_IMR_NBR, constants.PEOPLE_WEARING_MASK)
             if len(hs_data) != constants.TOTAL_NUMBER_OF_AGENTS or len(imr_data) != constants.TOTAL_NUMBER_OF_AGENTS:
                 logging.error(
                     f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({constants.TOTAL_NUMBER_OF_AGENTS})")
@@ -236,7 +251,7 @@ def main(random_simulation, graphics_simulation, static_beginning):
             else:
                 # static values in the begginging
                 create_simulation_agents(
-                    new_simulation, random_tuple_list, hs_data=hs_data, imr_data=imr_data)
+                    new_simulation, random_tuple_list, hs_data=hs_data, imr_data=imr_data, mask_data=mask_data)
         pbar.set_description("Creating Agents in random positions")
 
     # getting initial data about simulation
@@ -248,6 +263,8 @@ def main(random_simulation, graphics_simulation, static_beginning):
 
     logging.info(f"Imunne people: {new_simulation.get_immune_people_count()}")
     logging.info(f"Infected people: {initial_infected}")
+    logging.info(
+        f"People wearing a mask: {new_simulation.get_wearing_mask_count()}")
 
     # initializing the variables to build final chart
     x = [1]
