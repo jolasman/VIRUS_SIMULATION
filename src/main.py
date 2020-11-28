@@ -250,6 +250,9 @@ def main(random_simulation, graphics_simulation, static_beginning):
                 create_simulation_agents(
                     new_simulation, random_tuple_list, hs_data=hs_data, imr_data=imr_data, mask_data=mask_data)
         pbar.set_description("Creating Agents in random positions")
+    else:
+        logging.error(f"Not implemented yet. The Agents can only move in a random way")
+        sys.exit()
 
     # getting initial data about simulation
     initial_infected = new_simulation.get_infected_count()
@@ -346,7 +349,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Running a simulation for Covid-19 Simulation.")
     parser.add_argument("-r", "--random", action="store_true",
-                        help="runs with Agents initialized at random positions and with random status")
+                        help="runs with Agents initialized at random positions and move randomly")
     parser.add_argument("-g", "--graphics", action="store_true",
                         help="sshows Graphics for the simulation")
     parser.add_argument("-s", "--static_beginning", action="store_true",
