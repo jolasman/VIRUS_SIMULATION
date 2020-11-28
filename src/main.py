@@ -349,11 +349,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Running a simulation for Covid-19 Simulation.")
     parser.add_argument("-r", "--random", action="store_true",
-                        help="Runs with Agents initialized at random positions and with random status")
+                        help="runs with Agents initialized at random positions and with random status")
     parser.add_argument("-g", "--graphics", action="store_true",
-                        help="Shows Graphics for the simulation")
+                        help="sshows Graphics for the simulation")
     parser.add_argument("-s", "--static_beginning", action="store_true",
-                        help="Shows Graphics for the simulation")
+                        help="using the config.yaml file's static section as the starting values for the simulation")
 
     args = parser.parse_args()
 
