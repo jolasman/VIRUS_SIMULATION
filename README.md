@@ -1,4 +1,5 @@
 # This is a Simulation of how COVID-19 virus can spread in some different case scenarios.
+<div style="text-align: justify "> 
 
 # Contents
 
@@ -22,7 +23,6 @@ The simulation programming's paradigm is Object-oriented where we have two main 
 Some of the probabilities used are based on real data from my county. The data was retrieved from the response of one service from this [site](https://covid19.min-saude.pt/ponto-de-situacao-atual-em-portugal/). After that, I store the data to have it in a file (I chose not to call the service and avoid that implementation since it takes time). Then I handle the data so I can have, for instance, the percentage of people that die grouped by age range. You can find that logic at the end of `constants.py` file.
 
 In other cases, I simply defined probability values that I think they are valid. Almost all values can be changed in the configuration file if you want to test the Simulation.
-
 # Requirements
 
 To run this project you should have `python>=3.8.3`, as it was developed using that version. 
@@ -34,8 +34,7 @@ To install the necessary libraries run the command `pip install -r requirements.
 # Configuration
 
 To configure the simulation you can use the `config.yaml` file at the root folder.
-There you can change the parameters like the number of agents in the simulation and the probability of being infected by another sick agent
-  
+There you can change the parameters like the number of agents in the simulation and the probability of being infected by another sick agent.
 
 # How to Run
 
@@ -51,3 +50,4 @@ To see the chart in real time go to the `/src` folder and run `python ./live_cha
     * [Blog](https://smartinsightblog.blogspot.com/)
     * [LinkedIn](https://www.linkedin.com/in/joelcarneiromieic/)
 
+</div>
