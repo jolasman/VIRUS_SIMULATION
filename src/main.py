@@ -1,5 +1,3 @@
-import constants
-from matplotlib.ticker import MaxNLocator
 __author__ = "Joel Carneiro"
 __copyright__ = "Copyright 2020, Open Source Project"
 __credits__ = ["Joel Carneiro"]
@@ -9,17 +7,18 @@ __maintainer__ = "Joel Carneiro"
 __email__ = "jolasman@hotmail.com"
 __status__ = "Development"
 
-from simulation import Simulation
+import constants
 import random
-
 import time
 import logging
-from tqdm import tqdm
 import cv2
 import numpy as np
-from PIL import Image  # for creating visual of our env
 import matplotlib.pyplot as plt
+from PIL import Image
+from tqdm import tqdm
 from matplotlib import style
+from matplotlib.ticker import MaxNLocator
+from simulation import Simulation
 style.use('fivethirtyeight')
 
 logging.basicConfig(
@@ -30,8 +29,6 @@ logging.basicConfig(
 )
 
 # TODO
-# After n days people can get the virus again
-# Adding a vaccine
 # washing hands
 
 
