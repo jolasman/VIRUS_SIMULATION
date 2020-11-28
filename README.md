@@ -28,7 +28,7 @@ To configure the simulation you can use the `config.yaml` file at the root folde
 
 # How to Run
 
-Run the command `python ./main.py -h` or `python ./main.py --help` to see how to run the simulation.
+Run the command `python ./main.py -h` or `python ./main.py --help` to see how to run the simulation at `/src` folder.
   
 
 # MAINTAINERS
