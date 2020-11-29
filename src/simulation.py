@@ -122,7 +122,6 @@ class Simulation:
         new_agent = Agent(pos_X, pos_Y, name=name, age=age, health_status=health_status,
                           immune_system_response=immune_system_response, wear_mask=wear_mask)
         self.agent_list.append(new_agent)
-       
 
     def set_health_status_by_day(self):
         """Updates the agents health status based on the number of days infected with the virus
@@ -161,6 +160,9 @@ class Simulation:
                     if agent.immune_system_response == constants.IMR_DEADLY_INFECTED:
                         agent.health_status = constants.DEAD
                         self.daily_dead += 1
+                        if agent.pos_tuple == (constants.QUARENTINE_X, constants.QUARENTINE_Y):
+                            self.daily_quarentine -= 1
+                            
                         logging.info(
                             f"Sadly Agent {agent.id} died. He was known as {agent.name}")
                     agent.infected_days += 1
@@ -240,7 +242,7 @@ class Simulation:
                     logging.debug(
                         f"Agent {agent.id} returns to the environment at {agent.pos_tuple}")
 
-    @staticmethod
+    @ staticmethod
     def value_based_probability(health_status, agent_immune_response, wear_mask_agent_in_contact, wear_mask_current_agent):
         """Returns the agent new health status based on its immune system type and on the health status of the agent in contact with
 
@@ -313,7 +315,7 @@ class Simulation:
                     if agent.pos_tuple == (constants.QUARENTINE_X, constants.QUARENTINE_Y)])
 
     def get_infected_count(self):
-        """Number of agents infected 
+        """Number of agents infected
 
         Returns:
             (Integer): Number of agents
