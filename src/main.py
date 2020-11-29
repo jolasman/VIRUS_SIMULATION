@@ -8,6 +8,8 @@ __email__ = "jolasman@hotmail.com"
 __status__ = "Development"
 
 import constants
+import argparse
+import sys
 import logging
 import utils
 from tqdm import tqdm
@@ -24,15 +26,19 @@ logging.basicConfig(
 # washing hands
 
 
-
-def main(random_simulation, graphics_simulation, static_beginning, daily_data):
+def main(random_simulation, graphics_simulation, static_beginning, daily_data, load_average_simulations, max_files_mean):
     """Runs the simulation
 
     Args:
         random_simulation (Boolean): If simulation agent's movement is random based
         graphics_simulation (Boolean): If show the environment graphically
         static_beginning (Boolean): If Simulation starts with defined values
+        average_simulations (Boolean): Uses saved simulations by averaging its values
     """
+    if load_average_simulations:
+        utils.show_detailed_data(
+            *utils.load_detailed_data(max_files_mean, static_beginning))
+        return
     # Creating simulation instance
     new_simulation = Simulation("Test Simulation")
 
@@ -56,7 +62,8 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data):
         pbar = tqdm(range(constants.TOTAL_NUMBER_OF_AGENTS))
         for _ in pbar:
             if not static_beginning:  # no static values in the begginging
-                utils.create_simulation_agents(new_simulation, random_tuple_list)
+                utils.create_simulation_agents(
+                    new_simulation, random_tuple_list)
             else:
                 # static values in the begginging
                 utils.create_simulation_agents(
@@ -156,13 +163,12 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data):
 
     if daily_data:
         utils.show_detailed_data(x, daily_infected, daily_dead, daily_healed,
-                           daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine)
+                                 daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine)
         utils.save_detailed_data(x, daily_infected, daily_dead, daily_healed,
-                           daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, static_beginning)
+                                 daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, static_beginning)
 
 
 if __name__ == "__main__":
-    import argparse
 
     parser = argparse.ArgumentParser(
         description="Running a simulation for Covid-19 Simulation.")
@@ -174,9 +180,16 @@ if __name__ == "__main__":
                         help="using the config.yaml file's static section as the starting values for the simulation")
     parser.add_argument("-d", "--daily_data", action="store_true",
                         help="shows the daily numbers for each status (infected, quarentine, healed, etc)")
+    parser.add_argument("-l", "--load_average_simulations", action="store_true",
+                        help="uses old simulations of same type and shows the average of all values")
+    parser.add_argument("-m", "--max_files_mean", type=int,
+                        help="maximum number of simulations to use. If --load_average_simulations is present this value is required")
 
     args = parser.parse_args()
 
-    print(f"Simulation 1.0")
+    if args.load_average_simulations and not args.max_files_mean:
+        parser.error("--load_average_simulations requires --max_files_mean")
+
+    logging.info(f"Simulation 1.0")
     main(random_simulation=args.random, graphics_simulation=args.graphics,
-         static_beginning=args.static_beginning, daily_data=args.daily_data)
+         static_beginning=args.static_beginning, daily_data=args.daily_data, load_average_simulations=args.load_average_simulations, max_files_mean=args.max_files_mean)

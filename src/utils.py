@@ -3,6 +3,9 @@ import cv2
 import pickle
 import random
 import time
+import sys
+import logging
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -10,6 +13,14 @@ from matplotlib import style
 from matplotlib.ticker import MaxNLocator
 from PIL import Image
 style.use('fivethirtyeight')
+
+logging.basicConfig(
+    level=constants.LOG_LEVEL,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S",
+    handlers=[logging.StreamHandler()],
+)
+
 
 def save_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, static_beginning):
     """Saves cumulative and daily data in charts
@@ -60,6 +71,106 @@ def save_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaren
 
     with open(filename, 'wb') as handle:
         pickle.dump(dict_, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def calc_mean(list_of_lists):
+    """Receives a list of list and returns a list with the mean of each value in the inner lists
+
+    Args:
+        list_of_lists (List): List of lists
+
+    Returns:
+        List: list with the mean of each value in the inner lists of list_of_lists
+    """
+    if len(list_of_lists) == 0:
+        return []
+
+    mean_list = []
+    for i in range(len(list_of_lists[0])):
+        mean = 0
+        for array in list_of_lists:
+            mean += array[i]
+        mean /= len(list_of_lists)
+        mean_list.append(int(mean))
+
+    return mean_list
+
+
+def load_detailed_data(max_files_nbr, static_beginning):
+    """Loads the data and presents the charts
+
+    Args:
+        max_files_nbr (Integer): Maximum number of files to use for each type of simulation
+        static_beginning (Boolean): If it is a static simulation
+    """
+
+    if static_beginning:
+        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARENTINE_PERCENTAGE}_{constants.QUARENTINE_DAYS}"
+                  f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
+                  f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
+                  f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}")
+        filename = f"Static_{constants.SICK_NBR}_{constants.IMMMUNE_IMR_NBR}_{constants.ASYMP_IMR_NBR}_{constants.MOD_IMR_NBR}_{constants.HIGH_IMR_NBR}_{constants.DEAD_IMR_NBR}_{constants.PEOPLE_WEARING_MASK}_"
+    else:
+        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARENTINE_PERCENTAGE}_{constants.QUARENTINE_DAYS}")
+        filename = (f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
+                    f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
+                    f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}_")
+    x_arrays = []
+    daily_infected_arrays = []
+    daily_dead_arrays = []
+    daily_healed_arrays = []
+    daily_quarentine_arrays = []
+    y_healthy_arrays = []
+    y_infected_arrays = []
+    y_dead_arrays = []
+    y_healed_arrays = []
+    y_quarentine_arrays = []
+
+    error_msg = f"No old simulation with your current configuration. Please run some new simulations and try again later."
+    try:
+        os.listdir(folder)
+    except:
+        logging.error(error_msg)
+        sys.exit()
+
+    files_list = []
+    # get all files in the folder with the same configurations as the current
+    for file_ in os.listdir(folder):
+        if filename in file_ and file_[-7:] == ".pickle":
+            files_list.append(file_)
+
+    if len(files_list) == 0:
+        logging.error(error_msg)
+        sys.exit()
+
+    # getting all data from each file
+    for count, file_ in enumerate(files_list):
+        if count <= max_files_nbr:
+            with open(f"{folder}/{file_}", 'rb') as handle:
+                dict_ = pickle.load(handle)
+                x_arrays.append(dict_["x"])
+                daily_infected_arrays.append(dict_["daily_infected"])
+                daily_dead_arrays.append(dict_["daily_dead"])
+                daily_healed_arrays.append(dict_["daily_healed"])
+                daily_quarentine_arrays.append(dict_["daily_quarentine"])
+                y_healthy_arrays.append(dict_["y_healthy"])
+                y_infected_arrays.append(dict_["y_infected"])
+                y_dead_arrays.append(dict_["y_dead"])
+                y_healed_arrays.append(dict_["y_healed"])
+                y_quarentine_arrays.append(dict_["y_quarentine"])
+
+    x_mean_array = calc_mean(x_arrays)
+    daily_infected_mean_array = calc_mean(daily_infected_arrays)
+    daily_dead_mean_array = calc_mean(daily_dead_arrays)
+    daily_healed_mean_array = calc_mean(daily_healed_arrays)
+    daily_quarentine_mean_array = calc_mean(daily_quarentine_arrays)
+    y_healthy_mean_array = calc_mean(y_healthy_arrays)
+    y_infected_mean_array = calc_mean(y_infected_arrays)
+    y_dead_mean_array = calc_mean(y_dead_arrays)
+    y_healed_mean_array = calc_mean(y_healed_arrays)
+    y_quarentine_mean_array = calc_mean(y_quarentine_arrays)
+
+    return x_mean_array, daily_infected_mean_array, daily_dead_mean_array, daily_healed_mean_array, daily_quarentine_mean_array, y_healthy_mean_array, y_infected_mean_array, y_dead_mean_array, y_healed_mean_array, y_quarentine_mean_array,
 
 
 def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine):
@@ -261,6 +372,7 @@ def available_random_pos(simulation):
                 has_value = True
 
     return new_pos_X, new_pos_Y
+
 
 def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, imr_data=None, mask_data=None):
     """Adds all agents to the simulation
