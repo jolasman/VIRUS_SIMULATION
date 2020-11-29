@@ -8,10 +8,10 @@ SIMULATION:
     SIZE: 200 # environment size on each axis
     RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
     AGENTS_MOVEMENT_PERCENTAGE: 1 # percentage of the agents that moves in the step
-    QUARENTINE_X: -10 # should be negative to get out of the env
-    QUARENTINE_Y: -10 # should be negative to get out of the env
-    DEAD_X: -1 # should be negative to get out of the env
-    DEAD_Y: -1 # should be negative to get out of the env
+    QUARENTINE_X: -10 # should be negative or greater than SIZE to get out of the env
+    QUARENTINE_Y: -10 # should be negative or greater than SIZE to get out of the env
+    DEAD_X: -1 # should be negative or greater than SIZE to get out of the env
+    DEAD_Y: -1 # should be negative or greater than SIZE to get out of the env
     QUARENTINE_PERCENTAGE: 0.5 # number of people detected and starting quarentine
     QUARENTINE_DAYS: 5 # number o days to wait until starting to put people in quarentine
   STATIC:
@@ -55,7 +55,7 @@ SIMULATION:
         DEAD_COLOR: [0, 0, 0] # dead is black
         HEALTHY_COLOR: [0, 255, 0] # green
       SIZES:
-        FOUR_PLOTS_FIG_SIZE_X: 8
+        FOUR_PLOTS_FIG_SIZE_X: 9
         FOUR_PLOTS_FIG_SIZE_Y: 8
         ALL_DATA_PLOT_FIG_SIZE_X: 12
         ALL_DATA_PLOT_FIG_SIZE_Y: 10

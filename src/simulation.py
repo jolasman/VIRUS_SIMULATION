@@ -23,7 +23,6 @@ class Simulation:
         self.daily_healed = 0
         self.daily_dead = 0
         self.daily_quarentine = 0
-        self.daily_healthy = 0
 
     def random_step(self, random_limit, size,  p_of_agent_moving=1):
         """Simulating the environment step
@@ -162,7 +161,7 @@ class Simulation:
                         self.daily_dead += 1
                         if agent.pos_tuple == (constants.QUARENTINE_X, constants.QUARENTINE_Y):
                             self.daily_quarentine -= 1
-                            
+
                         logging.info(
                             f"Sadly Agent {agent.id} died. He was known as {agent.name}")
                     agent.infected_days += 1
@@ -399,12 +398,11 @@ class Simulation:
         self.daily_healed = 0
         self.daily_dead = 0
         self.daily_quarentine = 0
-        self.daily_healthy = 0
 
     def get_daily_data(self):
         """Returns daily data counters. You should call the reset_daily_data class method after using this one
 
         Returns:
-            self.daily_infected (Integer), self.daily_healed (Integer), self.daily_dead (Integer), self.daily_quarentine (Integer), self.daily_healthy (Integer) : daily counters
+            self.daily_infected (Integer), self.daily_healed (Integer), self.daily_dead (Integer), self.daily_quarentine (Integer): daily counters
         """
-        return self.daily_infected, self.daily_healed, self.daily_dead, self.daily_quarentine, self.daily_healthy
+        return self.daily_infected, self.daily_healed, self.daily_dead, self.daily_quarentine

@@ -17,10 +17,25 @@ SIZE = simulation['SIZE']
 RANDOM_LIMIT = simulation['RANDOM_LIMIT']
 # percentage of the agents that moves in the step
 AGENTS_MOVEMENT_PERCENTAGE = simulation['AGENTS_MOVEMENT_PERCENTAGE']
-QUARENTINE_X = simulation['QUARENTINE_X']
-QUARENTINE_Y = simulation['QUARENTINE_Y']
-DEAD_X = simulation['DEAD_X']
-DEAD_Y = simulation['DEAD_Y']
+quarentine_x = simulation['QUARENTINE_X']
+quarentine_y = simulation['QUARENTINE_Y']
+dead_x = simulation['DEAD_X']
+dead_y = simulation['DEAD_Y']
+if (dead_x > 0 or dead_x < SIZE) or (dead_y > 0 or dead_y < SIZE):
+    DEAD_X = -1
+    DEAD_Y = -1
+else:
+    DEAD_X = dead_x
+    DEAD_Y = dead_y
+
+if (quarentine_x > 0 or quarentine_x < SIZE) or (quarentine_y > 0 or quarentine_y < SIZE):
+    QUARENTINE_X = -10
+    QUARENTINE_Y = -10
+else:
+    QUARENTINE_X = quarentine_x
+    QUARENTINE_Y = quarentine_y
+
+
 # number of people detected and starting quarentine
 QUARENTINE_PERCENTAGE = simulation['QUARENTINE_PERCENTAGE']
 # number of days until peoople goo to quarentine

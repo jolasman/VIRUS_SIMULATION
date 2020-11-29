@@ -94,7 +94,7 @@ def get_random_pos(random_tuple_list):
     """Returns the last tuple as x and y variables for the given list of tuples
 
     Args:
-        random_tuple_list ([type]): [description]
+        random_tuple_list (List): List of tuples (x,y)
 
     Returns:
         pos_X (Integer), pos_Y (Integer): Two variable with the X and Y positions to use
@@ -173,10 +173,64 @@ def show_graphic_simulation(simulation):
     cv2.waitKey(200)
 
 
-def show_detailed_data(infected, healed, healthy, dead, simulation):
+def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine):
+    """Shows cumulative and daily data in charts
+
+    Args:
+        x (List): List of days
+        daily_infected (List): List of daily infected
+        daily_dead (List): List of daily dead
+        daily_healed (List): List of daily healed
+        daily_quarentine (List): List of daily quarentine
+        y_healthy (List): List of cumulative healthy agents
+        y_infected (List):  List of cumulative infected agents
+        y_dead (List): List of cumulative dead agents
+        y_healed (List): List of cumulative healed agents
+        y_quarentine (List): List of cumulative quarentine agents
     """
-    """
-    pass
+    # adding final chart
+    fig2 = plt.figure(num=1, figsize=(
+        constants.ALL_DATA_PLOT_FIG_SIZE_X, constants.ALL_DATA_PLOT_FIG_SIZE_Y))
+    ax_fig2 = fig2.add_subplot(1, 1, 1)
+    ax_fig2.plot(x, y_healthy, 'o-', color='g', label="Healthy")
+    ax_fig2.plot(x, y_infected, 'o-', color='r', label="Infected")
+    ax_fig2.plot(x, y_dead, 'o-', color='k', label="Dead")
+    ax_fig2.plot(x, y_healed, 'o-', color='y', label="Healed")
+    ax_fig2.plot(x, y_quarentine, 'o-', color='b',
+                 label="People in Quarentine")
+    ax_fig2.legend(loc='upper left')
+    ax_fig2.set_xlabel('Days')
+    ax_fig2.set_ylabel('Agents')
+    fig2.suptitle('Simulation cumulative values', fontsize=16)
+
+    fig3 = plt.figure(num=2, figsize=(
+        constants.ALL_DATA_PLOT_FIG_SIZE_X, constants.ALL_DATA_PLOT_FIG_SIZE_Y))
+    ax_fig3 = fig3.add_subplot(4, 1, 1)
+    ax1_fig3 = fig3.add_subplot(4, 1, 2)
+    ax2_fig3 = fig3.add_subplot(4, 1, 3)
+    ax3_fig3 = fig3.add_subplot(4, 1, 4)
+    ax_fig3.plot(x, daily_infected, 'o-', color='r', label="Infected")
+    ax1_fig3.plot(x, daily_dead, 'o-', color='k', label="Dead")
+    ax2_fig3.plot(x, daily_healed, 'o-', color='y', label="Healed")
+    ax3_fig3.plot(x, daily_quarentine, 'o-', color='b',
+                  label="Quarentine")
+    ax_fig3.legend(loc='upper left')
+    ax1_fig3.legend(loc='upper left')
+    ax2_fig3.legend(loc='upper left')
+    ax3_fig3.legend(loc='upper left')
+
+    ax_fig3.set_xlabel('Days')
+    ax1_fig3.set_xlabel('Days')
+    ax2_fig3.set_xlabel('Days')
+    ax3_fig3.set_xlabel('Days')
+
+    ax_fig3.set_ylabel('Agents')
+    ax1_fig3.set_ylabel('Agents')
+    ax2_fig3.set_ylabel('Agents')
+    ax3_fig3.set_ylabel('Agents')
+
+    fig3.suptitle('Daily Values', fontsize=16)
+    plt.show()
 
 
 def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, imr_data=None, mask_data=None):
@@ -325,13 +379,13 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data):
 
         if daily_data:
             # saving daily
-            new_daily_infected, new_daily_healed, new_daily_dead, new_daily_quarentine, new_daily_healthy = new_simulation.get_daily_data()
-            
+            new_daily_infected, new_daily_healed, new_daily_dead, new_daily_quarentine = new_simulation.get_daily_data()
+
             daily_healed.append(new_daily_healed)
             daily_dead.append(new_daily_dead)
             daily_quarentine.append(new_daily_quarentine)
             daily_infected.append(new_daily_infected)
-
+            # resetting values to 0 in each day
             new_simulation.reset_daily_data()
 
         # updating file for live chart
@@ -342,27 +396,9 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data):
         if(infected == 0):
             break
 
-    # adding final chart
-    fig2 = plt.figure(num=2, figsize=(
-        constants.ALL_DATA_PLOT_FIG_SIZE_X, constants.ALL_DATA_PLOT_FIG_SIZE_Y))
-    ax_fig2 = fig2.add_subplot(1, 1, 1)
-    ax_fig2.plot(x, y_healthy, 'o-', color='g', label="Healthy")
-    ax_fig2.plot(x, y_infected, 'o-', color='r', label="Infected")
-    ax_fig2.plot(x, y_dead, 'o-', color='k', label="Dead")
-    ax_fig2.plot(x, y_healed, 'o-', color='y', label="Healed")
-    ax_fig2.plot(x, y_quarentine, 'o-', color='b',
-                 label="People in Quarentine")
-    ax_fig2.legend(loc='upper left')
-    plt.show()
-
     if daily_data:
-        logging.info(f"List of infected agents by day: {daily_infected}")
-        logging.info(
-            f"List of peoople in quarentine by day: {daily_quarentine}")
-        logging.info(f"List of healed agents by day: {daily_healed}")
-        logging.info(f"List of dead agents by day: {daily_dead}")
-    # printing data
-    # show_detailed_data(y_infected, y_healed, y_healthy, y_dead, new_simulation)
+        show_detailed_data(x, daily_infected, daily_dead, daily_healed,
+                           daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine)
 
 
 if __name__ == "__main__":

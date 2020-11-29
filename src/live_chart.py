@@ -39,6 +39,9 @@ def chart_5_subplot():
         ax1.plot(xs, y_healed, color='y', label="Healed")
         ax1.plot(xs, y_quarentine, color='b', label="People in Quarentine")
         ax1.legend(loc='upper left')
+        ax1.set_xlabel('Days')
+        ax1.set_ylabel('Agents')
+        fig.suptitle('Simulation cumulative values in real-time', fontsize=16)
     ani = animation.FuncAnimation(fig, animate, interval=1000)
     plt.show()
 
