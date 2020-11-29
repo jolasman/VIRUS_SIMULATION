@@ -4,3 +4,4 @@ debug.log
 __pycache__/
 data/chart_data.txt
 testing.py
+/data/**/pickle

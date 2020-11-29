@@ -200,4 +200,6 @@ HOME_RECOVERY_P = 1 - (ADM_HOSP_ICU_P + ADM_HOSP_P)
 # print(TOTAL_DEATH / TOTAL_CONF_PEOP_PORTUGAL) 0.015061439139304626
 
 
-CHART_DATA = '../data/chart_data.txt'
+CHART_DATA = "../data/chart_data.txt"
+
+PICKLE_DATA = "../data/pickle/"
