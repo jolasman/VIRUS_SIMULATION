@@ -5,7 +5,7 @@ import constants
 style.use('fivethirtyeight')
 
 
-def chart_5_axes():
+def chart_5_subplot():
     """Build the chart data
     """
     fig = plt.figure(num=123456, figsize=(
@@ -44,4 +44,4 @@ def chart_5_axes():
 
 
 if __name__ == "__main__":
-    chart_5_axes()
+    chart_5_subplot()

@@ -3,26 +3,26 @@ LOG_LEVEL: INFO
 
 SIMULATION:
   PARAMS:
-    EPISODES: 500
+    EPISODES: 500 # interpreted as days
     TOTAL_NUMBER_OF_AGENTS: 1_000
-    SIZE: 200
-    RANDOM_LIMIT: 20
+    SIZE: 200 # environment size on each axis
+    RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
     AGENTS_MOVEMENT_PERCENTAGE: 1 # percentage of the agents that moves in the step
-    QUARENTINE_X: -10
-    QUARENTINE_Y: -10
-    DEAD_X: -1
-    DEAD_Y: -1
+    QUARENTINE_X: -10 # should be negative to get out of the env
+    QUARENTINE_Y: -10 # should be negative to get out of the env
+    DEAD_X: -1 # should be negative to get out of the env
+    DEAD_Y: -1 # should be negative to get out of the env
     QUARENTINE_PERCENTAGE: 0.5 # number of people detected and starting quarentine
     QUARENTINE_DAYS: 5 # number o days to wait until starting to put people in quarentine
   STATIC:
     PARAMS:
-      SICK_NBR: 200
-      IMMMUNE_IMR_NBR: 10
-      ASYMP_IMR_NBR: 50
-      MOD_IMR_NBR: 190
-      HIGH_IMR_NBR: 700
-      DEAD_IMR_NBR: 50
-      PEOPLE_WEARING_MASK: 50
+      SICK_NBR: 200 # number of sick people when starting the simulation
+      IMMMUNE_IMR_NBR: 10 # number of people with immune system resposnse as Immune when starting the simulation
+      ASYMP_IMR_NBR: 50 # number of people with immune system resposnse as Asymptomatic when starting the simulation
+      MOD_IMR_NBR: 190 # number of people with immune system resposnse as Moderately Infected when starting the simulation
+      HIGH_IMR_NBR: 700 # number of people with immune system resposnse as Highly infected when starting the simulation
+      DEAD_IMR_NBR: 50 # number of people with immune system resposnse as Deadly infected when starting the simulation
+      PEOPLE_WEARING_MASK: 700 # number of people wearing a mask when starting the simulation
   AGENT:
     PARAMS:
       HEALTH_ARRAY_SICK_P: 0.02 # probabilities of being of one type in random simulation with no static values
@@ -39,13 +39,12 @@ SIMULATION:
       # distance that triggers a possible contagious if one of the agents is infected
       CONTAGIOUS_DISTANCE: 2
       INFECTED_DAYS_THRESHOLD_FOR_INFECTED: 15 # after X days agents recover
-      # people die after X days if immune system type IMR_DEADLY_INFECTED
-      INFECTED_DAYS_THRESHOLD_FOR_DEAD: 5
+      INFECTED_DAYS_THRESHOLD_FOR_DEAD: 5  # people die after X days if immune system type IMR_DEADLY_INFECTED
       INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS: 10 # stop the virus propagation
-      CONTAGIOUS_AGENT_MASK: 0.05
-      HEALTHY_AGENT_MASK: 0.15
-      CONTAGIOUS_AGENT_MASK_HEALTHY_MASK: 0.7
-      CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK: 1
+      CONTAGIOUS_AGENT_MASK: 0.05 # agent in contact with is sick but wears a mask
+      HEALTHY_AGENT_MASK: 0.15 # agent wears a mask
+      CONTAGIOUS_AGENT_MASK_HEALTHY_MASK: 0.7 # both agents in contact wear a mask
+      CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK: 1 # neither one wears it
   VISUALIZATION:
     PARAMS:
       COLORS_DICT: #BGR

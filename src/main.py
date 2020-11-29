@@ -213,7 +213,7 @@ def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, im
         new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value, wear_mask=wear_mask)
 
 
-def main(random_simulation, graphics_simulation, static_beginning):
+def main(random_simulation, graphics_simulation, static_beginning, daily_data):
     """Runs the simulation
 
     Args:
@@ -251,7 +251,8 @@ def main(random_simulation, graphics_simulation, static_beginning):
                     new_simulation, random_tuple_list, hs_data=hs_data, imr_data=imr_data, mask_data=mask_data)
         pbar.set_description("Creating Agents in random positions")
     else:
-        logging.error(f"Not implemented yet. The Agents can only move in a random way")
+        logging.error(
+            f"Not implemented yet. The Agents can only move in a random way")
         sys.exit()
 
     # getting initial data about simulation
@@ -278,6 +279,12 @@ def main(random_simulation, graphics_simulation, static_beginning):
     line = f"{1}, {initial_healthy}, {initial_infected}, {initial_dead}, {initial_healed}, {initial_quarentine}\n"
     with open(constants.CHART_DATA, 'a') as f:
         f.write(line)
+
+    if daily_data:
+        daily_infected = [initial_infected]
+        daily_healed = [initial_healed]
+        daily_dead = [initial_dead]
+        daily_quarentine = [initial_quarentine]
 
     # Running simulation
     for i in range(2, constants.EPISODES + 1):
@@ -316,6 +323,17 @@ def main(random_simulation, graphics_simulation, static_beginning):
         y_healed.append(healed)
         y_quarentine.append(quarentine)
 
+        if daily_data:
+            # saving daily
+            new_daily_infected, new_daily_healed, new_daily_dead, new_daily_quarentine, new_daily_healthy = new_simulation.get_daily_data()
+            
+            daily_healed.append(new_daily_healed)
+            daily_dead.append(new_daily_dead)
+            daily_quarentine.append(new_daily_quarentine)
+            daily_infected.append(new_daily_infected)
+
+            new_simulation.reset_daily_data()
+
         # updating file for live chart
         line = f"{i}, {healthy}, {infected}, {dead}, {healed}, {quarentine}\n"
         with open(constants.CHART_DATA, 'a') as f:
@@ -337,6 +355,12 @@ def main(random_simulation, graphics_simulation, static_beginning):
     ax_fig2.legend(loc='upper left')
     plt.show()
 
+    if daily_data:
+        logging.info(f"List of infected agents by day: {daily_infected}")
+        logging.info(
+            f"List of peoople in quarentine by day: {daily_quarentine}")
+        logging.info(f"List of healed agents by day: {daily_healed}")
+        logging.info(f"List of dead agents by day: {daily_dead}")
     # printing data
     # show_detailed_data(y_infected, y_healed, y_healthy, y_dead, new_simulation)
 
@@ -349,14 +373,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Running a simulation for Covid-19 Simulation.")
     parser.add_argument("-r", "--random", action="store_true",
-                        help="runs with Agents initialized at random positions and move randomly")
+                        help="runs with agents initialized at random positions and moving randomly")
     parser.add_argument("-g", "--graphics", action="store_true",
-                        help="sshows Graphics for the simulation")
+                        help="shows graphics for the simulation")
     parser.add_argument("-s", "--static_beginning", action="store_true",
                         help="using the config.yaml file's static section as the starting values for the simulation")
+    parser.add_argument("-d", "--daily_data", action="store_true",
+                        help="shows the daily numbers for each status (infected, quarentine, healed, etc)")
 
     args = parser.parse_args()
 
     print(f"Simulation 1.0")
     main(random_simulation=args.random, graphics_simulation=args.graphics,
-         static_beginning=args.static_beginning)
+         static_beginning=args.static_beginning, daily_data=args.daily_data)

@@ -34,6 +34,7 @@ class Agent:
         self.infected_days = None
         self.recovered = False
         self.wear_mask = wear_mask
+        self.quarentine = False
 
     def step(self, new_posX, new_posY):
         """
