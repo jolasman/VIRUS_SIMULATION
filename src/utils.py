@@ -73,19 +73,43 @@ def save_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaren
         pickle.dump(dict_, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def calc_mean(list_of_lists):
+def find_max_list(list_):
+    """Returns the length of the biggest list in the list of lists
+
+    Args:
+        list_ (List): List of lists
+
+    Returns:
+        max (Integer): Biggest list length
+    """
+    list_len = [len(i) for i in list_]
+    return max(list_len)
+
+
+def calc_mean(list_of_lists, is_X=False):
     """Receives a list of list and returns a list with the mean of each value in the inner lists
 
     Args:
         list_of_lists (List): List of lists
+        is_X (Boolean): If x axis array increments the value
 
     Returns:
         List: list with the mean of each value in the inner lists of list_of_lists
     """
+
     if len(list_of_lists) == 0:
         return []
 
     mean_list = []
+    length = find_max_list(list_of_lists)
+    for list_ in list_of_lists:
+        while len(list_) < length:
+            there = True
+            if is_X:
+                list_.append(list_[-1] + 1)
+            else:
+                # if there is no value in that simulation we use 0 as daily value
+                list_.append(0)
     for i in range(len(list_of_lists[0])):
         mean = 0
         for array in list_of_lists:
@@ -159,7 +183,7 @@ def load_detailed_data(max_files_nbr, static_beginning):
                 y_healed_arrays.append(dict_["y_healed"])
                 y_quarentine_arrays.append(dict_["y_quarentine"])
 
-    x_mean_array = calc_mean(x_arrays)
+    x_mean_array = calc_mean(x_arrays, True)
     daily_infected_mean_array = calc_mean(daily_infected_arrays)
     daily_dead_mean_array = calc_mean(daily_dead_arrays)
     daily_healed_mean_array = calc_mean(daily_healed_arrays)
@@ -173,7 +197,7 @@ def load_detailed_data(max_files_nbr, static_beginning):
     return x_mean_array, daily_infected_mean_array, daily_dead_mean_array, daily_healed_mean_array, daily_quarentine_mean_array, y_healthy_mean_array, y_infected_mean_array, y_dead_mean_array, y_healed_mean_array, y_quarentine_mean_array,
 
 
-def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine):
+def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, can_plot):
     """Shows cumulative and daily data in charts
 
     Args:
@@ -188,49 +212,50 @@ def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaren
         y_healed (List): List of cumulative healed agents
         y_quarentine (List): List of cumulative quarentine agents
     """
-    # adding final chart
-    fig2 = plt.figure(num=1, figsize=(
-        constants.ALL_DATA_PLOT_FIG_SIZE_X, constants.ALL_DATA_PLOT_FIG_SIZE_Y))
-    ax_fig2 = fig2.add_subplot(1, 1, 1)
-    ax_fig2.plot(x, y_healthy, 'o-', color='g', label="Healthy")
-    ax_fig2.plot(x, y_infected, 'o-', color='r', label="Infected")
-    ax_fig2.plot(x, y_dead, 'o-', color='k', label="Dead")
-    ax_fig2.plot(x, y_healed, 'o-', color='y', label="Healed")
-    ax_fig2.plot(x, y_quarentine, 'o-', color='b',
-                 label="People in Quarentine")
-    ax_fig2.legend(loc='upper left')
-    ax_fig2.set_xlabel('Days')
-    ax_fig2.set_ylabel('Agents')
-    fig2.suptitle('Simulation cumulative values', fontsize=16)
+    if can_plot:
+        # adding final chart
+        fig2 = plt.figure(num=1, figsize=(
+            constants.ALL_DATA_PLOT_FIG_SIZE_X, constants.ALL_DATA_PLOT_FIG_SIZE_Y))
+        ax_fig2 = fig2.add_subplot(1, 1, 1)
+        ax_fig2.plot(x, y_healthy, 'o-', color='g', label="Healthy")
+        ax_fig2.plot(x, y_infected, 'o-', color='r', label="Infected")
+        ax_fig2.plot(x, y_dead, 'o-', color='k', label="Dead")
+        ax_fig2.plot(x, y_healed, 'o-', color='y', label="Healed")
+        ax_fig2.plot(x, y_quarentine, 'o-', color='b',
+                     label="People in Quarentine")
+        ax_fig2.legend(loc='upper left')
+        ax_fig2.set_xlabel('Days')
+        ax_fig2.set_ylabel('Agents')
+        fig2.suptitle('Simulation cumulative values', fontsize=16)
 
-    fig3 = plt.figure(num=2, figsize=(
-        constants.ALL_DATA_PLOT_FIG_SIZE_X, constants.ALL_DATA_PLOT_FIG_SIZE_Y))
-    ax_fig3 = fig3.add_subplot(4, 1, 1)
-    ax1_fig3 = fig3.add_subplot(4, 1, 2)
-    ax2_fig3 = fig3.add_subplot(4, 1, 3)
-    ax3_fig3 = fig3.add_subplot(4, 1, 4)
-    ax_fig3.plot(x, daily_infected, 'o-', color='r', label="Infected")
-    ax1_fig3.plot(x, daily_dead, 'o-', color='k', label="Dead")
-    ax2_fig3.plot(x, daily_healed, 'o-', color='y', label="Healed")
-    ax3_fig3.plot(x, daily_quarentine, 'o-', color='b',
-                  label="Quarentine")
-    ax_fig3.legend(loc='upper left')
-    ax1_fig3.legend(loc='upper left')
-    ax2_fig3.legend(loc='upper left')
-    ax3_fig3.legend(loc='upper left')
+        fig3 = plt.figure(num=2, figsize=(
+            constants.ALL_DATA_PLOT_FIG_SIZE_X, constants.ALL_DATA_PLOT_FIG_SIZE_Y))
+        ax_fig3 = fig3.add_subplot(4, 1, 1)
+        ax1_fig3 = fig3.add_subplot(4, 1, 2)
+        ax2_fig3 = fig3.add_subplot(4, 1, 3)
+        ax3_fig3 = fig3.add_subplot(4, 1, 4)
+        ax_fig3.plot(x, daily_infected, 'o-', color='r', label="Infected")
+        ax1_fig3.plot(x, daily_dead, 'o-', color='k', label="Dead")
+        ax2_fig3.plot(x, daily_healed, 'o-', color='y', label="Healed")
+        ax3_fig3.plot(x, daily_quarentine, 'o-', color='b',
+                      label="Quarentine")
+        ax_fig3.legend(loc='upper left')
+        ax1_fig3.legend(loc='upper left')
+        ax2_fig3.legend(loc='upper left')
+        ax3_fig3.legend(loc='upper left')
 
-    ax_fig3.set_xlabel('Days')
-    ax1_fig3.set_xlabel('Days')
-    ax2_fig3.set_xlabel('Days')
-    ax3_fig3.set_xlabel('Days')
+        ax_fig3.set_xlabel('Days')
+        ax1_fig3.set_xlabel('Days')
+        ax2_fig3.set_xlabel('Days')
+        ax3_fig3.set_xlabel('Days')
 
-    ax_fig3.set_ylabel('Agents')
-    ax1_fig3.set_ylabel('Agents')
-    ax2_fig3.set_ylabel('Agents')
-    ax3_fig3.set_ylabel('Agents')
+        ax_fig3.set_ylabel('Agents')
+        ax1_fig3.set_ylabel('Agents')
+        ax2_fig3.set_ylabel('Agents')
+        ax3_fig3.set_ylabel('Agents')
 
-    fig3.suptitle('Daily Values', fontsize=16)
-    plt.show()
+        fig3.suptitle('Daily Values', fontsize=16)
+        plt.show()
 
 
 def show_graphic_simulation(simulation):

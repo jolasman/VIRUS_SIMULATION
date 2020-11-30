@@ -26,19 +26,17 @@ logging.basicConfig(
 # washing hands
 
 
-def main(random_simulation, graphics_simulation, static_beginning, daily_data, load_average_simulations, max_files_mean):
+def run_simulation(random_simulation, graphics_simulation, static_beginning, daily_data, multi_simulation_nbr):
     """Runs the simulation
 
     Args:
         random_simulation (Boolean): If simulation agent's movement is random based
         graphics_simulation (Boolean): If show the environment graphically
         static_beginning (Boolean): If Simulation starts with defined values
-        average_simulations (Boolean): Uses saved simulations by averaging its values
+        daily_data (Boolean): Stores chart data and shows plots at the end
+        multi_simulation_nbr (Integer, optional): Number os simulations to run in one script exacution. Defaults to 0.
     """
-    if load_average_simulations:
-        utils.show_detailed_data(
-            *utils.load_detailed_data(max_files_mean, static_beginning))
-        return
+
     # Creating simulation instance
     new_simulation = Simulation("Test Simulation")
 
@@ -162,10 +160,43 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
             break
 
     if daily_data:
+        if multi_simulation_nbr and multi_simulation_nbr > 1:
+            can_plot = False
+        else:
+            can_plot = True
+
         utils.show_detailed_data(x, daily_infected, daily_dead, daily_healed,
-                                 daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine)
+                                 daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, can_plot)
         utils.save_detailed_data(x, daily_infected, daily_dead, daily_healed,
                                  daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, static_beginning)
+
+
+def main(random_simulation, graphics_simulation, static_beginning, daily_data, load_average_simulations, max_files_nbr, multi_simulation_nbr):
+    """Runs the simulation n times
+
+    Args:
+        random_simulation (Boolean): If simulation agent's movement is random based
+        graphics_simulation (Boolean): If show the environment graphically
+        static_beginning (Boolean): If Simulation starts with defined values
+        daily_data (Boolean): Stores chart data and shows plots at the end
+        average_simulations (Boolean): Uses saved simulations by averaging its values
+        max_files_nbr (Integer): Number of files to use in mean calculus when average_simulations is True
+        multi_simulation_nbr (Integer, optional): Number os simulations to run in one script exacution.
+    """
+    if load_average_simulations:
+        if multi_simulation_nbr and multi_simulation_nbr > 1:
+            can_plot = False
+        else:
+            can_plot = True
+        utils.show_detailed_data(
+            *utils.load_detailed_data(max_files_nbr, static_beginning), can_plot)
+    else:
+        if not multi_simulation_nbr:
+            multi_simulation_nbr = 1
+
+        for _ in range(multi_simulation_nbr):
+            run_simulation(random_simulation, graphics_simulation, static_beginning,
+                           daily_data, multi_simulation_nbr)
 
 
 if __name__ == "__main__":
@@ -179,17 +210,27 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--static_beginning", action="store_true",
                         help="using the config.yaml file's static section as the starting values for the simulation")
     parser.add_argument("-d", "--daily_data", action="store_true",
-                        help="shows the daily numbers for each status (infected, quarentine, healed, etc)")
+                        help="shows the daily numbers for each status (infected, quarentine, healed, etc) and stores the data in files")
     parser.add_argument("-l", "--load_average_simulations", action="store_true",
                         help="uses old simulations of same type and shows the average of all values")
-    parser.add_argument("-m", "--max_files_mean", type=int,
+    parser.add_argument("-max", "--max_files_nbr", type=int,
                         help="maximum number of simulations to use. If --load_average_simulations is present this value is required")
+    parser.add_argument("-multi", "--multi_simulation_nbr", type=int,
+                        help="number of simulations to run in one execution.")
 
     args = parser.parse_args()
 
-    if args.load_average_simulations and not args.max_files_mean:
-        parser.error("--load_average_simulations requires --max_files_mean")
+    if args.load_average_simulations and not args.max_files_nbr:
+        parser.error("--load_average_simulations requires --max_files_nbr")
+    if args.multi_simulation_nbr and args.load_average_simulations:
+        parser.error(
+            "--multi_simulation_nbr and --load_average_simulations cannot be used at same time")
+    if args.multi_simulation_nbr and args.multi_simulation_nbr > 1 and not args.daily_data:
+        parser.error(
+            "--multi_simulation_nbr and --daily_data must be used at same time")
 
     logging.info(f"Simulation 1.0")
     main(random_simulation=args.random, graphics_simulation=args.graphics,
-         static_beginning=args.static_beginning, daily_data=args.daily_data, load_average_simulations=args.load_average_simulations, max_files_mean=args.max_files_mean)
+         static_beginning=args.static_beginning, daily_data=args.daily_data,
+         load_average_simulations=args.load_average_simulations, max_files_nbr=args.max_files_nbr,
+         multi_simulation_nbr=args.multi_simulation_nbr)
