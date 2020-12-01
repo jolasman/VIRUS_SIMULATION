@@ -120,7 +120,7 @@ def calc_mean(list_of_lists, is_X=False):
     return mean_list
 
 
-def load_detailed_data(max_files_nbr, static_beginning):
+def load_detailed_data_average(max_files_nbr, static_beginning):
     """Loads the data and presents the charts
 
     Args:
@@ -194,7 +194,34 @@ def load_detailed_data(max_files_nbr, static_beginning):
     y_healed_mean_array = calc_mean(y_healed_arrays)
     y_quarentine_mean_array = calc_mean(y_quarentine_arrays)
 
-    return x_mean_array, daily_infected_mean_array, daily_dead_mean_array, daily_healed_mean_array, daily_quarentine_mean_array, y_healthy_mean_array, y_infected_mean_array, y_dead_mean_array, y_healed_mean_array, y_quarentine_mean_array,
+    return x_mean_array, daily_infected_mean_array, daily_dead_mean_array, daily_healed_mean_array, daily_quarentine_mean_array, y_healthy_mean_array, y_infected_mean_array, y_dead_mean_array, y_healed_mean_array, y_quarentine_mean_array
+
+
+def load_detailed_data_file(filename):
+    """Loads the data and presents the charts for a specific file
+
+    Args:
+        max_filesfilename_nbr (String): File to load data
+    """
+    if not os.path.exists(f"../{filename}"):
+        logging.error(f"Cannot find the file.")
+        sys.exit()
+
+    # getting all data from  file
+    with open(f"../{filename}", 'rb') as handle:
+        dict_ = pickle.load(handle)
+        x_array = dict_["x"]
+        daily_infected_array = dict_["daily_infected"]
+        daily_dead_array = dict_["daily_dead"]
+        daily_healed_array = dict_["daily_healed"]
+        daily_quarentine_array = dict_["daily_quarentine"]
+        y_healthy_array = dict_["y_healthy"]
+        y_infected_array = dict_["y_infected"]
+        y_dead_array = dict_["y_dead"]
+        y_healed_array = dict_["y_healed"]
+        y_quarentine_array = dict_["y_quarentine"]
+
+    return x_array, daily_infected_array, daily_dead_array, daily_healed_array, daily_quarentine_array, y_healthy_array, y_infected_array, y_dead_array, y_healed_array, y_quarentine_array
 
 
 def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, can_plot):

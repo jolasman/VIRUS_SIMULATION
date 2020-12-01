@@ -11,6 +11,7 @@ colors = config['SIMULATION']['VISUALIZATION']['PARAMS']['COLORS_DICT']
 graphic_sizes = config['SIMULATION']['VISUALIZATION']['PARAMS']['SIZES']
 
 LOG_LEVEL = config['LOG_LEVEL']
+APP_NAME = config['APP_NAME']
 EPISODES = simulation['EPISODES']
 TOTAL_NUMBER_OF_AGENTS = simulation['TOTAL_NUMBER_OF_AGENTS']
 SIZE = simulation['SIZE']

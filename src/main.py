@@ -171,7 +171,7 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
                                  daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, static_beginning)
 
 
-def main(random_simulation, graphics_simulation, static_beginning, daily_data, load_average_simulations, max_files_nbr, multi_simulation_nbr):
+def main(random_simulation, graphics_simulation, static_beginning, daily_data, load_average_simulations, max_files_nbr, multi_simulation_nbr, load_file):
     """Runs the simulation n times
 
     Args:
@@ -189,7 +189,9 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
         else:
             can_plot = True
         utils.show_detailed_data(
-            *utils.load_detailed_data(max_files_nbr, static_beginning), can_plot)
+            *utils.load_detailed_data_average(max_files_nbr, static_beginning), can_plot)
+    elif load_file:
+        utils.show_detailed_data(*utils.load_detailed_data_file(load_file), True)
     else:
         if not multi_simulation_nbr:
             multi_simulation_nbr = 1
@@ -217,6 +219,8 @@ if __name__ == "__main__":
                         help="maximum number of simulations to use. If --load_average_simulations is present this value is required")
     parser.add_argument("-multi", "--multi_simulation_nbr", type=int,
                         help="number of simulations to run in one execution.")
+    parser.add_argument("-lf", "--load_file", type=str,
+                        help="File path to visualize data.")
 
     args = parser.parse_args()
 
@@ -228,9 +232,14 @@ if __name__ == "__main__":
     if args.multi_simulation_nbr and args.multi_simulation_nbr > 1 and not args.daily_data:
         parser.error(
             "--multi_simulation_nbr and --daily_data must be used at same time")
+    
+    if args.load_file:
+        if args.daily_data or args.load_average_simulations or args.max_files_nbr or args.random or args.graphics or args.multi_simulation_nbr:
+            parser.error(
+                "--load_file is a stand alone argument.")
 
-    logging.info(f"Simulation 1.0")
+    logging.info(f"{constants.APP_NAME} {__version__}")
     main(random_simulation=args.random, graphics_simulation=args.graphics,
          static_beginning=args.static_beginning, daily_data=args.daily_data,
          load_average_simulations=args.load_average_simulations, max_files_nbr=args.max_files_nbr,
-         multi_simulation_nbr=args.multi_simulation_nbr)
+         multi_simulation_nbr=args.multi_simulation_nbr, load_file=args.load_file)
