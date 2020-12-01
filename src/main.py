@@ -191,7 +191,7 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
         utils.show_detailed_data(
             *utils.load_detailed_data_average(max_files_nbr, static_beginning), can_plot)
     elif load_file:
-        utils.show_detailed_data(*utils.load_detailed_data_file(load_file), True)
+        utils.show_detailed_data(*utils.load_detailed_data_file(load_file), True, load_file)
     else:
         if not multi_simulation_nbr:
             multi_simulation_nbr = 1
