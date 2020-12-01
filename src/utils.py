@@ -55,7 +55,7 @@ def save_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaren
                   f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
                   f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}")
 
-        filename = f"{folder}/Static_{constants.SICK_NBR}_{constants.IMMMUNE_IMR_NBR}_{constants.ASYMP_IMR_NBR}_{constants.MOD_IMR_NBR}_{constants.HIGH_IMR_NBR}_{constants.DEAD_IMR_NBR}_{constants.PEOPLE_WEARING_MASK}_{time.strftime('%Y-%m-%d_%H-%M-%S')}.pickle"
+        filename = f"{folder}/Static_{constants.SICK_NBR}_{constants.ASYMP_NBR}_{constants.IMMMUNE_IMR_NBR}_{constants.ASYMP_IMR_NBR}_{constants.MOD_IMR_NBR}_{constants.HIGH_IMR_NBR}_{constants.DEAD_IMR_NBR}_{constants.PEOPLE_WEARING_MASK}_{time.strftime('%Y-%m-%d_%H-%M-%S')}.pickle"
     else:
         folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARENTINE_PERCENTAGE}_{constants.QUARENTINE_DAYS}")
 
@@ -133,7 +133,7 @@ def load_detailed_data_average(max_files_nbr, static_beginning):
                   f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
                   f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
                   f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}")
-        filename = f"Static_{constants.SICK_NBR}_{constants.IMMMUNE_IMR_NBR}_{constants.ASYMP_IMR_NBR}_{constants.MOD_IMR_NBR}_{constants.HIGH_IMR_NBR}_{constants.DEAD_IMR_NBR}_{constants.PEOPLE_WEARING_MASK}_"
+        filename = f"Static_{constants.SICK_NBR}_{constants.ASYMP_NBR}_{constants.IMMMUNE_IMR_NBR}_{constants.ASYMP_IMR_NBR}_{constants.MOD_IMR_NBR}_{constants.HIGH_IMR_NBR}_{constants.DEAD_IMR_NBR}_{constants.PEOPLE_WEARING_MASK}_"
     else:
         folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARENTINE_PERCENTAGE}_{constants.QUARENTINE_DAYS}")
         filename = (f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
@@ -224,7 +224,7 @@ def load_detailed_data_file(filename):
     return x_array, daily_infected_array, daily_dead_array, daily_healed_array, daily_quarentine_array, y_healthy_array, y_infected_array, y_dead_array, y_healed_array, y_quarentine_array
 
 
-def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, can_plot, filename = False):
+def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, can_plot, filename=False):
     """Shows cumulative and daily data in charts
 
     Args:
@@ -310,7 +310,7 @@ def show_graphic_simulation(simulation):
     cv2.waitKey(200)
 
 
-def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, high_imr_nbr, dead_imr_nbr, wear_mask_nbr):
+def static_simulation(sick_nbr, asymp_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, high_imr_nbr, dead_imr_nbr, wear_mask_nbr):
     """ Defining number of people for sick healthy and immune people
 
     Args:
@@ -326,9 +326,10 @@ def static_simulation(sick_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, hig
     """
 
     sick_array = [constants.SICK for x in range(sick_nbr)]
+    asymp_array = [constants.ASYMPTOMATIC for x in range(asymp_nbr)]
     healthy_array = [constants.HEALTHY for x in range(
-        constants.TOTAL_NUMBER_OF_AGENTS - sick_nbr)]
-    hs_array = sick_array + healthy_array
+        constants.TOTAL_NUMBER_OF_AGENTS - (sick_nbr + asymp_nbr))]
+    hs_array = sick_array + asymp_array + healthy_array
     random.shuffle(hs_array)
 
     immune_array = [constants.IMR_IMMUNE for x in range(immmune_imr_nbr)]
