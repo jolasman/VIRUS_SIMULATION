@@ -16,7 +16,14 @@ logging.basicConfig(
 
 
 class Simulation:
+    """Class representing the simulation
+    """
     def __init__(self, name):
+        """Simulation constructor
+
+        Args:
+            name (Any): Simulation's name
+        """
         self.name = name
         self.agent_list = []
         self.daily_infected = 0
