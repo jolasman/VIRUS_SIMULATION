@@ -12,13 +12,13 @@
 
 # Introduction
 
-This "project" started by my curiosity about the covid-19 spread around the world. In my own country, and after everyone knows all health authorities' rules the virus is now attacking harder than never before. Why the virus continues to spread is one of my big questions. So I did this simulation-like project to study the influences of people behavior in the overall number of infected people. As an example, evaluating the influence of 10% of the people within an area do not wear a mask, or do not respect the social distance as we should.
+This "project" started with my curiosity about the covid-19 spread around the world. In my own country, and after everyone knows all health authorities' rules the virus is now attacking harder than never before. Why the virus still continues to spread: This is one of my big questions. So I did this simulation-like project to study the influences of people behaviours in the overall number of infected people. As an example, evaluating the influence of 10% of the people within an area do not wear a mask, or do not respect the social distance as we should.
 
 The simulation programming's paradigm is Object-oriented where we have two main classes.
 * Simulation
-    * Class that stores the list of agents in the simulation and "performs tasks" such as updating the health status on each day of simulation.
+    * The Class that stores the list of agents in the simulation and "performs tasks" such as updating the health status on each day of simulation.
 * Agent 
-    * Class representing the agent where we defined each Agent characteristics such as age, position in the environment, health status, and so on.
+    * The Class representing the agent where we defined each Agent characteristics such as age, position in the environment, health status, and so on.
 
 Some of the probabilities used are based on real data from my county. The data was retrieved from the response of one service from this [site](https://covid19.min-saude.pt/ponto-de-situacao-atual-em-portugal/). After that, I store the data to have it in a file (I chose not to call the service and avoid that implementation since it takes time). Then I handle the data so I can have, for instance, the percentage of people that die grouped by age range. You can find that logic at the end of `constants.py` file.
 

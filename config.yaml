@@ -12,18 +12,18 @@ SIMULATION:
     QUARENTINE_Y: -10 # should be negative or greater than SIZE to get out of the env
     DEAD_X: -1 # should be negative or greater than SIZE to get out of the env
     DEAD_Y: -1 # should be negative or greater than SIZE to get out of the env
-    QUARENTINE_PERCENTAGE: 0.1 # number of people detected and starting quarentine
-    QUARENTINE_DAYS: 15 # number o days to wait until starting to put people in quarentine
+    QUARENTINE_PERCENTAGE: 0.1 # number of agents detected and starting quarentine
+    QUARENTINE_DAYS: 15 # number o days to wait until starting to put agents in quarentine
   STATIC:
     PARAMS:
-      SICK_NBR: 50 # number of sick people when starting the simulation
-      ASYMP_NBR: 50 # number of asymptomatic people when starting the simulation
-      IMMMUNE_IMR_NBR: 10 # number of people with immune system resposnse as Immune when starting the simulation
-      ASYMP_IMR_NBR: 300 # number of people with immune system resposnse as Asymptomatic when starting the simulation
-      MOD_IMR_NBR: 690 # number of people with immune system resposnse as Moderately Infected when starting the simulation
-      HIGH_IMR_NBR: 900 # number of people with immune system resposnse as Highly infected when starting the simulation
-      DEAD_IMR_NBR: 100 # number of people with immune system resposnse as Deadly infected when starting the simulation
-      PEOPLE_WEARING_MASK: 100 # number of people wearing a mask when starting the simulation
+      SICK_NBR: 50 # number of sick agents when starting the simulation
+      ASYMP_NBR: 50 # number of asymptomatic agents when starting the simulation
+      IMMMUNE_IMR_NBR: 10 # number of agents with immune system resposnse as Immune when starting the simulation, only healthy agents can be immune
+      ASYMP_IMR_NBR: 300 # number of agents with immune system resposnse as Asymptomatic when starting the simulation
+      MOD_IMR_NBR: 690 # number of agents with immune system resposnse as Moderately Infected when starting the simulation
+      HIGH_IMR_NBR: 900 # number of agents with immune system resposnse as Highly infected when starting the simulation
+      DEAD_IMR_NBR: 100 # number of agents with immune system resposnse as Deadly infected when starting the simulation
+      AGENTS_WEARING_MASK: 100 # number of agents wearing a mask when starting the simulation
   AGENT:
     PARAMS:
       HEALTH_ARRAY_SICK_P: 0.02 # probabilities of being of one type in random simulation with no static values
@@ -40,7 +40,7 @@ SIMULATION:
       # distance that triggers a possible contagious if one of the agents is infected
       CONTAGIOUS_DISTANCE: 2
       INFECTED_DAYS_THRESHOLD_FOR_INFECTED: 15 # after X days agents recover
-      INFECTED_DAYS_THRESHOLD_FOR_DEAD: 5  # people die after X days if immune system type IMR_DEADLY_INFECTED
+      INFECTED_DAYS_THRESHOLD_FOR_DEAD: 5  # agents die after X days if immune system type IMR_DEADLY_INFECTED
       INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS: 10 # stop the virus propagation
       CONTAGIOUS_AGENT_MASK: 0.05 # agent in contact with is sick but wears a mask
       HEALTHY_AGENT_MASK: 0.15 # agent wears a mask

@@ -49,13 +49,19 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
             random_tuple_list = utils.generate_random_tuple_list()
 
         if static_beginning:
+            healty_agents = constants.TOTAL_NUMBER_OF_AGENTS - \
+                (constants.SICK_NBR + constants.ASYMP_NBR)
+            if healty_agents < constants.IMMMUNE_IMR_NBR:  # immune people are healthy
+                logging.error(
+                    f"The number of HEALTHY agents ({healty_agents}) cannot be less than the number of immune agents ({constants.IMMMUNE_IMR_NBR})")
+                sys.exit()
+
             hs_data, imr_data, mask_data = utils.static_simulation(
-                constants.SICK_NBR, constants.ASYMP_NBR, constants.IMMMUNE_IMR_NBR, constants.ASYMP_IMR_NBR, constants.MOD_IMR_NBR, constants.HIGH_IMR_NBR, constants.DEAD_IMR_NBR, constants.PEOPLE_WEARING_MASK)
+                constants.SICK_NBR, constants.ASYMP_NBR, constants.IMMMUNE_IMR_NBR, constants.ASYMP_IMR_NBR, constants.MOD_IMR_NBR, constants.HIGH_IMR_NBR, constants.DEAD_IMR_NBR, constants.AGENTS_WEARING_MASK)
             if len(hs_data) != constants.TOTAL_NUMBER_OF_AGENTS or len(imr_data) != constants.TOTAL_NUMBER_OF_AGENTS:
                 logging.error(
                     f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({constants.TOTAL_NUMBER_OF_AGENTS})")
                 sys.exit()
-
         # Creating agents
         pbar = tqdm(range(constants.TOTAL_NUMBER_OF_AGENTS))
         for _ in pbar:
@@ -191,7 +197,8 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
         utils.show_detailed_data(
             *utils.load_detailed_data_average(max_files_nbr, static_beginning), can_plot)
     elif load_file:
-        utils.show_detailed_data(*utils.load_detailed_data_file(load_file), True, load_file)
+        utils.show_detailed_data(
+            *utils.load_detailed_data_file(load_file), True, load_file)
     else:
         if not multi_simulation_nbr:
             multi_simulation_nbr = 1
@@ -232,7 +239,7 @@ if __name__ == "__main__":
     if args.multi_simulation_nbr and args.multi_simulation_nbr > 1 and not args.daily_data:
         parser.error(
             "--multi_simulation_nbr and --daily_data must be used at same time")
-    
+
     if args.load_file:
         if args.daily_data or args.load_average_simulations or args.max_files_nbr or args.random or args.graphics or args.multi_simulation_nbr:
             parser.error(
