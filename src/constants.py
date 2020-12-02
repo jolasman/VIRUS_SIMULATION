@@ -18,8 +18,8 @@ SIZE = simulation['SIZE']
 RANDOM_LIMIT = simulation['RANDOM_LIMIT']
 # percentage of the agents that moves in the step
 AGENTS_MOVEMENT_PERCENTAGE = simulation['AGENTS_MOVEMENT_PERCENTAGE']
-quarentine_x = simulation['QUARENTINE_X']
-quarentine_y = simulation['QUARENTINE_Y']
+quarantine_x = simulation['QUARANTINE_X']
+quarantine_y = simulation['QUARANTINE_Y']
 dead_x = simulation['DEAD_X']
 dead_y = simulation['DEAD_Y']
 if (dead_x > 0 or dead_x < SIZE) or (dead_y > 0 or dead_y < SIZE):
@@ -29,18 +29,18 @@ else:
     DEAD_X = dead_x
     DEAD_Y = dead_y
 
-if (quarentine_x > 0 or quarentine_x < SIZE) or (quarentine_y > 0 or quarentine_y < SIZE):
-    QUARENTINE_X = -10
-    QUARENTINE_Y = -10
+if (quarantine_x > 0 or quarantine_x < SIZE) or (quarantine_y > 0 or quarantine_y < SIZE):
+    QUARANTINE_X = -10
+    QUARANTINE_Y = -10
 else:
-    QUARENTINE_X = quarentine_x
-    QUARENTINE_Y = quarentine_y
+    QUARANTINE_X = quarantine_x
+    QUARANTINE_Y = quarantine_y
 
 
-# number of people detected and starting quarentine
-QUARENTINE_PERCENTAGE = simulation['QUARENTINE_PERCENTAGE']
-# number of days until peoople goo to quarentine
-QUARENTINE_DAYS = simulation['QUARENTINE_DAYS']
+# number of people detected and starting quarantine
+QUARANTINE_PERCENTAGE = simulation['QUARANTINE_PERCENTAGE']
+# number of days until peoople goo to quarantine
+QUARANTINE_DAYS = simulation['QUARANTINE_DAYS']
 
 
 # probabilities of being of one type in random simulation with no static values

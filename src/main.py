@@ -83,7 +83,7 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
     initial_healthy = new_simulation.get_healthy_count()
     initial_dead = new_simulation.get_dead_count()
     initial_healed = new_simulation.get_healed_count()
-    initial_quarentine = new_simulation.get_quarentine_count()
+    initial_quarantine = new_simulation.get_quarantine_count()
 
     logging.info(f"Imunne people: {new_simulation.get_immune_people_count()}")
     logging.info(f"Infected people: {initial_infected}")
@@ -96,10 +96,10 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
     y_infected = [initial_infected]
     y_dead = [initial_dead]
     y_healed = [initial_healed]
-    y_quarentine = [initial_quarentine]
+    y_quarantine = [initial_quarantine]
 
     # updating file qith initial values, for live chart
-    line = f"{1}, {initial_healthy}, {initial_infected}, {initial_dead}, {initial_healed}, {initial_quarentine}\n"
+    line = f"{1}, {initial_healthy}, {initial_infected}, {initial_dead}, {initial_healed}, {initial_quarantine}\n"
     with open(constants.CHART_DATA, 'a') as f:
         f.write(line)
 
@@ -107,7 +107,7 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
         daily_infected = [initial_infected]
         daily_healed = [initial_healed]
         daily_dead = [initial_dead]
-        daily_quarentine = [initial_quarentine]
+        daily_quarantine = [initial_quarantine]
 
     # Running simulation
     for i in range(2, constants.EPISODES + 1):
@@ -119,9 +119,9 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
             new_simulation.random_step(
                 constants.RANDOM_LIMIT, constants.SIZE, constants.AGENTS_MOVEMENT_PERCENTAGE)
 
-        # moving people between env and quarentine
-        if i > constants.QUARENTINE_DAYS:
-            new_simulation.update_quarentine(constants.SIZE)
+        # moving people between env and quarantine
+        if i > constants.QUARANTINE_DAYS:
+            new_simulation.update_quarantine(constants.SIZE)
 
         # evaluating agents' health and contacts
         new_simulation.update_health_status()
@@ -136,7 +136,7 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
         healed = new_simulation.get_healed_count()
         healthy = new_simulation.get_healthy_count()
         dead = new_simulation.get_dead_count()
-        quarentine = new_simulation.get_quarentine_count()
+        quarantine = new_simulation.get_quarantine_count()
 
         # saving data for final chart
         x.append(i)
@@ -144,21 +144,21 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
         y_infected.append(infected)
         y_dead.append(dead)
         y_healed.append(healed)
-        y_quarentine.append(quarentine)
+        y_quarantine.append(quarantine)
 
         if daily_data:
             # saving daily
-            new_daily_infected, new_daily_healed, new_daily_dead, new_daily_quarentine = new_simulation.get_daily_data()
+            new_daily_infected, new_daily_healed, new_daily_dead, new_daily_quarantine = new_simulation.get_daily_data()
 
             daily_healed.append(new_daily_healed)
             daily_dead.append(new_daily_dead)
-            daily_quarentine.append(new_daily_quarentine)
+            daily_quarantine.append(new_daily_quarantine)
             daily_infected.append(new_daily_infected)
             # resetting values to 0 in each day
             new_simulation.reset_daily_data()
 
         # updating file for live chart
-        line = f"{i}, {healthy}, {infected}, {dead}, {healed}, {quarentine}\n"
+        line = f"{i}, {healthy}, {infected}, {dead}, {healed}, {quarantine}\n"
         with open(constants.CHART_DATA, 'a') as f:
             f.write(line)
 
@@ -172,9 +172,9 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
             can_plot = True
 
         utils.show_detailed_data(x, daily_infected, daily_dead, daily_healed,
-                                 daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, can_plot)
+                                 daily_quarantine, y_healthy, y_infected, y_dead, y_healed, y_quarantine, can_plot)
         utils.save_detailed_data(x, daily_infected, daily_dead, daily_healed,
-                                 daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, static_beginning)
+                                 daily_quarantine, y_healthy, y_infected, y_dead, y_healed, y_quarantine, static_beginning)
 
 
 def main(random_simulation, graphics_simulation, static_beginning, daily_data, load_average_simulations, max_files_nbr, multi_simulation_nbr, load_file):
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--static_beginning", action="store_true",
                         help="using the config.yaml file's static section as the starting values for the simulation")
     parser.add_argument("-d", "--daily_data", action="store_true",
-                        help="shows the daily numbers for each status (infected, quarentine, healed, etc) and stores the data in files")
+                        help="shows the daily numbers for each status (infected, quarantine, healed, etc) and stores the data in files")
     parser.add_argument("-l", "--load_average_simulations", action="store_true",
                         help="uses old simulations of same type and shows the average of all values")
     parser.add_argument("-max", "--max_files_nbr", type=int,

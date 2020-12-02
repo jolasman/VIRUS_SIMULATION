@@ -47,7 +47,7 @@ class Agent:
         self.infected_days = None
         self.recovered = False
         self.wear_mask = wear_mask
-        self.quarentine = False
+        self.quarantine = False
 
 
     def set_position(self, pos_X, pos_Y):

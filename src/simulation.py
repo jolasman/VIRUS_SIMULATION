@@ -29,7 +29,7 @@ class Simulation:
         self.daily_infected = 0
         self.daily_healed = 0
         self.daily_dead = 0
-        self.daily_quarentine = 0
+        self.daily_quarantine = 0
 
     def random_step(self, random_limit, size,  p_of_agent_moving=1):
         """Simulating the environment step
@@ -41,7 +41,7 @@ class Simulation:
         """
         total = round(len(self.agent_list) * p_of_agent_moving)
         for agent in random.sample(self.agent_list, total):
-            if agent.health_status != constants.DEAD and agent.pos_tuple != (constants.QUARENTINE_X, constants.QUARENTINE_Y):
+            if agent.health_status != constants.DEAD and agent.pos_tuple != (constants.QUARANTINE_X, constants.QUARANTINE_Y):
                 has_value = False
 
                 new_pos_X = agent.pos_X + \
@@ -103,8 +103,8 @@ class Simulation:
         random.shuffle(tuple_list)
 
         for agent in random.sample(self.agent_list, total):
-            # Dead people do not move # quarentine people stay there
-            if agent.health_status != constants.DEAD and agent.pos_tuple != (constants.QUARENTINE_X, constants.QUARENTINE_Y):
+            # Dead people do not move # quarantine people stay there
+            if agent.health_status != constants.DEAD and agent.pos_tuple != (constants.QUARANTINE_X, constants.QUARANTINE_Y):
                 (new_pos_X, new_pos_Y) = tuple_list.pop()
                 agent.set_position(new_pos_X, new_pos_Y)
                 logging.debug(
@@ -166,8 +166,8 @@ class Simulation:
                     if agent.immune_system_response == constants.IMR_DEADLY_INFECTED:
                         agent.health_status = constants.DEAD
                         self.daily_dead += 1
-                        if agent.pos_tuple == (constants.QUARENTINE_X, constants.QUARENTINE_Y):
-                            self.daily_quarentine -= 1
+                        if agent.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
+                            self.daily_quarantine -= 1
 
                         logging.info(
                             f"Sadly Agent {agent.id} died. He was known as {agent.name}")
@@ -214,23 +214,23 @@ class Simulation:
                                     f"Agent {current_agent.id} had an update in his health status: {constants.HEALTH_STATUS_DICT[current_agent.health_status]}")
                                 break
 
-    def update_quarentine(self, size):
-        """Updates the status for each agent in quarentine
+    def update_quarantine(self, size):
+        """Updates the status for each agent in quarantine
 
         Args:
 
             size (Integer): Environment size
         """
-        for agent in self.get_infected()[:int(len(self.get_infected()) * constants.QUARENTINE_PERCENTAGE)]:  # only half agents go to quarentine, the others remain indetected by autorities
-            # quarentine zone
-            agent.set_position(constants.QUARENTINE_X, constants.QUARENTINE_Y)
-            agent.quarentine = True
-            self.daily_quarentine += 1
-            logging.debug(f"Agent {agent.id} is now in quarentine. ")
+        for agent in self.get_infected()[:int(len(self.get_infected()) * constants.QUARANTINE_PERCENTAGE)]:  # only half agents go to quarantine, the others remain indetected by autorities
+            # quarantine zone
+            agent.set_position(constants.QUARANTINE_X, constants.QUARANTINE_Y)
+            agent.quarantine = True
+            self.daily_quarantine += 1
+            logging.debug(f"Agent {agent.id} is now in quarantine. ")
 
-        # removing healed people from quarentine
+        # removing healed people from quarantine
         for agent in self.agent_list:
-            if agent.health_status > constants.ASYMPTOMATIC and agent.pos_tuple == (constants.QUARENTINE_X, constants.QUARENTINE_Y):
+            if agent.health_status > constants.ASYMPTOMATIC and agent.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
                 if constants.SOCIAL_DISTANCE_STEP == 0:
                     tuple_set = set(
                         [agent.pos_tuple for agent in self.agent_list])
@@ -244,7 +244,7 @@ class Simulation:
                     list_ = list(tuple_set)
                     (pos_X, pos_Y) = list_.pop()
                     agent.set_position(pos_X, pos_Y)
-                    self.daily_quarentine -= 1
+                    self.daily_quarantine -= 1
                     logging.debug(
                         f"Agent {agent.id} returns to the environment at {agent.pos_tuple}")
 
@@ -311,14 +311,14 @@ class Simulation:
         """
         return self.agent_list
 
-    def get_quarentine_count(self):
-        """Number of agents in quarentine
+    def get_quarantine_count(self):
+        """Number of agents in quarantine
 
         Returns:
             (Integer): Number of agents
         """
         return len([agent for agent in self.agent_list
-                    if agent.pos_tuple == (constants.QUARENTINE_X, constants.QUARENTINE_Y)])
+                    if agent.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y)])
 
     def get_infected_count(self):
         """Number of agents infected
@@ -330,12 +330,12 @@ class Simulation:
                                                    constants.SICK or x.health_status == constants.ASYMPTOMATIC)])
 
     def get_infected(self):
-        """List of infected agents not in quarentine
+        """List of infected agents not in quarantine
 
         Returns:
             (List): Infected agents
         """
-        return [x for x in self.agent_list if x.pos_tuple != (constants.QUARENTINE_X, constants.QUARENTINE_Y) and
+        return [x for x in self.agent_list if x.pos_tuple != (constants.QUARANTINE_X, constants.QUARANTINE_Y) and
                 (x.health_status ==
                  constants.SICK or x.health_status == constants.ASYMPTOMATIC)]
 
@@ -348,13 +348,13 @@ class Simulation:
         return len([x for x in self.agent_list if x.health_status ==
                     constants.WITH_DISEASES_SEQUELAES or x.health_status == constants.TOTAL_RECOVERY])
 
-    def get_healed_quarentine_count(self):
-        """Number of healead agents that was on quarentine
+    def get_healed_quarantine_count(self):
+        """Number of healead agents that was on quarantine
 
         Returns:
             (Integer): Number of agents
         """
-        return len([x for x in self.agent_list if x.quarentine and
+        return len([x for x in self.agent_list if x.quarantine and
                     (x.health_status == constants.WITH_DISEASES_SEQUELAES or x.health_status == constants.TOTAL_RECOVERY)])
 
     def get_dead_count(self):
@@ -365,13 +365,13 @@ class Simulation:
         """
         return len([x for x in self.agent_list if x.health_status == constants.DEAD])
 
-    def get_dead_quarentine_count(self):
-        """Number of dead agents from quarentine
+    def get_dead_quarantine_count(self):
+        """Number of dead agents from quarantine
 
         Returns:
             (Integer): Number of agents
         """
-        return len([x for x in self.agent_list if x.quarentine and x.health_status == constants.DEAD])
+        return len([x for x in self.agent_list if x.quarantine and x.health_status == constants.DEAD])
 
     def get_healthy_count(self):
         """Number of healthy agents
@@ -404,12 +404,12 @@ class Simulation:
         self.daily_infected = 0
         self.daily_healed = 0
         self.daily_dead = 0
-        self.daily_quarentine = 0
+        self.daily_quarantine = 0
 
     def get_daily_data(self):
         """Returns daily data counters. You should call the reset_daily_data class method after using this one
 
         Returns:
-            self.daily_infected (Integer), self.daily_healed (Integer), self.daily_dead (Integer), self.daily_quarentine (Integer): daily counters
+            self.daily_infected (Integer), self.daily_healed (Integer), self.daily_dead (Integer), self.daily_quarantine (Integer): daily counters
         """
-        return self.daily_infected, self.daily_healed, self.daily_dead, self.daily_quarentine
+        return self.daily_infected, self.daily_healed, self.daily_dead, self.daily_quarantine

@@ -8,12 +8,12 @@ SIMULATION:
     SIZE: 200 # environment size on each axis
     RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
     AGENTS_MOVEMENT_PERCENTAGE: 1 # percentage of the agents that moves in the step
-    QUARENTINE_X: -10 # should be negative or greater than SIZE to get out of the env
-    QUARENTINE_Y: -10 # should be negative or greater than SIZE to get out of the env
+    QUARANTINE_X: -10 # should be negative or greater than SIZE to get out of the env
+    QUARANTINE_Y: -10 # should be negative or greater than SIZE to get out of the env
     DEAD_X: -1 # should be negative or greater than SIZE to get out of the env
     DEAD_Y: -1 # should be negative or greater than SIZE to get out of the env
-    QUARENTINE_PERCENTAGE: 0.1 # number of agents detected and starting quarentine
-    QUARENTINE_DAYS: 15 # number o days to wait until starting to put agents in quarentine
+    QUARANTINE_PERCENTAGE: 0.1 # number of agents detected and starting quarantine
+    QUARANTINE_DAYS: 15 # number o days to wait until starting to put agents in quarantine
   STATIC:
     PARAMS:
       SICK_NBR: 50 # number of sick agents when starting the simulation

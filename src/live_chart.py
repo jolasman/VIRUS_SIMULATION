@@ -20,24 +20,24 @@ def chart_5_subplot():
         y_infected = []
         y_dead = []
         y_healed = []
-        y_quarentine = []
+        y_quarantine = []
         for line in lines:
             if len(line) > 1:
-                x, healthy, infected, dead, healed, quarentine = line.split(
+                x, healthy, infected, dead, healed, quarantine = line.split(
                     ',')
                 xs.append(int(x))
                 y_healthy.append(int(healthy))
                 y_infected.append(int(infected))
                 y_dead.append(int(dead))
                 y_healed.append(int(healed))
-                y_quarentine.append(int(quarentine))
+                y_quarantine.append(int(quarantine))
 
         ax1.clear()
         ax1.plot(xs, y_healthy, color="g", label="Healthy")
         ax1.plot(xs, y_infected, color='r', label="Infected")
         ax1.plot(xs, y_dead, color='k',  label="Dead")
         ax1.plot(xs, y_healed, color='y', label="Healed")
-        ax1.plot(xs, y_quarentine, color='b', label="People in Quarentine")
+        ax1.plot(xs, y_quarantine, color='b', label="People in Quarentine")
         ax1.legend(loc='upper left')
         ax1.set_xlabel('Days')
         ax1.set_ylabel('Agents')

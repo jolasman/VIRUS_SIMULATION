@@ -22,7 +22,7 @@ logging.basicConfig(
 )
 
 
-def save_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, static_beginning):
+def save_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarantine, y_healthy, y_infected, y_dead, y_healed, y_quarantine, static_beginning):
     """Saves cumulative and daily data in charts
 
     Args:
@@ -30,34 +30,34 @@ def save_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaren
         daily_infected (List): List of daily infected
         daily_dead (List): List of daily dead
         daily_healed (List): List of daily healed
-        daily_quarentine (List): List of daily quarentine
+        daily_quarantine (List): List of daily quarantine
         y_healthy (List): List of cumulative healthy agents
         y_infected (List):  List of cumulative infected agents
         y_dead (List): List of cumulative dead agents
         y_healed (List): List of cumulative healed agents
-        y_quarentine (List): List of cumulative quarentine agents
+        y_quarantine (List): List of cumulative quarantine agents
     """
     dict_ = {
         "x": x,
         "daily_infected": daily_infected,
         "daily_dead": daily_dead,
         "daily_healed": daily_healed,
-        "daily_quarentine": daily_quarentine,
+        "daily_quarantine": daily_quarantine,
         "y_healthy": y_healthy,
         "y_infected": y_infected,
         "y_dead": y_dead,
         "y_healed": y_healed,
-        "y_quarentine": y_quarentine,
+        "y_quarantine": y_quarantine,
     }
     if static_beginning:
-        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARENTINE_PERCENTAGE}_{constants.QUARENTINE_DAYS}"
+        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARANTINE_PERCENTAGE}_{constants.QUARANTINE_DAYS}"
                   f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
                   f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
                   f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}")
 
         filename = f"{folder}/Static_{constants.SICK_NBR}_{constants.ASYMP_NBR}_{constants.IMMMUNE_IMR_NBR}_{constants.ASYMP_IMR_NBR}_{constants.MOD_IMR_NBR}_{constants.HIGH_IMR_NBR}_{constants.DEAD_IMR_NBR}_{constants.AGENTS_WEARING_MASK}_{time.strftime('%Y-%m-%d_%H-%M-%S')}.pickle"
     else:
-        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARENTINE_PERCENTAGE}_{constants.QUARENTINE_DAYS}")
+        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARANTINE_PERCENTAGE}_{constants.QUARANTINE_DAYS}")
 
         filename = (f"{folder}/_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
                     f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
@@ -129,13 +129,13 @@ def load_detailed_data_average(max_files_nbr, static_beginning):
     """
 
     if static_beginning:
-        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARENTINE_PERCENTAGE}_{constants.QUARENTINE_DAYS}"
+        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARANTINE_PERCENTAGE}_{constants.QUARANTINE_DAYS}"
                   f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
                   f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
                   f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}")
         filename = f"Static_{constants.SICK_NBR}_{constants.ASYMP_NBR}_{constants.IMMMUNE_IMR_NBR}_{constants.ASYMP_IMR_NBR}_{constants.MOD_IMR_NBR}_{constants.HIGH_IMR_NBR}_{constants.DEAD_IMR_NBR}_{constants.AGENTS_WEARING_MASK}_"
     else:
-        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARENTINE_PERCENTAGE}_{constants.QUARENTINE_DAYS}")
+        folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARANTINE_PERCENTAGE}_{constants.QUARANTINE_DAYS}")
         filename = (f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
                     f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
                     f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}_")
@@ -143,12 +143,12 @@ def load_detailed_data_average(max_files_nbr, static_beginning):
     daily_infected_arrays = []
     daily_dead_arrays = []
     daily_healed_arrays = []
-    daily_quarentine_arrays = []
+    daily_quarantine_arrays = []
     y_healthy_arrays = []
     y_infected_arrays = []
     y_dead_arrays = []
     y_healed_arrays = []
-    y_quarentine_arrays = []
+    y_quarantine_arrays = []
 
     error_msg = f"No old simulation with your current configuration. Please run some new simulations and try again later."
     try:
@@ -176,25 +176,25 @@ def load_detailed_data_average(max_files_nbr, static_beginning):
                 daily_infected_arrays.append(dict_["daily_infected"])
                 daily_dead_arrays.append(dict_["daily_dead"])
                 daily_healed_arrays.append(dict_["daily_healed"])
-                daily_quarentine_arrays.append(dict_["daily_quarentine"])
+                daily_quarantine_arrays.append(dict_["daily_quarantine"])
                 y_healthy_arrays.append(dict_["y_healthy"])
                 y_infected_arrays.append(dict_["y_infected"])
                 y_dead_arrays.append(dict_["y_dead"])
                 y_healed_arrays.append(dict_["y_healed"])
-                y_quarentine_arrays.append(dict_["y_quarentine"])
+                y_quarantine_arrays.append(dict_["y_quarantine"])
 
     x_mean_array = calc_mean(x_arrays, True)
     daily_infected_mean_array = calc_mean(daily_infected_arrays)
     daily_dead_mean_array = calc_mean(daily_dead_arrays)
     daily_healed_mean_array = calc_mean(daily_healed_arrays)
-    daily_quarentine_mean_array = calc_mean(daily_quarentine_arrays)
+    daily_quarantine_mean_array = calc_mean(daily_quarantine_arrays)
     y_healthy_mean_array = calc_mean(y_healthy_arrays)
     y_infected_mean_array = calc_mean(y_infected_arrays)
     y_dead_mean_array = calc_mean(y_dead_arrays)
     y_healed_mean_array = calc_mean(y_healed_arrays)
-    y_quarentine_mean_array = calc_mean(y_quarentine_arrays)
+    y_quarantine_mean_array = calc_mean(y_quarantine_arrays)
 
-    return x_mean_array, daily_infected_mean_array, daily_dead_mean_array, daily_healed_mean_array, daily_quarentine_mean_array, y_healthy_mean_array, y_infected_mean_array, y_dead_mean_array, y_healed_mean_array, y_quarentine_mean_array
+    return x_mean_array, daily_infected_mean_array, daily_dead_mean_array, daily_healed_mean_array, daily_quarantine_mean_array, y_healthy_mean_array, y_infected_mean_array, y_dead_mean_array, y_healed_mean_array, y_quarantine_mean_array
 
 
 def load_detailed_data_file(filename):
@@ -214,17 +214,17 @@ def load_detailed_data_file(filename):
         daily_infected_array = dict_["daily_infected"]
         daily_dead_array = dict_["daily_dead"]
         daily_healed_array = dict_["daily_healed"]
-        daily_quarentine_array = dict_["daily_quarentine"]
+        daily_quarantine_array = dict_["daily_quarantine"]
         y_healthy_array = dict_["y_healthy"]
         y_infected_array = dict_["y_infected"]
         y_dead_array = dict_["y_dead"]
         y_healed_array = dict_["y_healed"]
-        y_quarentine_array = dict_["y_quarentine"]
+        y_quarantine_array = dict_["y_quarantine"]
 
-    return x_array, daily_infected_array, daily_dead_array, daily_healed_array, daily_quarentine_array, y_healthy_array, y_infected_array, y_dead_array, y_healed_array, y_quarentine_array
+    return x_array, daily_infected_array, daily_dead_array, daily_healed_array, daily_quarantine_array, y_healthy_array, y_infected_array, y_dead_array, y_healed_array, y_quarantine_array
 
 
-def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarentine, y_healthy, y_infected, y_dead, y_healed, y_quarentine, can_plot, filename=False):
+def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quarantine, y_healthy, y_infected, y_dead, y_healed, y_quarantine, can_plot, filename=False):
     """Shows cumulative and daily data in charts
 
     Args:
@@ -232,12 +232,12 @@ def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaren
         daily_infected (List): List of daily infected
         daily_dead (List): List of daily dead
         daily_healed (List): List of daily healed
-        daily_quarentine (List): List of daily quarentine
+        daily_quarantine (List): List of daily quarantine
         y_healthy (List): List of cumulative healthy agents
         y_infected (List):  List of cumulative infected agents
         y_dead (List): List of cumulative dead agents
         y_healed (List): List of cumulative healed agents
-        y_quarentine (List): List of cumulative quarentine agents
+        y_quarantine (List): List of cumulative quarantine agents
     """
     if can_plot:
         # adding final chart
@@ -249,7 +249,7 @@ def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaren
         ax_fig2.plot(x, y_infected, 'o-', color='r', label="Infected")
         ax_fig2.plot(x, y_dead, 'o-', color='k', label="Dead")
         ax_fig2.plot(x, y_healed, 'o-', color='y', label="Healed")
-        ax_fig2.plot(x, y_quarentine, 'o-', color='b',
+        ax_fig2.plot(x, y_quarantine, 'o-', color='b',
                      label="People in Quarentine")
         ax_fig2.legend(loc='upper left')
         ax_fig2.set_xlabel('Days')
@@ -266,7 +266,7 @@ def show_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaren
         ax_fig3.plot(x, daily_infected, 'o-', color='r', label="Infected")
         ax1_fig3.plot(x, daily_dead, 'o-', color='k', label="Dead")
         ax2_fig3.plot(x, daily_healed, 'o-', color='y', label="Healed")
-        ax3_fig3.plot(x, daily_quarentine, 'o-', color='b',
+        ax3_fig3.plot(x, daily_quarantine, 'o-', color='b',
                       label="Quarentine")
         ax_fig3.legend(loc='upper left')
         ax1_fig3.legend(loc='upper left')
@@ -296,7 +296,7 @@ def show_graphic_simulation(simulation):
     # starts an rbg of our size
     env = np.zeros((constants.SIZE, constants.SIZE, 3), dtype=np.uint8)
     for agent in simulation.agent_list:
-        # agents with negative coords are dead or in quarentine
+        # agents with negative coords are dead or in quarantine
         if agent.pos_tuple > (0, 0):
             env[agent.pos_X][agent.pos_Y] = constants.COLORS_DICT[agent.health_status]
 
