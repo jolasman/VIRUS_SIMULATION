@@ -169,7 +169,7 @@ class Simulation:
                         if agent.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
                             self.daily_quarantine -= 1
 
-                        logging.info(
+                        logging.debug(
                             f"Sadly Agent {agent.id} died. He was known as {agent.name}")
                     agent.infected_days += 1
 

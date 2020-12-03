@@ -203,7 +203,8 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
         if not multi_simulation_nbr:
             multi_simulation_nbr = 1
 
-        for _ in range(multi_simulation_nbr):
+        for i in range(multi_simulation_nbr):
+            logging.info(f"Simulation number {i + 1}")
             run_simulation(random_simulation, graphics_simulation, static_beginning,
                            daily_data, multi_simulation_nbr)
 
