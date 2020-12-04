@@ -46,9 +46,9 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
     open(constants.CHART_DATA, 'w').close()
 
     if random_simulation:
-        if constants.SOCIAL_DISTANCE == 0:
-            # Generating random positions to use as starting values
-            random_tuple_list = utils.generate_random_tuple_list()
+        # Generating random positions to use as starting values
+        random_tuple_list = utils.generate_random_tuple_list(
+        ) if constants.SOCIAL_DISTANCE == 0 else None
 
         if static_beginning:
             healty_agents = constants.TOTAL_NUMBER_OF_AGENTS - \
@@ -208,7 +208,8 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
 
         time_array = []
         for i in range(multi_simulation_nbr):
-            logging.info(f"Running Simulation number {i + 1}/{multi_simulation_nbr}")
+            logging.info(
+                f"Running Simulation number {i + 1}/{multi_simulation_nbr}")
             start = time.time()
             run_simulation(random_simulation, graphics_simulation, static_beginning,
                            daily_data, multi_simulation_nbr)
@@ -217,7 +218,6 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
             time_array.append(execution)
             logging.info(
                 f"Simulation took: {datetime.timedelta(seconds=execution)}")
-                
 
         logging.info(
             f"Simulations total time: {datetime.timedelta(seconds=sum(time_array))}")
