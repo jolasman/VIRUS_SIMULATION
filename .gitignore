@@ -5,3 +5,4 @@ __pycache__/
 data/chart_data.txt
 testing.py
 /data/**/pickle
+/data/social distance tests/

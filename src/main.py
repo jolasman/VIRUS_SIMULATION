@@ -11,6 +11,8 @@ import constants
 import argparse
 import sys
 import logging
+import time
+import datetime
 import utils
 from tqdm import tqdm
 from simulation import Simulation
@@ -163,6 +165,7 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
             f.write(line)
 
         if(infected == 0):
+            logging.info(f"Number of infected agents is now zero")
             break
 
     if daily_data:
@@ -203,10 +206,21 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
         if not multi_simulation_nbr:
             multi_simulation_nbr = 1
 
+        time_array = []
         for i in range(multi_simulation_nbr):
-            logging.info(f"Simulation number {i + 1}")
+            logging.info(f"Running Simulation number {i + 1}/{multi_simulation_nbr}")
+            start = time.time()
             run_simulation(random_simulation, graphics_simulation, static_beginning,
                            daily_data, multi_simulation_nbr)
+            end = time.time()
+            execution = end - start
+            time_array.append(execution)
+            logging.info(
+                f"Simulation took: {datetime.timedelta(seconds=execution)}")
+                
+
+        logging.info(
+            f"Simulations total time: {datetime.timedelta(seconds=sum(time_array))}")
 
 
 if __name__ == "__main__":

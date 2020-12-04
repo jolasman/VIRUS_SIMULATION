@@ -329,20 +329,24 @@ def static_simulation(sick_nbr, asymp_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_i
     asymp_array = [constants.ASYMPTOMATIC for x in range(asymp_nbr)]
     healthy_array = [constants.HEALTHY for x in range(
         constants.TOTAL_NUMBER_OF_AGENTS - (sick_nbr + asymp_nbr))]
-    hs_array = healthy_array + sick_array + asymp_array
+    virus_array = healthy_array[:immmune_imr_nbr] + sick_array + asymp_array # using healthy agents after imunne number
+    random.shuffle(virus_array)
+    hs_array = healthy_array[immmune_imr_nbr:] + virus_array
 
     immune_array = [constants.IMR_IMMUNE for x in range(immmune_imr_nbr)]
     asymp_array = [constants.IMR_ASYMPTOMATIC for x in range(asymp_imr_nbr)]
     mod_array = [constants.IMR_MODERATELY_INFECTED for x in range(mod_imr_nbr)]
     high_array = [constants.IMR_HIGHLY_INFECTED for x in range(high_imr_nbr)]
     dead_array = [constants.IMR_DEADLY_INFECTED for x in range(dead_imr_nbr)]
-    imr_array = immune_array + asymp_array + mod_array + high_array + dead_array
+    non_imunne_array = asymp_array + mod_array + high_array + dead_array
+    random.shuffle(non_imunne_array)
+    imr_array = immune_array + non_imunne_array
 
     wear_mask_array = [True for x in range(wear_mask_nbr)]
     no_mask_array = [False for x in range(
         constants.TOTAL_NUMBER_OF_AGENTS - wear_mask_nbr)]
     mask_array = wear_mask_array + no_mask_array
-    random.shuffle(mask_array) 
+    random.shuffle(mask_array)
     # I do not suffle the hs_array and imr_array to guarantee that only the healty agents are immune
 
     return hs_array, imr_array, mask_array
@@ -460,3 +464,4 @@ def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, im
 
     new_simulation.create_agent(
         new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value, wear_mask=wear_mask)
+
