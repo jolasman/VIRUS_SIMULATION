@@ -227,8 +227,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Running a simulation for Covid-19 Simulation.")
-    parser.add_argument("-r", "--random", action="store_true",
-                        help="runs with agents initialized at random positions and moving randomly")
+    # parser.add_argument("-r", "--random", action="store_true",
+    #                     help="runs with agents initialized at random positions and moving randomly")
     parser.add_argument("-g", "--graphics", action="store_true",
                         help="shows graphics for the simulation")
     parser.add_argument("-s", "--static_beginning", action="store_true",
@@ -256,12 +256,12 @@ if __name__ == "__main__":
             "--multi_simulation_nbr and --daily_data must be used at same time")
 
     if args.load_file:
-        if args.daily_data or args.load_average_simulations or args.max_files_nbr or args.random or args.graphics or args.multi_simulation_nbr:
+        if args.daily_data or args.load_average_simulations or args.max_files_nbr or args.graphics or args.multi_simulation_nbr:
             parser.error(
                 "--load_file is a stand alone argument.")
 
     logging.info(f"{constants.APP_NAME} {__version__}")
-    main(random_simulation=args.random, graphics_simulation=args.graphics,
+    main(random_simulation=True, graphics_simulation=args.graphics,
          static_beginning=args.static_beginning, daily_data=args.daily_data,
          load_average_simulations=args.load_average_simulations, max_files_nbr=args.max_files_nbr,
          multi_simulation_nbr=args.multi_simulation_nbr, load_file=args.load_file)
