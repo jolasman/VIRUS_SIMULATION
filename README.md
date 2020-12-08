@@ -52,8 +52,10 @@ There you can change the parameters like the number of agents in the simulation 
 
 # How to Run
 
-After having your own configurations, you can run the simulation in a trivial graphic mode. This mode shows an image in a black background and the agents represented by pixels with different colours, also configurable in the config.yaml file. In each simulation day, the image is updated. I chose this approach as it is quite simple and quick to develop, and my focus was not in the graphical part. You can also run a parallel small script to show you, in real-time, the current simulation's cumulative values. 
+After having your own configurations, you can run the simulation in a trivial graphic mode. This mode shows an image in a black background and the agents represented by pixels with different colours, also configurable in the config.yaml file. In each simulation day, the image is updated. I chose this approach as it is quite simple and quick to develop, and my focus was not in the graphical part. You can also run a parallel small script to show you, in real-time, the current simulation's cumulative values.
+
 ![Graphical mode](https://github.com/jolasman/VIRUS_SIMULATION/blob/main/data/images/graphics.png)
+*Graphical Mode*
 
 Run the command `python ./main.py -h` or `python ./main.py --help` to see how to run the simulation at `/src` folder.
 
