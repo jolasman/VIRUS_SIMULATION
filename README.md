@@ -37,9 +37,6 @@ With regard to the Agents, we have two different ways of creating them:
 Please note that only in the first case the age of each agent is used as the factor to indicate the immune system response. The second approach, defined as static begging in the simulation, do not take into account the age of the agent. Here, the immune system response type is randomly distributed by the agents, according to the specified numbers for each type.
 # The age influence
 In the random beginning approach, I use probabilities based on real data from my country when it comes to death data by age range. The data was retrieved from the response of one service from this site. After that, I stored the data to have it in a file (I chose not to call the service and avoid that implementation since it takes time). Then I handle the data so I can have, for instance, the percentage of people that die grouped by age range. You can find that logic at the end of constants.py file. In other cases, I simply defined probability values that I think are valid. Almost all values can be changed in the configuration file (config.yaml) if you want to test the Simulation. The file also includes the variables' meaning in the simulation context through code comments. 
-
-Using the Simulation
-After having your own configurations, you can run the simulation in a trivial graphic mode. This mode shows an image in a black background and the agents represented by pixels with different colours, also configurable in the config.yaml file. In each simulation day, the image is updated. I chose this approach as it is quite simple and quick to develop, and my focus was not in the graphical part. You can also run a parallel small script to show you, in real-time, the current simulation's cumulative values. 
 # Requirements
 
 To run this project you should have `python>=3.8.3`, as it was developed using that version. 
@@ -54,6 +51,9 @@ To configure the simulation you can use the `config.yaml` file at the root folde
 There you can change the parameters like the number of agents in the simulation and the probability of being infected by another sick agent.
 
 # How to Run
+
+After having your own configurations, you can run the simulation in a trivial graphic mode. This mode shows an image in a black background and the agents represented by pixels with different colours, also configurable in the config.yaml file. In each simulation day, the image is updated. I chose this approach as it is quite simple and quick to develop, and my focus was not in the graphical part. You can also run a parallel small script to show you, in real-time, the current simulation's cumulative values. 
+![Graphical mode](https://github.com/jolasman/VIRUS_SIMULATION/blob/main/data/images/graphics.png)
 
 Run the command `python ./main.py -h` or `python ./main.py --help` to see how to run the simulation at `/src` folder.
 
