@@ -6,3 +6,8 @@ data/chart_data.txt
 testing.py
 /data/**/pickle
 /data/social distance tests/
+/data/quarantine days/
+/data/quarantine percentage/
+/data/wearing a mask tests/
+/data/number of agents/
+/data/vaccine/
