@@ -50,7 +50,7 @@ HEALTH_ARRAY_P = [agent['HEALTH_ARRAY_SICK_P'],
 # Probability of recovering but with sequels
 RECOVERY_SEQUELS_P = agent['RECOVERY_SEQUELS_P']
 
-# probability of of being infected when being in contact with a type of agent
+# Probability of being infected when in contact with an infected agent
 SICK_P = agent['SICK_P']
 ASYMPTOMATIC_P = agent['ASYMPTOMATIC_P']
 HEALTHY_P = agent['HEALTHY_P']

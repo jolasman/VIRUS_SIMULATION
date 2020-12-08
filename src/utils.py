@@ -194,6 +194,9 @@ def load_detailed_data_average(max_files_nbr, static_beginning):
     y_healed_mean_array = calc_mean(y_healed_arrays)
     y_quarantine_mean_array = calc_mean(y_quarantine_arrays)
 
+    logging.info(f"Average number of total new infected agents: {sum(daily_infected_mean_array) - daily_infected_mean_array[0]}")
+    logging.info(f"Average number of total new dead agents: {sum(daily_dead_mean_array) - daily_dead_mean_array[0]}")
+
     return x_mean_array, daily_infected_mean_array, daily_dead_mean_array, daily_healed_mean_array, daily_quarantine_mean_array, y_healthy_mean_array, y_infected_mean_array, y_dead_mean_array, y_healed_mean_array, y_quarantine_mean_array
 
 
