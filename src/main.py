@@ -24,9 +24,6 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 
-# TODO
-# washing hands
-
 
 def run_simulation(random_simulation, graphics_simulation, static_beginning, daily_data, multi_simulation_nbr):
     """Runs the simulation
@@ -261,7 +258,8 @@ if __name__ == "__main__":
                 "--load_file is a stand alone argument.")
 
     logging.info(f"{constants.APP_NAME} {__version__}")
-    main(random_simulation=True, graphics_simulation=args.graphics,
-         static_beginning=args.static_beginning, daily_data=args.daily_data,
-         load_average_simulations=args.load_average_simulations, max_files_nbr=args.max_files_nbr,
-         multi_simulation_nbr=args.multi_simulation_nbr, load_file=args.load_file)
+   
+    from mesa_handler import MoneyModel
+    empty_model = MoneyModel(10)
+    empty_model.step()
+    
