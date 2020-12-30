@@ -2,7 +2,7 @@ from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid  # allows multiple agents in the same cell
 from mesa.datacollection import DataCollector
-from mesa_agent import MoneyAgent
+from mesa_agent import SimulationAgent
 
 
 def compute_gini(model):
@@ -13,7 +13,7 @@ def compute_gini(model):
     return (1 + (1/N) - 2*B)
 
 
-class MoneyModel(Model):
+class SimulationModel(Model):
     """A model with some number of agents."""
 
     def __init__(self, N, width, height):
@@ -24,7 +24,7 @@ class MoneyModel(Model):
 
         # Create agents
         for i in range(self.num_agents):
-            a = MoneyAgent(i, self)
+            a = SimulationAgent(model=self)
             self.schedule.add(a)
             # Add the agent to a random grid cell
             x = self.random.randrange(self.grid.width)
