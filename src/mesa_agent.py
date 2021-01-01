@@ -5,24 +5,34 @@ import uuid
 import random
 from faker import Faker
 fake = Faker()
-
 logging.basicConfig(
     level=constants.LOG_LEVEL,
-    filename='logs/mesa_agent.log',
+    filename='logs/mesa_model.log',
     filemode='w',
-    format="%(asctime)s [%(levelname)s] %(message)s",
+    format="%(name)s %(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
-    # handlers=[logging.StreamHandler()],
 )
+
+logger = logging.getLogger(__name__)
 
 
 class SimulationAgent(Agent):
-    """ An agent with fixed initial wealth."""
+    """Class representing a human being
+    """
 
-    def __init__(self, model,  name="anonymous", age=None, health_status=None, immune_system_response=None, wear_mask=None):
+    def __init__(self, model,  name=None, age=None, health_status=None, immune_system_response=None, wear_mask=None):
+        """Class constructor
+
+        Args:
+            model (Mesa Model): The simulations model
+            name (str, optional): Agent's name. Defaults to None.
+            age (Integer, optional): Agent's age. Defaults to None.
+            health_status (inIntegert, optional): Agent's health status. Defaults to None.
+            immune_system_response (Integer, optional): Agent's Immune System response type. Defaults to None.
+            wear_mask (Boolean, optional): If agent wears a mask. Defaults to None.
+        """
         id_ = uuid.uuid1()
         super().__init__(id_, model)
-        self.wealth = 1
         if age is None:
             age = random.randint(0, 100)
 
@@ -66,21 +76,17 @@ class SimulationAgent(Agent):
             [self.pos])  # find others in the same cell
         if len(cellmates) > 1:
             for agent in cellmates:
-                logging.debug(f"********************************\nAgent: {self} \n\nin contact with: {agent}")
-                if agent.infected_days:  # excluding the day 0, when the agents get the infection, where we change from None to 0
+                # excluding the day 0, when the agents get the infection, where we change from None to 0
+                if agent.infected_days and not self.recovered:
                     # can get the virus, neverthless he got it once before, the recovered instance variable can change
-                    logging.debug(f"Infected Days")
                     if self.health_status > constants.ASYMPTOMATIC:
-                        logging.debug(f"health_status")
                         hs_new_value_for_current_agent = SimulationAgent.value_based_probability(
                             agent.health_status, self.immune_system_response, agent.wear_mask, self.wear_mask)
-                        logging.debug(f"hs_new_value_for_current_agent : {hs_new_value_for_current_agent}")
                         if hs_new_value_for_current_agent != -1:
                             self.health_status = hs_new_value_for_current_agent
                             #self.daily_infected += 1
-                            logging.debug(
+                            logger.debug(
                                 f"Agent {self.unique_id} had an update in his health status: {constants.HEALTH_STATUS_DICT[self.health_status]}")
-                            break
 
     def step(self):
         """[summary]
@@ -96,18 +102,16 @@ class SimulationAgent(Agent):
             [type]: [description]
         """
         return self.health_status
-    
+
     def update_infected_agents(self):
         """Updates the agents health status based on the number of days infected with the virus
         """
-        #self.daily_infected += 1
-        logging.debug(f"update_infected_agents called")
         # evaluating time passing by, for all agents
         if (self.health_status == constants.SICK or self.health_status == constants.ASYMPTOMATIC) and not self.recovered:
             # initializing value
             if self.infected_days is None:
                 self.infected_days = 0
-                logging.debug(
+                logger.debug(
                     f"Agent {self.unique_id} is now on is day 0 for infected people. He is known as {self.name}")
 
             # infected threshould where people recover
@@ -117,15 +121,15 @@ class SimulationAgent(Agent):
                 if self.health_status == constants.SICK or self.previous_health_status == constants.SICK:
                     if value < constants.RECOVERY_SEQUELS_P:
                         self.health_status = constants.WITH_DISEASES_SEQUELAES
-                        logging.debug(
+                        logger.debug(
                             f"Agent {self.unique_id} recovered with sequels from being SICK. He is known as {self.name}")
                     else:
                         self.health_status = constants.TOTAL_RECOVERY
-                        logging.debug(
+                        logger.debug(
                             f"Agent {self.unique_id} recovered totaly from being SICK. He is known as {self.name}")
                 else:
                     self.health_status = constants.TOTAL_RECOVERY
-                    logging.debug(
+                    logger.debug(
                         f"Agent {self.unique_id} recovered totaly. He is known as {self.name}")
                 self.recovered = True
                 #self.daily_healed += 1
@@ -134,11 +138,11 @@ class SimulationAgent(Agent):
             elif self.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD:
                 if self.immune_system_response == constants.IMR_DEADLY_INFECTED:
                     self.health_status = constants.DEAD
-                    self.daily_dead += 1
-                    #if self.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
-                        #self.daily_quarantine -= 1
+                    #self.daily_dead += 1
+                    # if self.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
+                    #self.daily_quarantine -= 1
 
-                    logging.debug(
+                    logger.debug(
                         f"Sadly Agent {self.unique_id} died. He was known as {self.name}")
                 self.infected_days += 1
 
@@ -147,13 +151,12 @@ class SimulationAgent(Agent):
                 if self.health_status != constants.ASYMPTOMATIC:
                     self.previous_health_status = constants.SICK
                     self.health_status = constants.ASYMPTOMATIC
-                    logging.debug(
+                    logger.debug(
                         f"Agent {self.unique_id} is now better and ASYMPTOMATIC. He is known as {self.name}")
 
                 self.infected_days += 1
             else:
                 self.infected_days += 1
-
 
     def __str__(self):
         """Overrides how the agent is printed
@@ -252,7 +255,7 @@ class SimulationAgent(Agent):
             Health Status (Integer): Agent new health status
         """
 
-        if health_status > 1 or agent_immune_response == constants.IMR_IMMUNE:
+        if health_status > constants.ASYMPTOMATIC or agent_immune_response == constants.IMR_IMMUNE:
             return -1  # do not change the agent's healthy status
         else:
             random_value = random.random()

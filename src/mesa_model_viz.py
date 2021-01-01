@@ -1,15 +1,27 @@
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule
-from mesa_model import SimulationModel
+import mesa_model
 import sys
 import constants
 
-SIZE_X = 30
-SIZE_Y = 30
-PIXELS_X = 500
-PIXELS_Y = 500
-NUMBER_OF_AGENTS = 50
+import logging
+logging.basicConfig(
+    level=constants.LOG_LEVEL,
+    filename='logs/mesa_model.log',
+    filemode='w',
+    format="%(name)s %(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
+SIZE_X = 100
+SIZE_Y = SIZE_X
+PIXELS_X = 1000
+PIXELS_Y = PIXELS_X
+NUMBER_OF_AGENTS = (SIZE_X * SIZE_Y) // 4
+
+logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
 
 
 def agent_portrayal(agent):
@@ -18,32 +30,26 @@ def agent_portrayal(agent):
     if agent.get_health_status() == constants.SICK:
         portrayal["Color"] = "#ff0000"
         portrayal["Layer"] = 5
-        portrayal["r"] = 0.4
+        portrayal["r"] = 0.6
     elif agent.get_health_status() == constants.ASYMPTOMATIC:
         portrayal["Color"] = "#ff9900"
-        portrayal["Layer"] = 1
+        portrayal["Layer"] = 4
+        portrayal["r"] = 0.5
     elif agent.get_health_status() == constants.WITH_DISEASES_SEQUELAES:
         portrayal["Color"] = "#ff6699"
         portrayal["Layer"] = 2
+        portrayal["r"] = 0.4
     elif agent.get_health_status() == constants.TOTAL_RECOVERY:
         portrayal["Color"] = "#3399ff"
-        portrayal["Layer"] = 3
+        portrayal["Layer"] = 2
     elif agent.get_health_status() == constants.HEALTHY:
         portrayal["Color"] = "#33cc33"
         portrayal["Layer"] = 4
         portrayal["r"] = 1
     else:  # dead
         portrayal["Color"] = "white"
-        portrayal["Layer"] = 4
+        portrayal["Layer"] = 1
         portrayal["r"] = 0.1
-
-    # portrayal = {"Shape": "circle",
-    #              "Color": "red",
-    #              "Filled": "true",
-    #              "Layer": 0,
-    #              "r": 0.5}
-
-    print(portrayal)
 
     return portrayal
 
@@ -70,7 +76,7 @@ chart_healthy = ChartModule([{"Label": "Healthy Agents",
 - The title of the model: “Money Model”
 - Any inputs or arguments for the model itself. In this case, 100 agents, and height and width of 10. 
 """
-server = ModularServer(SimulationModel,
+server = ModularServer(mesa_model.SimulationModel,
                        [grid, chart_sick, chart_recover,
                            chart_dead, chart_healthy],
                        "Money Model",
