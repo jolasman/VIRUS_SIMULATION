@@ -1,9 +1,19 @@
+import logging
 from mesa import Agent
 import constants
 import uuid
 import random
 from faker import Faker
 fake = Faker()
+
+logging.basicConfig(
+    level=constants.LOG_LEVEL,
+    filename='logs/mesa_agent.log',
+    filemode='w',
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S",
+    # handlers=[logging.StreamHandler()],
+)
 
 
 class SimulationAgent(Agent):
@@ -20,7 +30,7 @@ class SimulationAgent(Agent):
             name = fake.name()
 
         if health_status is None:
-            health_status = random.randint(constants.SICK, constants.HEALTHY)
+            health_status = random.choice([constants.SICK, constants.HEALTHY])
 
         if immune_system_response is None:
             immune_system_response = SimulationAgent.immune_response_by_age(
@@ -40,6 +50,8 @@ class SimulationAgent(Agent):
         self.quarantine = False
 
     def move(self):
+        """[summary]
+        """
         possible_steps = self.model.grid.get_neighborhood(
             self.pos,
             moore=True,
@@ -47,20 +59,101 @@ class SimulationAgent(Agent):
         new_position = self.random.choice(possible_steps)
         self.model.grid.move_agent(self, new_position)
 
-    def give_money(self):
-        cellmates = self.model.grid.get_cell_list_contents([self.pos])
+    def agents_in_contact(self):
+        """[summary]
+        """
+        cellmates = self.model.grid.get_cell_list_contents(
+            [self.pos])  # find others in the same cell
         if len(cellmates) > 1:
-            other = self.random.choice(cellmates)
-            other.wealth += 1
-            self.wealth -= 1
+            for agent in cellmates:
+                logging.debug(f"********************************\nAgent: {self} \n\nin contact with: {agent}")
+                if agent.infected_days:  # excluding the day 0, when the agents get the infection, where we change from None to 0
+                    # can get the virus, neverthless he got it once before, the recovered instance variable can change
+                    logging.debug(f"Infected Days")
+                    if self.health_status > constants.ASYMPTOMATIC:
+                        logging.debug(f"health_status")
+                        hs_new_value_for_current_agent = SimulationAgent.value_based_probability(
+                            agent.health_status, self.immune_system_response, agent.wear_mask, self.wear_mask)
+                        logging.debug(f"hs_new_value_for_current_agent : {hs_new_value_for_current_agent}")
+                        if hs_new_value_for_current_agent != -1:
+                            self.health_status = hs_new_value_for_current_agent
+                            #self.daily_infected += 1
+                            logging.debug(
+                                f"Agent {self.unique_id} had an update in his health status: {constants.HEALTH_STATUS_DICT[self.health_status]}")
+                            break
 
     def step(self):
+        """[summary]
+        """
         self.move()
-        if self.wealth > 0:
-            self.give_money()
+        self.agents_in_contact()
+        self.update_infected_agents()
 
     def get_health_status(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         return self.health_status
+    
+    def update_infected_agents(self):
+        """Updates the agents health status based on the number of days infected with the virus
+        """
+        #self.daily_infected += 1
+        logging.debug(f"update_infected_agents called")
+        # evaluating time passing by, for all agents
+        if (self.health_status == constants.SICK or self.health_status == constants.ASYMPTOMATIC) and not self.recovered:
+            # initializing value
+            if self.infected_days is None:
+                self.infected_days = 0
+                logging.debug(
+                    f"Agent {self.unique_id} is now on is day 0 for infected people. He is known as {self.name}")
+
+            # infected threshould where people recover
+            elif self.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED:
+                value = random.random()
+                # previous here is because people change to asymptomatic
+                if self.health_status == constants.SICK or self.previous_health_status == constants.SICK:
+                    if value < constants.RECOVERY_SEQUELS_P:
+                        self.health_status = constants.WITH_DISEASES_SEQUELAES
+                        logging.debug(
+                            f"Agent {self.unique_id} recovered with sequels from being SICK. He is known as {self.name}")
+                    else:
+                        self.health_status = constants.TOTAL_RECOVERY
+                        logging.debug(
+                            f"Agent {self.unique_id} recovered totaly from being SICK. He is known as {self.name}")
+                else:
+                    self.health_status = constants.TOTAL_RECOVERY
+                    logging.debug(
+                        f"Agent {self.unique_id} recovered totaly. He is known as {self.name}")
+                self.recovered = True
+                #self.daily_healed += 1
+
+            # case of deadly infected
+            elif self.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD:
+                if self.immune_system_response == constants.IMR_DEADLY_INFECTED:
+                    self.health_status = constants.DEAD
+                    self.daily_dead += 1
+                    #if self.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
+                        #self.daily_quarantine -= 1
+
+                    logging.debug(
+                        f"Sadly Agent {self.unique_id} died. He was known as {self.name}")
+                self.infected_days += 1
+
+            # infected threshould where people stop being contagious
+            elif self.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS:
+                if self.health_status != constants.ASYMPTOMATIC:
+                    self.previous_health_status = constants.SICK
+                    self.health_status = constants.ASYMPTOMATIC
+                    logging.debug(
+                        f"Agent {self.unique_id} is now better and ASYMPTOMATIC. He is known as {self.name}")
+
+                self.infected_days += 1
+            else:
+                self.infected_days += 1
+
 
     def __str__(self):
         """Overrides how the agent is printed
@@ -69,7 +162,7 @@ class SimulationAgent(Agent):
             (String): Formatted string to print the agent
         """
         return (f"\n\nAgent {self.unique_id}\nName: {self.name}\nAge: {self.age}\nHealth Status: {self.health_status}"
-                f"\nImmune System Response: {self.immune_system_response}\nPosition: ({self.pos})")
+                f"\nImmune System Response: {self.immune_system_response}\nPosition: {self.pos}\nInfected Days: {self.infected_days}")
 
     @staticmethod
     def immune_response_by_age(age, health_status):
@@ -140,3 +233,58 @@ class SimulationAgent(Agent):
             return age_probabilities(value, constants.AGE_P_DIR_ARRAY[7], health_status)
         elif age > 79:
             return age_probabilities(value, constants.AGE_P_DIR_ARRAY[8], health_status)
+
+    @ staticmethod
+    def value_based_probability(health_status, agent_immune_response, wear_mask_agent_in_contact, wear_mask_current_agent):
+        """Returns the agent new health status based on its immune system type and on the health status of the agent in contact with
+
+        SICK_P| HEALTHY | ASSYMPTOMATIC_P|
+
+        0____0.4 _________0.9___________________1
+
+        Args:
+            health_status (Integer): Health status of agent in contact with
+            agent_immune_response (Integer): Current agent imune response type
+            wear_mask_agent_in_contact (Boolean): If agent in contact wears a mask
+            wear_mask_current_agent (Boolean): If current agent wears a mask
+
+        Returns:
+            Health Status (Integer): Agent new health status
+        """
+
+        if health_status > 1 or agent_immune_response == constants.IMR_IMMUNE:
+            return -1  # do not change the agent's healthy status
+        else:
+            random_value = random.random()
+            # using mask reduces the spread
+            if wear_mask_agent_in_contact:
+                mask_value = constants.CONTAGIOUS_AGENT_MASK
+            elif wear_mask_agent_in_contact and wear_mask_current_agent:
+                mask_value = constants.HEALTHY_AGENT_MASK
+            elif wear_mask_current_agent:
+                mask_value = constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK
+            else:
+                mask_value = constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK
+
+            if random_value <= constants.SICK_P * mask_value:
+                if agent_immune_response > constants.IMR_ASYMPTOMATIC:
+                    return constants.SICK
+                elif agent_immune_response == constants.IMR_ASYMPTOMATIC:
+                    return constants.ASYMPTOMATIC
+                elif agent_immune_response == constants.IMR_IMMUNE:
+                    return -1
+
+            elif random_value >= constants.SICK_P * mask_value and \
+                    random_value <= constants.SICK_P * mask_value + constants.HEALTHY_P * mask_value:
+                return constants.HEALTHY
+
+            elif random_value >= 1 - constants.ASYMPTOMATIC_P * mask_value:
+                if agent_immune_response > constants.IMR_ASYMPTOMATIC:
+                    return constants.SICK
+                elif agent_immune_response == constants.IMR_ASYMPTOMATIC:
+                    return constants.ASYMPTOMATIC
+                elif agent_immune_response == constants.IMR_IMMUNE:
+                    return -1
+            else:
+                # when agents wear a mask, the probability count is less than 1 so we end up here, where the masks did not allow the contagious
+                return -1
