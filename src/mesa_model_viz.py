@@ -19,7 +19,7 @@ SIZE_X = constants.SIZE
 SIZE_Y = SIZE_X
 PIXELS_X = constants.PIXELS
 PIXELS_Y = PIXELS_X
-NUMBER_OF_AGENTS = (SIZE_X **2) // 6
+NUMBER_OF_AGENTS = (SIZE_X ** 2) // 6
 # NUMBER_OF_AGENTS = constants.TOTAL_NUMBER_OF_AGENTS
 
 logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
@@ -29,22 +29,22 @@ def agent_portrayal(agent) -> dict:
     portrayal = {"Shape": "circle", "Filled": "true", "r": 0.8}
 
     if agent.get_health_status() == constants.SICK:
-        portrayal["Color"] = "#ff0000" #red
+        portrayal["Color"] = "#ff0000"  # red
         portrayal["Layer"] = 5
         portrayal["r"] = 0.6
     elif agent.get_health_status() == constants.ASYMPTOMATIC:
-        portrayal["Color"] = "#ff9900" #orange
+        portrayal["Color"] = "#ff9900"  # orange
         portrayal["Layer"] = 4
         portrayal["r"] = 0.5
     elif agent.get_health_status() == constants.WITH_DISEASES_SEQUELAES:
-        portrayal["Color"] = "#993300" #brown
+        portrayal["Color"] = "#993300"  # brown
         portrayal["Layer"] = 2
         portrayal["r"] = 0.6
     elif agent.get_health_status() == constants.TOTAL_RECOVERY:
-        portrayal["Color"] = "#3399ff" #blue
+        portrayal["Color"] = "#3399ff"  # blue
         portrayal["Layer"] = 2
     elif agent.get_health_status() == constants.HEALTHY:
-        portrayal["Color"] = "#33cc33" #green
+        portrayal["Color"] = "#33cc33"  # green
         portrayal["Layer"] = 4
         portrayal["r"] = 1
     else:  # dead
@@ -58,21 +58,19 @@ def agent_portrayal(agent) -> dict:
 # let’s create a 10x10 grid, drawn in 500 x 500 pixels.
 grid = CanvasGrid(agent_portrayal, SIZE_X, SIZE_Y, PIXELS_X, PIXELS_Y)
 
-chart_sick = ChartModule([{"Label": "Sick Agents",
-                           "Color": "#ff0000"}],
-                         data_collector_name='datacollector_sick')
-chart_recover = ChartModule([{"Label": "Recovered Agents",
-                              "Color": "#ff6699"}],
-                            data_collector_name='datacollector_recover')
-chart_dead = ChartModule([{"Label": "Dead Agents",
-                           "Color": "black"}],
-                         data_collector_name='datacollector_dead')
-chart_healthy = ChartModule([{"Label": "Healthy Agents",
-                              "Color": "#33cc33"}],
-                            data_collector_name='datacollector_healthy')
-chart_quarantine = ChartModule([{"Label": "Quarantine Agents",
-                              "Color": "#0000ff"}], #darker blue
-                            data_collector_name='datacollector_quarantine')
+chart_cumulatives = ChartModule([{"Label": "Sick Agents",
+                           "Color": "#ff0000"},
+                          {"Label": "Recovered Agents",
+                           "Color": "#ff6699"},
+                          {"Label": "Dead Agents",
+                           "Color": "black"},
+                          {"Label": "Healthy Agents",
+                           "Color": "#33cc33"},
+                          {"Label": "Quarantine Agents",
+                           "Color": "#0000ff"}
+                          ],
+                         data_collector_name='datacollector_cumulatives')
+
 
 """
 - The model class we’re running and visualizing; in this case, SimulationModel.
@@ -81,8 +79,7 @@ chart_quarantine = ChartModule([{"Label": "Quarantine Agents",
 - Any inputs or arguments for the model itself. In this case, 100 agents, and height and width of 10. 
 """
 server = ModularServer(mesa_model.SimulationModel,
-                       [grid, chart_sick, chart_quarantine,chart_recover,
-                           chart_dead, chart_healthy],
+                       [grid, chart_cumulatives],
                        "Money Model",
                        {"N": NUMBER_OF_AGENTS, "width": SIZE_X, "height": SIZE_Y})
 server.port = 8521  # The default

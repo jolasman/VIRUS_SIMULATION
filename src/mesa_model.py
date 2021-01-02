@@ -37,16 +37,12 @@ class SimulationModel(Model):
             y = self.random.randrange(self.grid.height)
             self.grid.place_agent(agent, (x, y))
 
-        self.datacollector_sick = DataCollector(
-            model_reporters={"Sick Agents": cumulative_values_sick})
-        self.datacollector_recover = DataCollector(
-            model_reporters={"Recovered Agents": cumulative_values_recover})
-        self.datacollector_dead = DataCollector(
-            model_reporters={"Dead Agents": cumulative_values_dead})
-        self.datacollector_healthy = DataCollector(
-            model_reporters={"Healthy Agents": cumulative_values_healthy})
-        self.datacollector_quarantine = DataCollector(
-            model_reporters={"Quarantine Agents": cumulative_values_quarantine})
+        self.datacollector_cumulatives = DataCollector(
+            {"Sick Agents": cumulative_values_sick,
+             "Recovered Agents": cumulative_values_recover,
+             "Dead Agents": cumulative_values_dead,
+             "Healthy Agents": cumulative_values_healthy,
+             "Quarantine Agents": cumulative_values_quarantine})
 
     def step(self) -> None:
         """[summary]
@@ -57,11 +53,8 @@ class SimulationModel(Model):
                 f"Number of:  infected agents --> {infected} -  Healthy agents --> {healthy}")
             logger.info(
                 f"Number of deadly infected agents: {self.get_imr_deadly()}")
-        self.datacollector_sick.collect(self)
-        self.datacollector_recover.collect(self)
-        self.datacollector_dead.collect(self)
-        self.datacollector_healthy.collect(self)
-        self.datacollector_quarantine.collect(self)
+        self.datacollector_cumulatives.collect(self)
+   
         self.remove_dead_agents()  # I do not know why, but we cannot remove the dead agents after calling the setp method. Otherwise the chart of dead people will have no values
         self.schedule.step()
         if self.schedule.steps > constants.QUARANTINE_DAYS:
