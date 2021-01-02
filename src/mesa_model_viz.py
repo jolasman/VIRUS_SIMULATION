@@ -19,7 +19,7 @@ SIZE_X = constants.SIZE
 SIZE_Y = SIZE_X
 PIXELS_X = constants.PIXELS
 PIXELS_Y = PIXELS_X
-NUMBER_OF_AGENTS = (SIZE_X ** 2) // 6
+NUMBER_OF_AGENTS = (SIZE_X ** 2) // 10
 # NUMBER_OF_AGENTS = constants.TOTAL_NUMBER_OF_AGENTS
 
 logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
@@ -61,7 +61,7 @@ grid = CanvasGrid(agent_portrayal, SIZE_X, SIZE_Y, PIXELS_X, PIXELS_Y)
 chart_cumulatives = ChartModule([{"Label": "Sick Agents",
                            "Color": "#ff0000"},
                           {"Label": "Recovered Agents",
-                           "Color": "#ff6699"},
+                           "Color": "#993300"},
                           {"Label": "Dead Agents",
                            "Color": "black"},
                           {"Label": "Healthy Agents",

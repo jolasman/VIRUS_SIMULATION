@@ -57,7 +57,7 @@ class SimulationModel(Model):
    
         self.remove_dead_agents()  # I do not know why, but we cannot remove the dead agents after calling the setp method. Otherwise the chart of dead people will have no values
         self.schedule.step()
-        if self.schedule.steps > constants.QUARANTINE_DAYS:
+        if self.schedule.steps >= constants.QUARANTINE_DAYS:
             self.update_quarantine_health_status()
             self.update_quarantine()
         self.check_simulation_end()
