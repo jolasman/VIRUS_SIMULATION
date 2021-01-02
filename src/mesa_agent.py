@@ -20,7 +20,7 @@ class SimulationAgent(Agent):
     """Class representing a human being
     """
 
-    def __init__(self, model,  name=None, age=None, health_status=None, immune_system_response=None, wear_mask=None):
+    def __init__(self, model,  name=None, age=None, health_status=None, immune_system_response=None, wear_mask=None) -> None:
         """Class constructor
 
         Args:
@@ -59,7 +59,7 @@ class SimulationAgent(Agent):
         self.wear_mask = wear_mask
         self.quarantine = False
 
-    def move(self):
+    def move(self) -> None:
         """[summary]
         """
         possible_steps = self.model.grid.get_neighborhood(
@@ -69,7 +69,7 @@ class SimulationAgent(Agent):
         new_position = self.random.choice(possible_steps)
         self.model.grid.move_agent(self, new_position)
 
-    def agents_in_contact(self):
+    def agents_in_contact(self) -> None:
         """[summary]
         """
         cellmates = self.model.grid.get_cell_list_contents(
@@ -88,14 +88,14 @@ class SimulationAgent(Agent):
                             logger.debug(
                                 f"Agent {self.unique_id} had an update in his health status: {constants.HEALTH_STATUS_DICT[self.health_status]}")
 
-    def step(self):
+    def step(self) -> None:
         """[summary]
         """
         self.move()
         self.agents_in_contact()
-        self.update_infected_agents()
+        self.update_infected_agents_env()
 
-    def get_health_status(self):
+    def get_health_status(self) -> int:
         """[summary]
 
         Returns:
@@ -103,7 +103,11 @@ class SimulationAgent(Agent):
         """
         return self.health_status
 
-    def update_infected_agents(self):
+    def update_infected_agents_env(self) -> None:
+        SimulationAgent.update_infected_agents(self)
+    
+    @staticmethod    
+    def update_infected_agents(self) -> None:
         """Updates the agents health status based on the number of days infected with the virus
         """
         # evaluating time passing by, for all agents
@@ -158,7 +162,7 @@ class SimulationAgent(Agent):
             else:
                 self.infected_days += 1
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Overrides how the agent is printed
 
         Returns:
@@ -168,7 +172,7 @@ class SimulationAgent(Agent):
                 f"\nImmune System Response: {self.immune_system_response}\nPosition: {self.pos}\nInfected Days: {self.infected_days}")
 
     @staticmethod
-    def immune_response_by_age(age, health_status):
+    def immune_response_by_age(age, health_status) -> int:
         """Returns the immune system response type according to the agent's age
 
         Args:
@@ -179,7 +183,7 @@ class SimulationAgent(Agent):
             (Integer): Immune system response type
         """
 
-        def age_probabilities(value, pdir, health_status):
+        def age_probabilities(value, pdir, health_status) -> int:
             """Returns Immune response type based on age, health status, and probability of having a deadly immune system response
 
             0______|P_DIR|_______1
@@ -238,7 +242,7 @@ class SimulationAgent(Agent):
             return age_probabilities(value, constants.AGE_P_DIR_ARRAY[8], health_status)
 
     @ staticmethod
-    def value_based_probability(health_status, agent_immune_response, wear_mask_agent_in_contact, wear_mask_current_agent):
+    def value_based_probability(health_status, agent_immune_response, wear_mask_agent_in_contact, wear_mask_current_agent) -> int:
         """Returns the agent new health status based on its immune system type and on the health status of the agent in contact with
 
         SICK_P| HEALTHY | ASSYMPTOMATIC_P|

@@ -19,7 +19,7 @@ SIZE_X = 100
 SIZE_Y = SIZE_X
 PIXELS_X = 1000
 PIXELS_Y = PIXELS_X
-NUMBER_OF_AGENTS = (SIZE_X * SIZE_Y) // 4
+NUMBER_OF_AGENTS = (SIZE_X * SIZE_Y) // 6
 
 logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
 
@@ -28,22 +28,22 @@ def agent_portrayal(agent):
     portrayal = {"Shape": "circle", "Filled": "true", "r": 0.8}
 
     if agent.get_health_status() == constants.SICK:
-        portrayal["Color"] = "#ff0000"
+        portrayal["Color"] = "#ff0000" #red
         portrayal["Layer"] = 5
         portrayal["r"] = 0.6
     elif agent.get_health_status() == constants.ASYMPTOMATIC:
-        portrayal["Color"] = "#ff9900"
+        portrayal["Color"] = "#ff9900" #orange
         portrayal["Layer"] = 4
         portrayal["r"] = 0.5
     elif agent.get_health_status() == constants.WITH_DISEASES_SEQUELAES:
-        portrayal["Color"] = "#ff6699"
+        portrayal["Color"] = "#993300" #brown
         portrayal["Layer"] = 2
-        portrayal["r"] = 0.4
+        portrayal["r"] = 0.6
     elif agent.get_health_status() == constants.TOTAL_RECOVERY:
-        portrayal["Color"] = "#3399ff"
+        portrayal["Color"] = "#3399ff" #blue
         portrayal["Layer"] = 2
     elif agent.get_health_status() == constants.HEALTHY:
-        portrayal["Color"] = "#33cc33"
+        portrayal["Color"] = "#33cc33" #green
         portrayal["Layer"] = 4
         portrayal["r"] = 1
     else:  # dead
@@ -69,6 +69,9 @@ chart_dead = ChartModule([{"Label": "Dead Agents",
 chart_healthy = ChartModule([{"Label": "Healthy Agents",
                               "Color": "#33cc33"}],
                             data_collector_name='datacollector_healthy')
+chart_quarantine = ChartModule([{"Label": "Quarantine Agents",
+                              "Color": "#0000ff"}], #darker blue
+                            data_collector_name='datacollector_quarantine')
 
 """
 - The model class we’re running and visualizing; in this case, SimulationModel.
@@ -77,7 +80,7 @@ chart_healthy = ChartModule([{"Label": "Healthy Agents",
 - Any inputs or arguments for the model itself. In this case, 100 agents, and height and width of 10. 
 """
 server = ModularServer(mesa_model.SimulationModel,
-                       [grid, chart_sick, chart_recover,
+                       [grid, chart_sick, chart_quarantine,chart_recover,
                            chart_dead, chart_healthy],
                        "Money Model",
                        {"N": NUMBER_OF_AGENTS, "width": SIZE_X, "height": SIZE_Y})

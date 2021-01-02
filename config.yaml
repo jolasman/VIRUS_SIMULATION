@@ -13,7 +13,7 @@ SIMULATION:
     DEAD_X: -1 # should be negative or greater than SIZE to get out of the env
     DEAD_Y: -1 # should be negative or greater than SIZE to get out of the env
     QUARANTINE_PERCENTAGE: 0.1 # number of agents detected and starting quarantine
-    QUARANTINE_DAYS: 15 # number o days to wait until starting to put agents in quarantine
+    QUARANTINE_DAYS: 1 # number o days to wait until starting to put agents in quarantine
   STATIC:
     PARAMS:
       SICK_NBR: 50 # number of sick agents when starting the simulation
