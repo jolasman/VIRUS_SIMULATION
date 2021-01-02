@@ -5,7 +5,8 @@ SIMULATION:
   PARAMS:
     EPISODES: 500 # interpreted as days
     TOTAL_NUMBER_OF_AGENTS: 2_000
-    SIZE: 200 # environment size on each axis
+    SIZE: 100 # environment size on each axis
+    PIXELS: 1000 # environment size on each axis
     RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
     AGENTS_MOVEMENT_PERCENTAGE: 1 # percentage of the agents that moves in the step
     QUARANTINE_X: -10 # should be negative or greater than SIZE to get out of the env

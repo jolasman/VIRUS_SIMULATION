@@ -15,6 +15,7 @@ APP_NAME = config['APP_NAME']
 EPISODES = simulation['EPISODES']
 TOTAL_NUMBER_OF_AGENTS = simulation['TOTAL_NUMBER_OF_AGENTS']
 SIZE = simulation['SIZE']
+PIXELS = simulation['PIXELS']
 RANDOM_LIMIT = simulation['RANDOM_LIMIT']
 # percentage of the agents that moves in the step
 AGENTS_MOVEMENT_PERCENTAGE = simulation['AGENTS_MOVEMENT_PERCENTAGE']

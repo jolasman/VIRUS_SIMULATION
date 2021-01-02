@@ -15,16 +15,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-SIZE_X = 100
+SIZE_X = constants.SIZE
 SIZE_Y = SIZE_X
-PIXELS_X = 1000
+PIXELS_X = constants.PIXELS
 PIXELS_Y = PIXELS_X
-NUMBER_OF_AGENTS = (SIZE_X * SIZE_Y) // 6
+NUMBER_OF_AGENTS = (SIZE_X **2) // 6
+# NUMBER_OF_AGENTS = constants.TOTAL_NUMBER_OF_AGENTS
 
 logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
 
 
-def agent_portrayal(agent):
+def agent_portrayal(agent) -> dict:
     portrayal = {"Shape": "circle", "Filled": "true", "r": 0.8}
 
     if agent.get_health_status() == constants.SICK:
