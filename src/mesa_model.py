@@ -1,3 +1,4 @@
+import math
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid  # allows multiple agents in the same cell
@@ -87,7 +88,7 @@ class SimulationModel(Model):
         infected_list = [agent for agent in self.schedule.agents if agent.health_status ==
                          constants.SICK or agent.health_status == constants.ASYMPTOMATIC]
         # only a percentage of agents go to quarantine, the others remain indetected by autorities
-        for agent in infected_list[:int(len(infected_list) * constants.QUARANTINE_PERCENTAGE)]:
+        for agent in infected_list[:math.ceil(len(infected_list) * constants.QUARANTINE_PERCENTAGE)]:
             # quarantine zone
             self.quarantine_list.append(agent)
             self.grid.remove_agent(agent)
@@ -151,7 +152,7 @@ def cumulative_values_sick(model) -> int:
             cumulative_sick += 1
         if agent.health_status == constants.ASYMPTOMATIC:
             cumulative_sick += 1
-
+    
     return cumulative_sick
 
 
@@ -169,6 +170,9 @@ def cumulative_values_recover(model) -> int:
 def cumulative_values_dead(model) -> int:
     cumulative_dead = 0
     for agent in model.schedule.agents:
+        if agent.health_status == constants.DEAD:
+            cumulative_dead += 1
+    for agent in model.quarantine_list:
         if agent.health_status == constants.DEAD:
             cumulative_dead += 1
 

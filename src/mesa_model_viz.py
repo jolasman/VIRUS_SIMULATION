@@ -4,6 +4,7 @@ from mesa.visualization.modules import ChartModule
 import mesa_model
 import sys
 import constants
+from threading import Thread
 
 import logging
 logging.basicConfig(
@@ -21,8 +22,6 @@ PIXELS_X = constants.PIXELS
 PIXELS_Y = PIXELS_X
 NUMBER_OF_AGENTS = (SIZE_X ** 2) // 10
 # NUMBER_OF_AGENTS = constants.TOTAL_NUMBER_OF_AGENTS
-
-logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
 
 
 def agent_portrayal(agent) -> dict:
@@ -55,32 +54,40 @@ def agent_portrayal(agent) -> dict:
     return portrayal
 
 
-# let’s create a 10x10 grid, drawn in 500 x 500 pixels.
-grid = CanvasGrid(agent_portrayal, SIZE_X, SIZE_Y, PIXELS_X, PIXELS_Y)
+def run_simulation() -> None:
+    """Runs the simulation
+    """
+    logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
+    grid = CanvasGrid(agent_portrayal, SIZE_X, SIZE_Y, PIXELS_X, PIXELS_Y)
+    chart_cumulatives = ChartModule([{"Label": "Sick Agents",
+                                      "Color": "#ff0000"},
+                                     {"Label": "Recovered Agents",
+                                      "Color": "#993300"},
+                                     {"Label": "Dead Agents",
+                                      "Color": "black"},
+                                     {"Label": "Healthy Agents",
+                                      "Color": "#33cc33"},
+                                     {"Label": "Quarantine Agents",
+                                      "Color": "#0000ff"}
+                                     ],
+                                    # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
+                                    # declaring both height and width yields some kind of a bug where the values are random
+                                    canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
+                                    data_collector_name='datacollector_cumulatives')
 
-chart_cumulatives = ChartModule([{"Label": "Sick Agents",
-                           "Color": "#ff0000"},
-                          {"Label": "Recovered Agents",
-                           "Color": "#993300"},
-                          {"Label": "Dead Agents",
-                           "Color": "black"},
-                          {"Label": "Healthy Agents",
-                           "Color": "#33cc33"},
-                          {"Label": "Quarantine Agents",
-                           "Color": "#0000ff"}
-                          ],
-                         data_collector_name='datacollector_cumulatives')
+    build_server_sim(grid, chart_cumulatives)
 
 
-"""
-- The model class we’re running and visualizing; in this case, SimulationModel.
-- A list of module objects to include in the visualization; here, just [grid]
-- The title of the model: “Money Model”
-- Any inputs or arguments for the model itself. In this case, 100 agents, and height and width of 10. 
-"""
-server = ModularServer(mesa_model.SimulationModel,
-                       [grid, chart_cumulatives],
-                       "Money Model",
-                       {"N": NUMBER_OF_AGENTS, "width": SIZE_X, "height": SIZE_Y})
-server.port = 8521  # The default
-server.launch()
+def build_server_sim(*params) -> None:
+    """Builds and runs the server to visualize the simulation and charts
+    """
+    server = ModularServer(mesa_model.SimulationModel,
+                           params,  # list
+                           "Money Model",
+                           {"N": NUMBER_OF_AGENTS, "width": SIZE_X, "height": SIZE_Y})
+    server.port = 8521  # The default
+    server.launch()
+
+
+if __name__ == "__main__":
+    run_simulation()

@@ -5,8 +5,8 @@ SIMULATION:
   PARAMS:
     EPISODES: 500 # interpreted as days
     TOTAL_NUMBER_OF_AGENTS: 2_000
-    SIZE: 100 # environment size on each axis
-    PIXELS: 1000 # environment size on each axis
+    SIZE: 300 # environment size on each axis
+    PIXELS: 2000 # environment size on each axis
     RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
     AGENTS_MOVEMENT_PERCENTAGE: 1 # percentage of the agents that moves in the step
     QUARANTINE_X: -10 # should be negative or greater than SIZE to get out of the env
@@ -14,7 +14,7 @@ SIMULATION:
     DEAD_X: -1 # should be negative or greater than SIZE to get out of the env
     DEAD_Y: -1 # should be negative or greater than SIZE to get out of the env
     QUARANTINE_PERCENTAGE: 0.1 # number of agents detected and starting quarantine
-    QUARANTINE_DAYS: 1 # number o days to wait until starting to put agents in quarantine
+    QUARANTINE_DAYS: 15 # number o days to wait until starting to put agents in quarantine
   STATIC:
     PARAMS:
       SICK_NBR: 50 # number of sick agents when starting the simulation
@@ -59,7 +59,7 @@ SIMULATION:
       SIZES:
         FOUR_PLOTS_FIG_SIZE_X: 9
         FOUR_PLOTS_FIG_SIZE_Y: 8
-        ALL_DATA_PLOT_FIG_SIZE_X: 12
-        ALL_DATA_PLOT_FIG_SIZE_Y: 10
+        ALL_DATA_PLOT_FIG_SIZE_X: 10
+        ALL_DATA_PLOT_FIG_SIZE_Y: 800
         SIMULATION_GRAPHICS_SIZE_X: 900
         SIMULATION_GRAPHICS_SIZE_Y: 900
