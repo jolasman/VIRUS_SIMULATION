@@ -17,14 +17,14 @@ logger = logging.getLogger(__name__)
 
 
 class SimulationAgent(Agent):
-    """Class representing a human being
+    """Class representing a human being (Agent).
     """
 
     def __init__(self, model,  name=None, age=None, health_status=None, immune_system_response=None, wear_mask=None) -> None:
-        """Class constructor
+        """Class constructor.
 
         Args:
-            model (Mesa Model): The simulations model
+            model (mesa.Model): The simulation's model.
             name (str, optional): Agent's name. Defaults to None.
             age (Integer, optional): Agent's age. Defaults to None.
             health_status (inIntegert, optional): Agent's health status. Defaults to None.
@@ -60,7 +60,7 @@ class SimulationAgent(Agent):
         self.quarantine = False
 
     def move(self) -> None:
-        """[summary]
+        """This methods allows the agent to move into a new grid cell.
         """
         possible_steps = self.model.grid.get_neighborhood(
             self.pos,
@@ -70,7 +70,7 @@ class SimulationAgent(Agent):
         self.model.grid.move_agent(self, new_position)
 
     def agents_in_contact(self) -> None:
-        """[summary]
+        """Updates the status for each agent when in contact with other agents.
         """
         cellmates = self.model.grid.get_cell_list_contents(
             [self.pos])  # find others in the same cell
@@ -89,114 +89,132 @@ class SimulationAgent(Agent):
                                 f"Agent {self.unique_id} had an update in his health status: {constants.HEALTH_STATUS_DICT[self.health_status]}")
 
     def step(self) -> None:
-        """[summary]
+        """Executes the agent actions in each sumulation step.
+
+        First it moves the agent, then evaluates the other agents in contact with it. 
+        Finally, the "clinic" situation of the agent is updated, based on the number days with the virus and the agents parameters.
         """
         self.move()
         self.agents_in_contact()
         self.update_infected_agents_env()
 
     def get_health_status(self) -> int:
-        """[summary]
+        """Return the agent's healt_status.
 
         Returns:
-            [type]: [description]
+            (Integer): Agent's healt_status.
         """
         return self.health_status
 
     def update_infected_agents_env(self) -> None:
-        SimulationAgent.update_infected_agents(self)
-    
-    @staticmethod    
-    def update_infected_agents(self) -> None:
-        """Updates the agents health status based on the number of days infected with the virus
+        """Updates the agents health status based on the number of days with the virus.
         """
-        # evaluating time passing by, for all agents
-        if (self.health_status == constants.SICK or self.health_status == constants.ASYMPTOMATIC) and not self.recovered:
-            # initializing value
-            if self.infected_days is None:
-                self.infected_days = 0
-                logger.debug(
-                    f"Agent {self.unique_id} is now on is day 0 for infected people. He is known as {self.name}")
-
-            # infected threshould where people recover
-            elif self.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED:
-                value = random.random()
-                # previous here is because people change to asymptomatic
-                if self.health_status == constants.SICK or self.previous_health_status == constants.SICK:
-                    if value < constants.RECOVERY_SEQUELS_P:
-                        self.health_status = constants.WITH_DISEASES_SEQUELAES
-                        logger.debug(
-                            f"Agent {self.unique_id} recovered with sequels from being SICK. He is known as {self.name}")
-                    else:
-                        self.health_status = constants.TOTAL_RECOVERY
-                        logger.debug(
-                            f"Agent {self.unique_id} recovered totaly from being SICK. He is known as {self.name}")
-                else:
-                    self.health_status = constants.TOTAL_RECOVERY
-                    logger.debug(
-                        f"Agent {self.unique_id} recovered totaly. He is known as {self.name}")
-                self.recovered = True
-                #self.daily_healed += 1
-
-            # case of deadly infected
-            elif self.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD:
-                if self.immune_system_response == constants.IMR_DEADLY_INFECTED:
-                    self.health_status = constants.DEAD
-                    #self.daily_dead += 1
-                    # if self.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
-                    #self.daily_quarantine -= 1
-
-                    logger.debug(
-                        f"Sadly Agent {self.unique_id} died. He was known as {self.name}")
-                self.infected_days += 1
-
-            # infected threshould where people stop being contagious
-            elif self.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS:
-                if self.health_status != constants.ASYMPTOMATIC:
-                    self.previous_health_status = constants.SICK
-                    self.health_status = constants.ASYMPTOMATIC
-                    logger.debug(
-                        f"Agent {self.unique_id} is now better and ASYMPTOMATIC. He is known as {self.name}")
-
-                self.infected_days += 1
-            else:
-                self.infected_days += 1
+        SimulationAgent.update_infected_agents(self)
 
     def __str__(self) -> str:
-        """Overrides how the agent is printed
+        """Overrides how the agent is printed.
 
         Returns:
-            (String): Formatted string to print the agent
+            (String): Formatted string to print the agent.
         """
         return (f"\n\nAgent {self.unique_id}\nName: {self.name}\nAge: {self.age}\nHealth Status: {self.health_status}"
                 f"\nImmune System Response: {self.immune_system_response}\nPosition: {self.pos}\nInfected Days: {self.infected_days}")
 
-    @staticmethod
-    def immune_response_by_age(age, health_status) -> int:
-        """Returns the immune system response type according to the agent's age
-
-        Args:
-            age (Integer): Agent's age
-            health_status (Integer): Agent's health status
+    def __eq__(self, other) -> bool:
+        """Overrides how the `==` operator is used in the SimulationAgent class.
 
         Returns:
-            (Integer): Immune system response type
+            (Boolean): if agents' IDs are equal.
+        """
+        return self.unique_id == other.unique_id
+
+    @staticmethod
+    def update_infected_agents(agent) -> None:
+        """Updates the agents health status based on the number of days with the virus.
+        
+        This method can be called through the SimulationAgent class so we can update the agents in the quarantine room that are not in the simulation model grid.
+        
+        Args:
+            agent (SimulationAgent): A SimulationAgent.
+        """
+        # evaluating time passing by, for all agents
+        if (agent.health_status == constants.SICK or agent.health_status == constants.ASYMPTOMATIC) and not agent.recovered:
+            # initializing value
+            if agent.infected_days is None:
+                agent.infected_days = 0
+                logger.debug(
+                    f"Agent {agent.unique_id} is now on is day 0 for infected people. He is known as {agent.name}")
+
+            # infected threshould where people recover
+            elif agent.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED:
+                value = random.random()
+                # previous here is because people change to asymptomatic
+                if agent.health_status == constants.SICK or agent.previous_health_status == constants.SICK:
+                    if value < constants.RECOVERY_SEQUELS_P:
+                        agent.health_status = constants.WITH_DISEASES_SEQUELAES
+                        logger.debug(
+                            f"Agent {agent.unique_id} recovered with sequels from being SICK. He is known as {agent.name}")
+                    else:
+                        agent.health_status = constants.TOTAL_RECOVERY
+                        logger.debug(
+                            f"Agent {agent.unique_id} recovered totaly from being SICK. He is known as {agent.name}")
+                else:
+                    agent.health_status = constants.TOTAL_RECOVERY
+                    logger.debug(
+                        f"Agent {agent.unique_id} recovered totaly. He is known as {agent.name}")
+                agent.recovered = True
+                #agent.daily_healed += 1
+
+            # case of deadly infected
+            elif agent.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD:
+                if agent.immune_system_response == constants.IMR_DEADLY_INFECTED:
+                    agent.health_status = constants.DEAD
+                    #agent.daily_dead += 1
+                    # if agent.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
+                    #agent.daily_quarantine -= 1
+
+                    logger.debug(
+                        f"Sadly Agent {agent.unique_id} died. He was known as {agent.name}")
+                agent.infected_days += 1
+
+            # infected threshould where people stop being contagious
+            elif agent.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS:
+                if agent.health_status != constants.ASYMPTOMATIC:
+                    agent.previous_health_status = constants.SICK
+                    agent.health_status = constants.ASYMPTOMATIC
+                    logger.debug(
+                        f"Agent {agent.unique_id} is now better and ASYMPTOMATIC. He is known as {agent.name}")
+
+                agent.infected_days += 1
+            else:
+                agent.infected_days += 1
+
+    @staticmethod
+    def immune_response_by_age(age, health_status) -> int:
+        """Returns the immune system response type according to the agent's age.
+
+        Args:
+            age (Integer): Agent's age.
+            health_status (Integer): Agent's health status.
+
+        Returns:
+            (Integer): Immune system response type.
         """
 
         def age_probabilities(value, pdir, health_status) -> int:
-            """Returns Immune response type based on age, health status, and probability of having a deadly immune system response
+            """Returns Immune response type based on age, health status, and probability of having a deadly immune system response.
 
             0______|P_DIR|_______1
 
             0__|ADM_HOSP_P|____|ADM_HOSP_P + ADM_HOSP_ICU_P|___|19/20|___|1/20|__1
 
             Args:
-                value (Float): Random value between 0 and 1
-                pdir (Float): Probability of having a deadly immune system response based on the agent's age
-                health_status (INteger):Agent's health status
+                value (Float): Random value between 0 and 1.
+                pdir (Float): Probability of having a deadly immune system response based on the agent's age.
+                health_status (INteger):Agent's health status.
 
             Returns:
-                (Integer): Immune system response type
+                (Integer): Immune system response type.
             """
             value_d = random.random()
             if value < constants.ADM_HOSP_P:
@@ -243,20 +261,20 @@ class SimulationAgent(Agent):
 
     @ staticmethod
     def value_based_probability(health_status, agent_immune_response, wear_mask_agent_in_contact, wear_mask_current_agent) -> int:
-        """Returns the agent new health status based on its immune system type and on the health status of the agent in contact with
+        """Returns the agent new health status based on its immune system type and on the health status of the agent in contact with.
 
         SICK_P| HEALTHY | ASSYMPTOMATIC_P|
 
         0____0.4 _________0.9___________________1
 
         Args:
-            health_status (Integer): Health status of agent in contact with
-            agent_immune_response (Integer): Current agent imune response type
-            wear_mask_agent_in_contact (Boolean): If agent in contact wears a mask
-            wear_mask_current_agent (Boolean): If current agent wears a mask
+            health_status (Integer): Health status of agent in contact with.
+            agent_immune_response (Integer): Current agent imune response type.
+            wear_mask_agent_in_contact (Boolean): If agent in contact wears a mask.
+            wear_mask_current_agent (Boolean): If current agent wears a mask.
 
         Returns:
-            Health Status (Integer): Agent new health status
+            Health Status (Integer): Agent new health status.
         """
 
         if health_status > constants.ASYMPTOMATIC or agent_immune_response == constants.IMR_IMMUNE:

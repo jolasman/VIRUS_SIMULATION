@@ -325,7 +325,7 @@ def static_simulation(sick_nbr, asymp_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_i
         * dead_imr_nbr (Integer): number of with immune resposnse system as IMR_DEADLY_INFECTED
 
     Returns:
-       hs_array (List), imr_array (List): The two arrays with the data to use
+       hs_array (List), imr_array (List), mask_array(List): The three arrays with the data to use
     """
 
     sick_array = [constants.SICK for x in range(sick_nbr)]

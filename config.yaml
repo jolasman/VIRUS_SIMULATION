@@ -1,10 +1,10 @@
 APP_NAME: COVID-19 Simulation
-LOG_LEVEL: DEBUG
+LOG_LEVEL: INFO
 
 SIMULATION:
   PARAMS:
     EPISODES: 500 # interpreted as days
-    TOTAL_NUMBER_OF_AGENTS: 2_000
+    TOTAL_NUMBER_OF_AGENTS: 10_000
     SIZE: 300 # environment size on each axis
     PIXELS: 2000 # environment size on each axis
     RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
@@ -14,16 +14,16 @@ SIMULATION:
     DEAD_X: -1 # should be negative or greater than SIZE to get out of the env
     DEAD_Y: -1 # should be negative or greater than SIZE to get out of the env
     QUARANTINE_PERCENTAGE: 0.1 # number of agents detected and starting quarantine
-    QUARANTINE_DAYS: 15 # number o days to wait until starting to put agents in quarantine
+    QUARANTINE_DAYS: 10 # number o days to wait until starting to put agents in quarantine
   STATIC:
     PARAMS:
-      SICK_NBR: 50 # number of sick agents when starting the simulation
-      ASYMP_NBR: 50 # number of asymptomatic agents when starting the simulation
+      SICK_NBR: 1000 # number of sick agents when starting the simulation
+      ASYMP_NBR: 500 # number of asymptomatic agents when starting the simulation
       IMMMUNE_IMR_NBR: 10 # number of agents with immune system resposnse as Immune when starting the simulation, only healthy agents can be immune
-      ASYMP_IMR_NBR: 300 # number of agents with immune system resposnse as Asymptomatic when starting the simulation
-      MOD_IMR_NBR: 690 # number of agents with immune system resposnse as Moderately Infected when starting the simulation
-      HIGH_IMR_NBR: 900 # number of agents with immune system resposnse as Highly infected when starting the simulation
-      DEAD_IMR_NBR: 100 # number of agents with immune system resposnse as Deadly infected when starting the simulation
+      ASYMP_IMR_NBR: 5000 # number of agents with immune system resposnse as Asymptomatic when starting the simulation
+      MOD_IMR_NBR: 2000 # number of agents with immune system resposnse as Moderately Infected when starting the simulation
+      HIGH_IMR_NBR: 1990 # number of agents with immune system resposnse as Highly infected when starting the simulation
+      DEAD_IMR_NBR: 1000 # number of agents with immune system resposnse as Deadly infected when starting the simulation
       AGENTS_WEARING_MASK: 100 # number of agents wearing a mask when starting the simulation
   AGENT:
     PARAMS:

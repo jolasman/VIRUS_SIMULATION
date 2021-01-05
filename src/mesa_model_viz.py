@@ -20,11 +20,19 @@ SIZE_X = constants.SIZE
 SIZE_Y = SIZE_X
 PIXELS_X = constants.PIXELS
 PIXELS_Y = PIXELS_X
-NUMBER_OF_AGENTS = (SIZE_X ** 2) // 10
-# NUMBER_OF_AGENTS = constants.TOTAL_NUMBER_OF_AGENTS
+#NUMBER_OF_AGENTS = (SIZE_X ** 2) // 10
+NUMBER_OF_AGENTS = constants.TOTAL_NUMBER_OF_AGENTS
 
 
 def agent_portrayal(agent) -> dict:
+    """Changes the visualization of each agent based on its heath_status.
+
+    Args:
+        agent (SimulationAgent): Agent from the simulation.
+
+    Returns:
+        dict: portrayal
+    """
     portrayal = {"Shape": "circle", "Filled": "true", "r": 0.8}
 
     if agent.get_health_status() == constants.SICK:
@@ -55,7 +63,7 @@ def agent_portrayal(agent) -> dict:
 
 
 def run_simulation() -> None:
-    """Runs the simulation
+    """Runs the simulation.
     """
     logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
     grid = CanvasGrid(agent_portrayal, SIZE_X, SIZE_Y, PIXELS_X, PIXELS_Y)
@@ -79,12 +87,12 @@ def run_simulation() -> None:
 
 
 def build_server_sim(*params) -> None:
-    """Builds and runs the server to visualize the simulation and charts
+    """Builds and runs the server to visualize the simulation and charts.
     """
     server = ModularServer(mesa_model.SimulationModel,
                            params,  # list
                            "Money Model",
-                           {"N": NUMBER_OF_AGENTS, "width": SIZE_X, "height": SIZE_Y})
+                           {"N": NUMBER_OF_AGENTS, "width": SIZE_X, "height": SIZE_Y, "static": False})  # model parameters
     server.port = 8521  # The default
     server.launch()
 
