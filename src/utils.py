@@ -6,6 +6,7 @@ import time
 import sys
 import logging
 import os
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -194,8 +195,10 @@ def load_detailed_data_average(max_files_nbr, static_beginning):
     y_healed_mean_array = calc_mean(y_healed_arrays)
     y_quarantine_mean_array = calc_mean(y_quarantine_arrays)
 
-    logging.info(f"Average number of total new infected agents: {sum(daily_infected_mean_array) - daily_infected_mean_array[0]}")
-    logging.info(f"Average number of total new dead agents: {sum(daily_dead_mean_array) - daily_dead_mean_array[0]}")
+    logging.info(
+        f"Average number of total new infected agents: {sum(daily_infected_mean_array) - daily_infected_mean_array[0]}")
+    logging.info(
+        f"Average number of total new dead agents: {sum(daily_dead_mean_array) - daily_dead_mean_array[0]}")
 
     return x_mean_array, daily_infected_mean_array, daily_dead_mean_array, daily_healed_mean_array, daily_quarantine_mean_array, y_healthy_mean_array, y_infected_mean_array, y_dead_mean_array, y_healed_mean_array, y_quarantine_mean_array
 
@@ -313,44 +316,76 @@ def show_graphic_simulation(simulation):
     cv2.waitKey(200)
 
 
-def static_simulation(sick_nbr, asymp_nbr, immmune_imr_nbr, asymp_imr_nbr, mod_imr_nbr, high_imr_nbr, dead_imr_nbr, wear_mask_nbr):
+def static_simulation(sick_prcntg, asymp_prcntg, immmune_imr_prcntg, asymp_imr_prcntg, mod_imr_prcntg, high_imr_prcntg, dead_imr_prcntg, wear_mask_prcntg):
     """ Defining number of people for sick healthy and immune people
 
     Args:
-        * sick_nbr (Integer): number of sick people
-        * immmune_imr_nbr (Integer): number of people with immune resposnse system as IMR_IMMUNE
-        * asymp_imr_nbr (Integer): number of with immune resposnse system as IMR_ASYMPTOMATIC
-        * mod_imr_nbr (Integer): number of with immune resposnse system as IMR_MODERATELY_INFECTED
-        * high_imr_nbr (Integer): number of with immune resposnse system as IMR_HIGHLY_INFECTED
-        * dead_imr_nbr (Integer): number of with immune resposnse system as IMR_DEADLY_INFECTED
+        * sick_prcntg (Float): percentage of sick agents from total number of agents
+        * immmune_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_IMMUNE from the total number of agents
+        * asymp_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_ASYMPTOMATIC from the total number of agents
+        * mod_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_MODERATELY_INFECTED from the total number of agents
+        * high_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_HIGHLY_INFECTED from the total number of agents
+        * dead_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_DEADLY_INFECTED from the total number of agents
 
     Returns:
        hs_array (List), imr_array (List), mask_array(List): The three arrays with the data to use
     """
+    # heath status
+    agents_total = constants.TOTAL_NUMBER_OF_AGENTS
+    sick_nbr = math.floor(agents_total * sick_prcntg)
+    asymp_nbr = math.floor(agents_total * asymp_prcntg)
 
     sick_array = [constants.SICK for x in range(sick_nbr)]
     asymp_array = [constants.ASYMPTOMATIC for x in range(asymp_nbr)]
     healthy_array = [constants.HEALTHY for x in range(
         constants.TOTAL_NUMBER_OF_AGENTS - (sick_nbr + asymp_nbr))]
-    virus_array = healthy_array[:immmune_imr_nbr] + sick_array + asymp_array # using healthy agents after imunne number
+
+    # IMR
+    immmune_imr_nbr = math.floor(agents_total * immmune_imr_prcntg)
+    asymp_imr_nbr = math.floor(agents_total * asymp_imr_prcntg)
+    mod_imr_nbr = math.floor(agents_total * mod_imr_prcntg)
+    high_imr_nbr = math.floor(agents_total * high_imr_prcntg)
+    dead_imr_nbr = math.floor(agents_total * dead_imr_prcntg)
+    
+    imr_totals = immmune_imr_nbr + asymp_imr_nbr + \
+        mod_imr_nbr + high_imr_nbr + dead_imr_nbr
+    
+    if agents_total != imr_totals:
+        diff = agents_total - \
+            (immmune_imr_nbr + asymp_imr_nbr +
+             mod_imr_nbr + high_imr_nbr + dead_imr_nbr)
+        # fixing approximation issues by adding the diff to the dead imr number
+        dead_imr_nbr += diff
+        
+    # using healthy agents after imunne number
+    # second part of list, starting after the last immmune_imr_nbr
+    virus_array = healthy_array[:immmune_imr_nbr] + sick_array + asymp_array
     random.shuffle(virus_array)
+    # this aligns the hs_array and the imr_array to get healthy people being immune. otherwise, we could get an infected agent with IMR of immune
     hs_array = healthy_array[immmune_imr_nbr:] + virus_array
+    # I do not suffle the hs_array and imr_array to guarantee that only the healty agents are immune
 
     immune_array = [constants.IMR_IMMUNE for x in range(immmune_imr_nbr)]
     asymp_array = [constants.IMR_ASYMPTOMATIC for x in range(asymp_imr_nbr)]
     mod_array = [constants.IMR_MODERATELY_INFECTED for x in range(mod_imr_nbr)]
     high_array = [constants.IMR_HIGHLY_INFECTED for x in range(high_imr_nbr)]
     dead_array = [constants.IMR_DEADLY_INFECTED for x in range(dead_imr_nbr)]
+    
     non_imunne_array = asymp_array + mod_array + high_array + dead_array
     random.shuffle(non_imunne_array)
+    # this aligns the hs_array and the imr_array to get healthy people being immune. otherwise, we could get an infected agent with IMR of immune
     imr_array = immune_array + non_imunne_array
-
+    # I do not suffle the hs_array and imr_array to guarantee that only the healty agents are immune
+    
+    # wearing mask
+    wear_mask_nbr = math.floor(agents_total * wear_mask_prcntg)
+    
     wear_mask_array = [True for x in range(wear_mask_nbr)]
     no_mask_array = [False for x in range(
         constants.TOTAL_NUMBER_OF_AGENTS - wear_mask_nbr)]
+    
     mask_array = wear_mask_array + no_mask_array
     random.shuffle(mask_array)
-    # I do not suffle the hs_array and imr_array to guarantee that only the healty agents are immune
 
     return hs_array, imr_array, mask_array
 
@@ -467,4 +502,3 @@ def create_simulation_agents(new_simulation, random_tuple_list, hs_data=None, im
 
     new_simulation.create_agent(
         new_pos_X, new_pos_Y, health_status=health_value, immune_system_response=immune_response_value, wear_mask=wear_mask)
-
