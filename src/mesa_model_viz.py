@@ -66,7 +66,9 @@ def run_simulation() -> None:
     """Runs the simulation.
     """
     logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
+    
     grid = CanvasGrid(agent_portrayal, SIZE_X, SIZE_Y, PIXELS_X, PIXELS_Y)
+    
     chart_cumulatives = ChartModule([{"Label": "Sick Agents",
                                       "Color": "#ff0000"},
                                      {"Label": "Recovered Agents",
@@ -82,8 +84,22 @@ def run_simulation() -> None:
                                     # declaring both height and width yields some kind of a bug where the values are random
                                     canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
                                     data_collector_name='datacollector_cumulatives')
+    
+    chart_dailys = ChartModule([{"Label": "Infected Agents",
+                                      "Color": "#ff0000"},
+                                     {"Label": "Recovered Agents",
+                                      "Color": "#993300"},
+                                     {"Label": "Dead Agents",
+                                      "Color": "black"},
+                                     {"Label": "Quarantine Agents",
+                                      "Color": "#0000ff"}
+                                     ],
+                                    # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
+                                    # declaring both height and width yields some kind of a bug where the values are random
+                                    canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
+                                    data_collector_name='datacollector_dailys')
 
-    build_server_sim(grid, chart_cumulatives)
+    build_server_sim(grid, chart_cumulatives, chart_dailys)
 
 
 def build_server_sim(*params) -> None:

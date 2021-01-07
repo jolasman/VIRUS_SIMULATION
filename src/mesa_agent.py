@@ -142,6 +142,7 @@ class SimulationAgent(Agent):
             # initializing value
             if agent.infected_days is None:
                 agent.infected_days = 0
+                agent.model.daily_infected += 1
                 logger.debug(
                     f"Agent {agent.unique_id} is now on is day 0 for infected people. He is known as {agent.name}")
 
@@ -163,16 +164,13 @@ class SimulationAgent(Agent):
                     logger.debug(
                         f"Agent {agent.unique_id} recovered totaly. He is known as {agent.name}")
                 agent.recovered = True
-                #agent.daily_healed += 1
+                agent.model.daily_recovered += 1
 
             # case of deadly infected
             elif agent.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD:
                 if agent.immune_system_response == constants.IMR_DEADLY_INFECTED:
                     agent.health_status = constants.DEAD
-                    #agent.daily_dead += 1
-                    # if agent.pos_tuple == (constants.QUARANTINE_X, constants.QUARANTINE_Y):
-                    #agent.daily_quarantine -= 1
-
+                    agent.model.daily_dead += 1
                     logger.debug(
                         f"Sadly Agent {agent.unique_id} died. He was known as {agent.name}")
                 agent.infected_days += 1
