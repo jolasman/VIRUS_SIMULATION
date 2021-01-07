@@ -1,6 +1,11 @@
-from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import ChartModule
+from mesa.visualization.UserParam import UserSettableParameter
+from mesa.visualization.modules import (
+    CanvasGrid,
+    ChartModule,
+    # BarChartModule,
+    PieChartModule
+)
 import mesa_model
 import sys
 import constants
@@ -19,9 +24,16 @@ logger = logging.getLogger(__name__)
 SIZE_X = constants.SIZE
 SIZE_Y = SIZE_X
 PIXELS_X = constants.PIXELS
-PIXELS_Y = PIXELS_X
-#NUMBER_OF_AGENTS = (SIZE_X ** 2) // 10
+PIXELS_Y = PIXELS_X // 2
+
 NUMBER_OF_AGENTS = constants.TOTAL_NUMBER_OF_AGENTS
+
+RED = "#ff0000"
+ORANGE = "#ff9900"
+BROWN = "#993300"
+BLUE = "#3399ff"
+GREEN = "#33cc33"
+DARK_BLUE = "#0000ff"
 
 
 def agent_portrayal(agent) -> dict:
@@ -36,25 +48,25 @@ def agent_portrayal(agent) -> dict:
     portrayal = {"Shape": "circle", "Filled": "true", "r": 0.8}
 
     if agent.get_health_status() == constants.SICK:
-        portrayal["Color"] = "#ff0000"  # red
+        portrayal["Color"] = RED
         portrayal["Layer"] = 5
         portrayal["r"] = 0.6
     elif agent.get_health_status() == constants.ASYMPTOMATIC:
-        portrayal["Color"] = "#ff9900"  # orange
+        portrayal["Color"] = ORANGE
         portrayal["Layer"] = 4
         portrayal["r"] = 0.5
     elif agent.get_health_status() == constants.WITH_DISEASES_SEQUELAES:
-        portrayal["Color"] = "#993300"  # brown
+        portrayal["Color"] = BROWN
         portrayal["Layer"] = 2
         portrayal["r"] = 0.6
     elif agent.get_health_status() == constants.TOTAL_RECOVERY:
-        portrayal["Color"] = "#3399ff"  # blue
+        portrayal["Color"] = BLUE
         portrayal["Layer"] = 2
     elif agent.get_health_status() == constants.HEALTHY:
-        portrayal["Color"] = "#33cc33"  # green
+        portrayal["Color"] = GREEN
         portrayal["Layer"] = 4
         portrayal["r"] = 1
-    else:  # dead
+    else:
         portrayal["Color"] = "white"
         portrayal["Layer"] = 1
         portrayal["r"] = 0.1
@@ -66,49 +78,77 @@ def run_simulation() -> None:
     """Runs the simulation.
     """
     logger.info(f"Number of Agents: {NUMBER_OF_AGENTS}")
-    
+
     grid = CanvasGrid(agent_portrayal, SIZE_X, SIZE_Y, PIXELS_X, PIXELS_Y)
-    
+
     chart_cumulatives = ChartModule([{"Label": "Sick Agents",
-                                      "Color": "#ff0000"},
+                                      "Color": "RED"},
                                      {"Label": "Recovered Agents",
-                                      "Color": "#993300"},
+                                      "Color": BROWN},
                                      {"Label": "Dead Agents",
                                       "Color": "black"},
                                      {"Label": "Healthy Agents",
-                                      "Color": "#33cc33"},
+                                      "Color": GREEN},
                                      {"Label": "Quarantine Agents",
-                                      "Color": "#0000ff"}
+                                      "Color": DARK_BLUE}
                                      ],
                                     # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
                                     # declaring both height and width yields some kind of a bug where the values are random
                                     canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
                                     data_collector_name='datacollector_cumulatives')
-    
-    chart_dailys = ChartModule([{"Label": "Infected Agents",
-                                      "Color": "#ff0000"},
-                                     {"Label": "Recovered Agents",
-                                      "Color": "#993300"},
-                                     {"Label": "Dead Agents",
-                                      "Color": "black"},
-                                     {"Label": "Quarantine Agents",
-                                      "Color": "#0000ff"}
-                                     ],
-                                    # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
-                                    # declaring both height and width yields some kind of a bug where the values are random
-                                    canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
-                                    data_collector_name='datacollector_dailys')
 
-    build_server_sim(grid, chart_cumulatives, chart_dailys)
+    chart_dailys = ChartModule([{"Label": "Infected Agents",
+                                 "Color": "RED"},
+                                {"Label": "Recovered Agents",
+                                 "Color": BROWN},
+                                {"Label": "Dead Agents",
+                                 "Color": "black"},
+                                {"Label": "Quarantine Agents",
+                                 "Color": DARK_BLUE}
+                                ],
+                               # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
+                               # declaring both height and width yields some kind of a bug where the values are random
+                               canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
+                               data_collector_name='datacollector_dailys')
+
+    pie_chart_cumulatives = PieChartModule([{"Label": "Sick Agents",
+                                             "Color": "RED"},
+                                            {"Label": "Recovered Agents",
+                                             "Color": BROWN},
+                                            {"Label": "Dead Agents",
+                                             "Color": "black"},
+                                            {"Label": "Healthy Agents",
+                                             "Color": GREEN},
+                                            {"Label": "Quarantine Agents",
+                                             "Color": DARK_BLUE}
+                                            ],
+                                           data_collector_name='datacollector_cumulatives')
+
+    build_server_sim(grid, chart_cumulatives,
+                     chart_dailys, pie_chart_cumulatives)
 
 
 def build_server_sim(*params) -> None:
     """Builds and runs the server to visualize the simulation and charts.
     """
+    model_params = {
+    "N": UserSettableParameter(
+        "slider",
+        "Number of agents",
+        10,
+        10,
+        (SIZE_X ** 2) // 10,
+        1,
+        description="Choose how many agents to include in the model",
+    ),
+    "width": SIZE_X, "height": SIZE_Y, "static": False,
+    }
+    
     server = ModularServer(mesa_model.SimulationModel,
                            params,  # list
-                           "Money Model",
-                           {"N": NUMBER_OF_AGENTS, "width": SIZE_X, "height": SIZE_Y, "static": False})  # model parameters
+                           "COVID-19 Simulation",
+                           model_params)  # model parameters
+    
     server.port = 8521  # The default
     server.launch()
 
