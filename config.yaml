@@ -22,7 +22,7 @@ SIMULATION:
       IMMMUNE_IMR_PRCNTG: 0.05 # number of agents with immune system resposnse as Immune when starting the simulation, only healthy agents can be immune
       ASYMP_IMR_PRCNTG: 0.2 # number of agents with immune system resposnse as Asymptomatic when starting the simulation
       MOD_IMR_PRCNTG: 0.15 # number of agents with immune system resposnse as Moderately Infected when starting the simulation
-      HIGH_IMR_PRCNTG: 0.1 # number of agents with immune system resposnse as Highly infected when starting the simulation
+      SEVERE_IMR_PRCNTG: 0.1 # number of agents with immune system resposnse as severe infected when starting the simulation
       DEAD_IMR_PRCNTG: 0.5 # number of agents with immune system resposnse as Deadly infected when starting the simulation
       AGENTS_WEARING_MASK_PRCNTG: 0.1 # number of agents wearing a mask when starting the simulation
   AGENT:

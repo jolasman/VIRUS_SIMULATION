@@ -224,7 +224,7 @@ class SimulationAgent(Agent):
                 if value_d < pdir:
                     return constants.IMR_DEADLY_INFECTED
                 else:
-                    return constants.IMR_HIGHLY_INFECTED
+                    return constants.IMR_SEVERE_INFECTED
             else:  # prob of being healthy
                 if value_d < pdir:
                     return constants.IMR_DEADLY_INFECTED

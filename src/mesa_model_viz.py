@@ -28,6 +28,9 @@ PIXELS_Y = PIXELS_X // 2
 
 NUMBER_OF_AGENTS = constants.TOTAL_NUMBER_OF_AGENTS
 
+MAX_NUMBER_AGENTS = (SIZE_X ** 2) // 5
+
+
 RED = "#ff0000"
 ORANGE = "#ff9900"
 BROWN = "#993300"
@@ -131,24 +134,102 @@ def run_simulation() -> None:
 def build_server_sim(*params) -> None:
     """Builds and runs the server to visualize the simulation and charts.
     """
+    global NUMBER_OF_AGENTS
+    if NUMBER_OF_AGENTS > MAX_NUMBER_AGENTS:
+        NUMBER_OF_AGENTS = MAX_NUMBER_AGENTS
+        
     model_params = {
-    "N": UserSettableParameter(
-        "slider",
-        "Number of agents",
-        10,
-        10,
-        (SIZE_X ** 2) // 10,
-        1,
-        description="Choose how many agents to include in the model",
-    ),
-    "width": SIZE_X, "height": SIZE_Y, "static": False,
+        "N": UserSettableParameter(
+            "slider",
+            "Number of agents",
+            NUMBER_OF_AGENTS,  # default
+            10,  # min
+            MAX_NUMBER_AGENTS,  # max
+            1,  # step
+            description="Choose how many agents to include in the model",
+        ),
+        "width": SIZE_X,
+        "height": SIZE_Y,
+        "static": True,
+        "sick_p": UserSettableParameter(
+            "slider",
+            "Percentage of infected (Sick) agents",
+            constants.SICK_PRCNTG,
+            0,
+            1,
+            0.1,
+            description="Choose how many percentage of infected (Sick) agents in the model",
+        ),
+        "aymp_p": UserSettableParameter(
+            "slider",
+            "Percentage of infected (Asymptomatic) agents",
+            constants.ASYMP_PRCNTG,
+            0,
+            1,
+            0.1,
+            description="Choose how many percentage of infected (Asymptomatic) agents in the model",
+        ),
+        "imr_immune_p": UserSettableParameter(
+            "slider",
+            "Percentage of immune agents",
+            constants.IMMMUNE_IMR_PRCNTG,
+            0,
+            1,
+            0.1,
+            description="Choose how many percentage of immune agents in the model",
+        ),
+        "imr_asymp_p": UserSettableParameter(
+            "slider",
+            "Percentage of asymptomatic agents",
+            constants.ASYMP_IMR_PRCNTG,
+            0,
+            1,
+            0.1,
+            description="Choose how many percentage of asymptomatic agents in the model",
+        ),
+        "imr_mod_p": UserSettableParameter(
+            "slider",
+            "Percentage of moderately infected agents",
+            constants.MOD_IMR_PRCNTG,
+            0,
+            1,
+            0.1,
+            description="Choose how many percentage of moderately infected agents in the model",
+        ),
+        "imr_severe_p": UserSettableParameter(
+            "slider",
+            "Percentage of severe infected agents",
+            constants.SEVERE_IMR_PRCNTG,
+            0,
+            1,
+            0.1,
+            description="Choose how many percentage of severe infected agents in the model",
+        ),
+        "imr_dead_p": UserSettableParameter(
+            "slider",
+            "Percentage of dead agents",
+            constants.DEAD_IMR_PRCNTG,
+            0,
+            1,
+            0.1,
+            description="Choose how many percentage of dead agents in the model",
+        ),
+        "wearing_mask": UserSettableParameter(
+            "slider",
+            "Percentage of agents wearing a mask",
+            constants.AGENTS_WEARING_MASK_PRCNTG,
+            0,
+            1,
+            0.1,
+            description="Choose how many percentage of agents  wearing a mask in the model",
+        )
     }
-    
+
     server = ModularServer(mesa_model.SimulationModel,
                            params,  # list
                            "COVID-19 Simulation",
                            model_params)  # model parameters
-    
+
     server.port = 8521  # The default
     server.launch()
 

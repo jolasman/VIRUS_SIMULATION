@@ -55,14 +55,16 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
 
         if static_beginning:
             healty_agents = constants.TOTAL_NUMBER_OF_AGENTS - \
-                (constants.SICK_NBR + constants.ASYMP_NBR)
-            if healty_agents < constants.IMMMUNE_IMR_NBR:  # immune people are healthy
+                ((constants.TOTAL_NUMBER_OF_AGENTS * constants.SICK_PRCNTG) +
+                 (constants.TOTAL_NUMBER_OF_AGENTS * constants.ASYMP_PRCNTG))
+            # immune people are healthy
+            if healty_agents < (constants.TOTAL_NUMBER_OF_AGENTS * constants.IMMMUNE_IMR_PRCNTG):
                 logger.error(
-                    f"The number of HEALTHY agents ({healty_agents}) cannot be less than the number of immune agents ({constants.IMMMUNE_IMR_NBR})")
+                    f"The number of HEALTHY agents ({healty_agents}) cannot be less than the number of immune agents ({constants.IMMMUNE_IMR_PRCNTG})")
                 sys.exit()
 
             hs_data, imr_data, mask_data = utils.static_simulation(
-                constants.SICK_NBR, constants.ASYMP_NBR, constants.IMMMUNE_IMR_NBR, constants.ASYMP_IMR_NBR, constants.MOD_IMR_NBR, constants.HIGH_IMR_NBR, constants.DEAD_IMR_NBR, constants.AGENTS_WEARING_MASK)
+                constants.SICK_PRCNTG, constants.ASYMP_PRCNTG, constants.IMMMUNE_IMR_PRCNTG, constants.ASYMP_IMR_PRCNTG, constants.MOD_IMR_PRCNTGR, constants.SEVERE_IMR_NBR, constants.DEAD_IMR_PRCNTG, constants.AGENTS_WEARING_MASK)
             if len(hs_data) != constants.TOTAL_NUMBER_OF_AGENTS or len(imr_data) != constants.TOTAL_NUMBER_OF_AGENTS:
                 logger.error(
                     f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({constants.TOTAL_NUMBER_OF_AGENTS})")
