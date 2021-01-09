@@ -64,6 +64,7 @@ class SimulationAgent(Agent):
         """
         possible_steps = self.model.grid.get_neighborhood(
             self.pos,
+            # If True, may move in all 8 directions.Otherwise, only up, down, left, right.
             moore=True,
             include_center=False)
         new_position = self.random.choice(possible_steps)
@@ -72,12 +73,30 @@ class SimulationAgent(Agent):
     def agents_in_contact(self) -> None:
         """Updates the status for each agent when in contact with other agents.
         """
-        cellmates = self.model.grid.get_cell_list_contents(
-            [self.pos])  # find others in the same cell
+        # getting cell in the conatagious radius
+        cells_in_neighborhood = self.model.grid.get_neighborhood(
+            self.pos,
+            # If True, may move in all 8 directions.Otherwise, only up, down, left, right.
+            moore=True,
+            include_center=True,
+            radius=constants.CONTAGIOUS_DISTANCE)
+
+        # getting the agents inside the cells
+        cellmates = []
+        for cell in cells_in_neighborhood:
+            tmp_cellmates = self.model.grid.get_cell_list_contents([cell])
+            for mate in tmp_cellmates:
+                cellmates.append(mate)
+        if len(cellmates) > 2:
+            logger.info(
+                f"More than 2 agents can be infected. Current: {self.pos} --> {[agent.pos for agent in cellmates]}")
+        # cellmates = self.model.grid.get_cell_list_contents(
+        #     [self.pos])  # find others in the same cell
+
         if len(cellmates) > 1:
             for agent in cellmates:
                 # excluding the day 0, when the agents get the infection, where we change from None to 0
-                if agent.infected_days and not self.recovered:
+                if agent != self and agent.infected_days and not self.recovered:
                     # can get the virus, neverthless he got it once before, the recovered instance variable can change
                     if self.health_status > constants.ASYMPTOMATIC:
                         hs_new_value_for_current_agent = SimulationAgent.value_based_probability(
@@ -127,12 +146,20 @@ class SimulationAgent(Agent):
         """
         return self.unique_id == other.unique_id
 
+    def __ne__(self, other) -> bool:
+        """Overrides how the `!=` operator is used in the SimulationAgent class.
+
+        Returns:
+            (Boolean): if agents' IDs are different.
+        """
+        return self.unique_id != other.unique_id
+
     @staticmethod
     def update_infected_agents(agent) -> None:
         """Updates the agents health status based on the number of days with the virus.
-        
+
         This method can be called through the SimulationAgent class so we can update the agents in the quarantine room that are not in the simulation model grid.
-        
+
         Args:
             agent (SimulationAgent): A SimulationAgent.
         """
