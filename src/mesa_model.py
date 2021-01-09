@@ -24,20 +24,54 @@ logger = logging.getLogger(__name__)
 class SimulationModel(Model):
     """Class representing the simulation's model."""
 
-    def __init__(self, N, width, height, static=False) -> None:
+    def __init__(
+            self,
+            N,
+            width,
+            height,
+            sick_p=0.2,
+            aymp_p=0.2,
+            imr_immune_p=0.2,
+            imr_asymp_p=0.2,
+            imr_mod_p=0.2,
+            imr_severe_p=0.2,
+            imr_dead_p=0.2,
+            wearing_mask=0.2,
+            static=False
+    ) -> None:
         """Simulation constructor.
 
         Args:
             N (Integer): Number of Agents. in the model.
             width (Integer): Simulation's width.
             height (Integer): Simulation's height.
-            random (bool, optional): If the agents will have random parameters. Defaults to False.
+            sick_p (float, optional): Percentage of infected (sick) agents. Defaults to 0.2.
+            aymp_p (float, optional): Percentage of infected (asymptomatic)agents. Defaults to 0.2.
+            imr_immune_p (float, optional): Percentage of agents for immune IMR. Defaults to 0.2.
+            imr_asymp_p (float, optional): Percentage of agents for asymptomatic IMR. Defaults to 0.2.
+            imr_mod_p (float, optional): Percentage of agents for moderately infected IMR. Defaults to 0.2.
+            imr_severe_p (float, optional): Percentage of agents for severe infected IMR. Defaults to 0.2.
+            imr_dead_p (float, optional): Percentage of agents for deadly IMR. Defaults to 0.2.
+            wearing_mask (float, optional): Percentage of agents wearing a mask. Defaults to 0.2.
+            static (bool, optional): If the simulation will have a static beginning. Defaults to False.
         """
         self.num_agents = N
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.running = True
         self.quarantine_list = []
+        self.daily_infected = 0
+        self.daily_recovered = 0
+        self.daily_dead = 0
+        self.daily_quarantine = 0
+        self.sick_p = sick_p
+        self.aymp_p = aymp_p
+        self.imr_immune_p = imr_immune_p
+        self.imr_asymp_p = imr_asymp_p
+        self.imr_mod_p = imr_mod_p
+        self.imr_severe_p = imr_severe_p
+        self.imr_dead_p = imr_dead_p
+        self.wearing_mask = wearing_mask
 
         if not static:
             # Create agents
@@ -49,7 +83,7 @@ class SimulationModel(Model):
                 y = self.random.randrange(self.grid.height)
                 self.grid.place_agent(agent, (x, y))
         else:
-            hs_data, imr_data, mask_data = SimulationModel.get_static_data()
+            hs_data, imr_data, mask_data = self.get_static_data()
 
             for i in range(self.num_agents):
                 agent = SimulationAgent(model=self, health_status=hs_data.pop(), immune_system_response=imr_data.pop(),
@@ -62,7 +96,7 @@ class SimulationModel(Model):
                 y = self.random.randrange(self.grid.height)
 
                 self.grid.place_agent(agent, (x, y))
-                
+
         # data collect to build the chart
         self.datacollector_cumulatives = DataCollector(
             {"Sick Agents": SimulationModel.cumulative_values_sick,
@@ -71,9 +105,16 @@ class SimulationModel(Model):
              "Healthy Agents": SimulationModel.cumulative_values_healthy,
              "Quarantine Agents": SimulationModel.cumulative_values_quarantine})
 
+        # data collect to build the chart
+        self.datacollector_dailys = DataCollector(
+            {"Infected Agents": SimulationModel.daily_values_sick,
+             "Recovered Agents": SimulationModel.daily_values_recover,
+             "Dead Agents": SimulationModel.daily_values_dead,
+             "Quarantine Agents": SimulationModel.daily_values_quarantine})
+
     def step(self) -> None:
         """Performs the simulation's step by activating each agents step method.
-        
+
         This method also removes the dead agents, updates the quarantine zone, collects the chart data, and validates if the simulation achieved its goal.
         """
         if self.schedule.steps == 0:
@@ -82,17 +123,23 @@ class SimulationModel(Model):
                 f"Number of:  infected agents --> {infected} -  Healthy agents --> {healthy}")
             logger.info(
                 f"Number of deadly infected agents: {self.get_imr_deadly()}")
-        
-        # collecting data for chart    
+
+        # collecting data for chart
         self.datacollector_cumulatives.collect(self)
 
         self.remove_dead_agents()  # I do not know why, but we cannot remove the dead agents after calling the setp method. Otherwise the chart of dead people will have no values
-        self.schedule.step() # do the simulation step
-        
-        #Quarantine zone update
+        self.schedule.step()  # does the simulation step
+
+        # Quarantine zone update
         if self.schedule.steps >= constants.QUARANTINE_DAYS:
             self.update_quarantine_health_status()
             self.update_quarantine()
+
+        # collecting data for chart
+        self.datacollector_dailys.collect(self)
+        # reset daily counters
+        self.reset_daily_data()
+
         self.check_simulation_end()
 
     def remove_dead_agents(self) -> None:
@@ -107,6 +154,8 @@ class SimulationModel(Model):
         for quaran_index, quaran_agent in enumerate(self.quarantine_list):
             if quaran_agent.health_status == constants.DEAD:
                 self.quarantine_list.pop(quaran_index)
+                # only counting here as in the step the models updates the counter with the grid agents
+                self.daily_dead += 1
 
     def update_quarantine_health_status(self) -> None:
         """For each agent in quarantine we check is health and update is value based on the number of days with the virus.
@@ -125,11 +174,11 @@ class SimulationModel(Model):
             self.quarantine_list.append(agent)
             self.grid.remove_agent(agent)
             self.schedule.remove(agent)
-            #self.daily_quarantine += 1
+            self.daily_quarantine += 1
             # saving agents removed from grid to add them as soon as they get healed
             logger.debug(f"Agent {agent.unique_id} is now in quarantine. ")
 
-        # removing healed people from quarantine
+        # removing healed people from quarantine (dead are removed before in the step method)
         for index, agent in enumerate(self.quarantine_list):
             if agent.health_status > constants.ASYMPTOMATIC:
                 self.quarantine_list.pop(index)
@@ -138,7 +187,9 @@ class SimulationModel(Model):
                 x = self.random.randrange(self.grid.width)
                 y = self.random.randrange(self.grid.height)
                 self.grid.place_agent(agent, (x, y))
-                #self.daily_quarantine -= 1
+                self.daily_quarantine -= 1
+                self.daily_recovered += 1
+
                 logger.debug(
                     f"Agent {agent.unique_id} is now with good health. The agents is now returning to the grid at {agent.pos}")
 
@@ -176,6 +227,43 @@ class SimulationModel(Model):
 
         return len(deadly)
 
+    def get_static_data(self) -> tuple:
+        """Returns the lists of static data to initialize the agents based on the configurations file.
+
+        Returns:
+            (tuple): hs_data, imr_data, mask_data.
+        """
+        if sum([self.imr_immune_p, self.imr_asymp_p, self.imr_mod_p, self.imr_severe_p, self.imr_dead_p]) != 1:
+            sys.exit(
+                f"IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG must sum to 1")
+
+        healty_agents = self.num_agents - \
+            ((self.num_agents * self.sick_p) +
+             (self.num_agents * self.aymp_p))
+        # immune people are healthy
+        if healty_agents < (self.num_agents * constants.IMMMUNE_IMR_PRCNTG):
+            logging.error(
+                f"The number of HEALTHY agents ({healty_agents}) cannot be less than the number of immune agents ({constants.IMMMUNE_IMR_PRCNTG})")
+            sys.exit()
+
+        hs_data, imr_data, mask_data = utils.static_simulation(self.num_agents, self.sick_p, self.aymp_p, self.imr_immune_p,
+                                                               self.imr_asymp_p, self.imr_mod_p, self.imr_severe_p, self.imr_dead_p,
+                                                               self.wearing_mask)
+        if len(hs_data) != self.num_agents or len(imr_data) != self.num_agents:
+            logging.error(
+                f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({constants.TOTAL_NUMBER_OF_AGENTS})")
+            sys.exit()
+
+        return hs_data, imr_data, mask_data
+
+    def reset_daily_data(self) -> None:
+        """Resets the daily total to "0"
+
+        """
+        self.daily_infected = 0
+        self.daily_recovered = 0
+        self.daily_dead = 0
+        self.daily_quarantine = 0
 
     @staticmethod
     def cumulative_values_sick(model) -> int:
@@ -201,7 +289,6 @@ class SimulationModel(Model):
 
         return cumulative_sick
 
-
     @staticmethod
     def cumulative_values_recover(model) -> int:
         """Returns the total number of TOTAL_RECOVERY and WITH_DISEASES_SEQUELAES agents.
@@ -220,7 +307,6 @@ class SimulationModel(Model):
                 cumulative_recovery += 1
 
         return cumulative_recovery
-
 
     @staticmethod
     def cumulative_values_dead(model) -> int:
@@ -242,7 +328,6 @@ class SimulationModel(Model):
 
         return cumulative_dead
 
-
     @staticmethod
     def cumulative_values_healthy(model) -> int:
         """Returns the total number of HEALTHY agents.
@@ -260,7 +345,6 @@ class SimulationModel(Model):
 
         return cumulative_healthy
 
-
     @staticmethod
     def cumulative_values_quarantine(model) -> int:
         """Returns the total number of agents in the quarantine zone.
@@ -273,29 +357,53 @@ class SimulationModel(Model):
         """
         return len(model.quarantine_list)
 
-
     @staticmethod
-    def get_static_data() -> tuple:
-        """Returns the lists of static data to initialize the agents based on the configurations file.
+    def daily_values_sick(model) -> int:
+        """Returns the daily total number of SICK and ASYMPTOMATIC agents.
+
+        Args:
+            model (SimulationModel): The model instance.
 
         Returns:
-            (tuple): hs_data, imr_data, mask_data.
+            (Integer): Number of Agents.
         """
-        healty_agents = constants.TOTAL_NUMBER_OF_AGENTS - \
-            (constants.SICK_NBR + constants.ASYMP_NBR)
-        if healty_agents < constants.IMMMUNE_IMR_NBR:  # immune people are healthy
-            logging.error(
-                f"The number of HEALTHY agents ({healty_agents}) cannot be less than the number of immune agents ({constants.IMMMUNE_IMR_NBR})")
-            sys.exit()
+        return model.daily_infected
 
-        hs_data, imr_data, mask_data = utils.static_simulation(
-            constants.SICK_NBR, constants.ASYMP_NBR, constants.IMMMUNE_IMR_NBR, constants.ASYMP_IMR_NBR, constants.MOD_IMR_NBR, constants.HIGH_IMR_NBR, constants.DEAD_IMR_NBR, constants.AGENTS_WEARING_MASK)
-        if len(hs_data) != constants.TOTAL_NUMBER_OF_AGENTS or len(imr_data) != constants.TOTAL_NUMBER_OF_AGENTS:
-            logging.error(
-                f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({constants.TOTAL_NUMBER_OF_AGENTS})")
-            sys.exit()
+    @staticmethod
+    def daily_values_recover(model) -> int:
+        """Returns the daily total number of recovered agents.
 
-        return hs_data, imr_data, mask_data
+        Args:
+            model (SimulationModel): The model instance.
+
+        Returns:
+            (Integer): Number of Agents.
+        """
+        return model.daily_recovered
+
+    @staticmethod
+    def daily_values_dead(model) -> int:
+        """Returns the daily total number of DEAD agents.
+
+        Args:
+            model (SimulationModel): The model instance.
+
+        Returns:
+            (Integer): Number of Agents.
+        """
+        return model.daily_dead
+
+    @staticmethod
+    def daily_values_quarantine(model) -> int:
+        """Returns the daily total number of agents in the quarantine zone.
+
+        Args:
+            model (SimulationModel): The model instance.
+
+        Returns:
+            (Integer): Number of Agents.
+        """
+        return model.daily_quarantine
 
 
 if __name__ == "__main__":

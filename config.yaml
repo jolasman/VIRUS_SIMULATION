@@ -4,9 +4,9 @@ LOG_LEVEL: INFO
 SIMULATION:
   PARAMS:
     EPISODES: 500 # interpreted as days
-    TOTAL_NUMBER_OF_AGENTS: 10_000
-    SIZE: 300 # environment size on each axis
-    PIXELS: 2000 # environment size on each axis
+    TOTAL_NUMBER_OF_AGENTS: 1_000
+    SIZE: 150 # environment size on each axis
+    PIXELS: 1500 # environment size on each axis
     RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
     AGENTS_MOVEMENT_PERCENTAGE: 1 # percentage of the agents that moves in the step
     QUARANTINE_X: -10 # should be negative or greater than SIZE to get out of the env
@@ -21,9 +21,9 @@ SIMULATION:
       ASYMP_PRCNTG: 0.1 # number of asymptomatic agents when starting the simulation
       IMMMUNE_IMR_PRCNTG: 0.05 # number of agents with immune system resposnse as Immune when starting the simulation, only healthy agents can be immune
       ASYMP_IMR_PRCNTG: 0.2 # number of agents with immune system resposnse as Asymptomatic when starting the simulation
-      MOD_IMR_PRCNTG: 0.25 # number of agents with immune system resposnse as Moderately Infected when starting the simulation
-      HIGH_IMR_PRCNTG: 0.3 # number of agents with immune system resposnse as Highly infected when starting the simulation
-      DEAD_IMR_PRCNTG: 0.2 # number of agents with immune system resposnse as Deadly infected when starting the simulation
+      MOD_IMR_PRCNTG: 0.15 # number of agents with immune system resposnse as Moderately Infected when starting the simulation
+      SEVERE_IMR_PRCNTG: 0.1 # number of agents with immune system resposnse as severe infected when starting the simulation
+      DEAD_IMR_PRCNTG: 0.5 # number of agents with immune system resposnse as Deadly infected when starting the simulation
       AGENTS_WEARING_MASK_PRCNTG: 0.1 # number of agents wearing a mask when starting the simulation
   AGENT:
     PARAMS:
@@ -60,6 +60,6 @@ SIMULATION:
         FOUR_PLOTS_FIG_SIZE_X: 9
         FOUR_PLOTS_FIG_SIZE_Y: 8
         ALL_DATA_PLOT_FIG_SIZE_X: 10
-        ALL_DATA_PLOT_FIG_SIZE_Y: 800
+        ALL_DATA_PLOT_FIG_SIZE_Y: 300
         SIMULATION_GRAPHICS_SIZE_X: 900
         SIMULATION_GRAPHICS_SIZE_Y: 900
