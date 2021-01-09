@@ -90,9 +90,7 @@ class SimulationAgent(Agent):
         if len(cellmates) > 2:
             logger.info(
                 f"More than 2 agents can be infected. Current: {self.pos} --> {[agent.pos for agent in cellmates]}")
-        # cellmates = self.model.grid.get_cell_list_contents(
-        #     [self.pos])  # find others in the same cell
-
+       
         if len(cellmates) > 1:
             for agent in cellmates:
                 # excluding the day 0, when the agents get the infection, where we change from None to 0
