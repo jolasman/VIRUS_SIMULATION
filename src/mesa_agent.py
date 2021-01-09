@@ -73,7 +73,7 @@ class SimulationAgent(Agent):
     def agents_in_contact(self) -> None:
         """Updates the status for each agent when in contact with other agents.
         """
-        # getting cell in the conatagious radius
+        # getting cell in the contagious radius
         cells_in_neighborhood = self.model.grid.get_neighborhood(
             self.pos,
             # If True, may move in all 8 directions.Otherwise, only up, down, left, right.
