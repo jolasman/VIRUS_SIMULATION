@@ -114,7 +114,7 @@ def run_simulation() -> None:
                                canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
                                data_collector_name='datacollector_dailys')
 
-    pie_chart_cumulatives = PieChartModule([{"Label": "Sick Agents",
+    pie_chart_cumulatives = PieChartModule([{"Label": "Infected Agents",
                                              "Color": "RED"},
                                             {"Label": "Recovered Agents",
                                              "Color": BROWN},
@@ -125,7 +125,7 @@ def run_simulation() -> None:
                                             {"Label": "Quarantine Agents",
                                              "Color": DARK_BLUE}
                                             ],
-                                           data_collector_name='datacollector_cumulatives')
+                                           data_collector_name='datacollector_dailys_prcntg')
 
     build_server_sim(grid, chart_cumulatives,
                      chart_dailys, pie_chart_cumulatives)
