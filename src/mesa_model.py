@@ -74,12 +74,11 @@ class SimulationModel(Model):
         self.imr_severe_p = imr_severe_p
         self.imr_dead_p = imr_dead_p
         self.wearing_mask = wearing_mask
-        self.totals_dict = {"Infected Agents": 0,
-                            "Recovered Agents": 0,
-                            "Dead Agents": 0,
-                            "Healthy Agents": 0,
-                            "Quarantine Agents": 0
-                            }
+        self.totals_dict = {
+            "Recovered Agents": 0,
+            "Dead Agents": 0,
+            "Healthy Agents": 0
+        }
 
         if not static:
             # Create agents
@@ -106,7 +105,7 @@ class SimulationModel(Model):
                 self.grid.place_agent(agent, (x, y))
 
         # data collect to build the chart
-        self.datacollector_cumulatives = DataCollector(
+        self.datacollector_currents_prcntg = DataCollector(
             {"Sick Agents": SimulationModel.current_values_sick,
              "Recovered Agents": SimulationModel.current_values_recover,
              "Dead Agents": SimulationModel.current_values_dead,
@@ -121,12 +120,10 @@ class SimulationModel(Model):
              "Quarantine Agents": SimulationModel.daily_values_quarantine})
 
         # data collect to build the chart
-        self.datacollector_dailys_prcntg = DataCollector(
-            {"Infected Agents": SimulationModel.cumulative_values_sick_prcntg,
-             "Recovered Agents": SimulationModel.cumulative_values_recover_prcntg,
+        self.datacollector_cumulatives_prcntg = DataCollector(
+            {"Recovered Agents": SimulationModel.cumulative_values_recover_prcntg,
              "Dead Agents": SimulationModel.cumulative_values_dead_prcntg,
-             "Healthy Agents": SimulationModel.current_values_healthy,
-             "Quarantine Agents": SimulationModel.cumulative_values_quarantine_prcntg})
+             "Healthy Agents": SimulationModel.cumulative_values_healthy_prcntg})
 
     def step(self) -> None:
         """Performs the simulation's step by activating each agents step method.
@@ -140,10 +137,10 @@ class SimulationModel(Model):
             logger.info(
                 f"Number of deadly infected agents: {self.get_imr_deadly()}")
 
-        # collecting data for chart
-        self.datacollector_cumulatives.collect(self)
-
         self.remove_dead_agents()  # I do not know why, but we cannot remove the dead agents after calling the setp method. Otherwise the chart of dead people will have no values
+
+        self.check_simulation_end()
+
         self.schedule.step()  # does the simulation step
 
         # Quarantine zone update
@@ -152,13 +149,11 @@ class SimulationModel(Model):
             self.update_quarantine()
 
         # collecting data for chart
+        self.datacollector_currents_prcntg.collect(self)
+        self.datacollector_cumulatives_prcntg.collect(self)
         self.datacollector_dailys.collect(self)
-        # collecting data for chart
-        self.datacollector_dailys_prcntg.collect(self)
         # reset daily counters
         self.reset_daily_data()
-
-        self.check_simulation_end()
 
     def remove_dead_agents(self) -> None:
         """Removes the dead agents from the simulation.
@@ -206,7 +201,7 @@ class SimulationModel(Model):
                 y = self.random.randrange(self.grid.height)
                 self.grid.place_agent(agent, (x, y))
                 self.daily_quarantine -= 1
-                self.daily_recovered += 1
+                # self.daily_recovered += 1 #update_infected_agents already sets the revocered agent to the counter
 
                 logger.debug(
                     f"Agent {agent.unique_id} is now with good health. The agents is now returning to the grid at {agent.pos}")
@@ -305,8 +300,6 @@ class SimulationModel(Model):
             if agent.health_status == constants.ASYMPTOMATIC:
                 cumulative_sick += 1
 
-        model.totals_dict["Infected Agents"] += cumulative_sick
-
         return cumulative_sick
 
     @staticmethod
@@ -326,7 +319,7 @@ class SimulationModel(Model):
             if agent.health_status == constants.WITH_DISEASES_SEQUELAES:
                 cumulative_recovery += 1
 
-        model.totals_dict["Recovered Agents"] += cumulative_recovery
+        model.totals_dict["Recovered Agents"] = cumulative_recovery
 
         return cumulative_recovery
 
@@ -367,7 +360,7 @@ class SimulationModel(Model):
             if agent.health_status == constants.HEALTHY:
                 cumulative_healthy += 1
 
-        model.totals_dict["Healthy Agents"] += cumulative_healthy
+        model.totals_dict["Healthy Agents"] = cumulative_healthy
 
         return cumulative_healthy
 
@@ -381,8 +374,6 @@ class SimulationModel(Model):
         Returns:
             (Integer): Number of Agents.
         """
-        model.totals_dict["Quarantine Agents"] += len(model.quarantine_list)
-
         return len(model.quarantine_list)
 
     @staticmethod
@@ -434,18 +425,6 @@ class SimulationModel(Model):
         return model.daily_quarantine
 
     @staticmethod
-    def cumulative_values_sick_prcntg(model) -> int:
-        """Returns the cumulative total of SICK and ASYMPTOMATIC agents during the whole simulation.
-
-        Args:
-            model (SimulationModel): The model instance.
-
-        Returns:
-            (Integer): Number of Agents.
-        """
-        return model.totals_dict["Infected Agents"]
-
-    @staticmethod
     def cumulative_values_recover_prcntg(model) -> int:
         """Returns the cumulative total of recovered agents during the whole simulation.
 
@@ -480,18 +459,6 @@ class SimulationModel(Model):
             (Integer): Number of Agents.
         """
         return model.totals_dict["Healthy Agents"]
-
-    @staticmethod
-    def cumulative_values_quarantine_prcntg(model) -> int:
-        """Returns the cumulative total of agents in the quarantine zone during the whole simulation.
-
-        Args:
-            model (SimulationModel): The model instance.
-
-        Returns:
-            (Integer): Number of Agents.
-        """
-        return model.totals_dict["Quarantine Agents"]
 
 
 if __name__ == "__main__":

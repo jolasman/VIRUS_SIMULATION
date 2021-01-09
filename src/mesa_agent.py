@@ -84,7 +84,6 @@ class SimulationAgent(Agent):
                             agent.health_status, self.immune_system_response, agent.wear_mask, self.wear_mask)
                         if hs_new_value_for_current_agent != -1:
                             self.health_status = hs_new_value_for_current_agent
-                            #self.daily_infected += 1
                             logger.debug(
                                 f"Agent {self.unique_id} had an update in his health status: {constants.HEALTH_STATUS_DICT[self.health_status]}")
 

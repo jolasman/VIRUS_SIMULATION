@@ -84,48 +84,47 @@ def run_simulation() -> None:
 
     grid = CanvasGrid(agent_portrayal, SIZE_X, SIZE_Y, PIXELS_X, PIXELS_Y)
 
-    chart_cumulatives = ChartModule([{"Label": "Sick Agents",
-                                      "Color": "RED"},
-                                     {"Label": "Recovered Agents",
-                                      "Color": BROWN},
-                                     {"Label": "Dead Agents",
-                                      "Color": "black"},
-                                     {"Label": "Healthy Agents",
-                                      "Color": GREEN},
-                                     {"Label": "Quarantine Agents",
-                                      "Color": DARK_BLUE}
-                                     ],
-                                    # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
-                                    # declaring both height and width yields some kind of a bug where the values are random
-                                    canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
-                                    data_collector_name='datacollector_cumulatives')
+    chart_cumulatives = ChartModule([
+        {"Label": "Sick Agents",
+         "Color": "RED"},
+        {"Label": "Recovered Agents",
+         "Color": BROWN},
+        {"Label": "Dead Agents",
+         "Color": "black"},
+        {"Label": "Healthy Agents",
+         "Color": GREEN},
+        {"Label": "Quarantine Agents",
+         "Color": DARK_BLUE}
+    ],
+        # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
+        # declaring both height and width yields some kind of a bug where the values are random
+        canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
+        data_collector_name='datacollector_currents_prcntg')
 
-    chart_dailys = ChartModule([{"Label": "Infected Agents",
-                                 "Color": "RED"},
-                                {"Label": "Recovered Agents",
-                                 "Color": BROWN},
-                                {"Label": "Dead Agents",
-                                 "Color": "black"},
-                                {"Label": "Quarantine Agents",
-                                 "Color": DARK_BLUE}
-                                ],
-                               # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
-                               # declaring both height and width yields some kind of a bug where the values are random
-                               canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
-                               data_collector_name='datacollector_dailys')
+    chart_dailys = ChartModule([
+        {"Label": "Infected Agents",
+         "Color": "RED"},
+        {"Label": "Recovered Agents",
+         "Color": BROWN},
+        {"Label": "Dead Agents",
+         "Color": "black"},
+        {"Label": "Quarantine Agents",
+         "Color": DARK_BLUE}
+    ],
+        # canvas_width=constants.ALL_DATA_PLOT_FIG_SIZE_X,
+        # declaring both height and width yields some kind of a bug where the values are random
+        canvas_height=constants.ALL_DATA_PLOT_FIG_SIZE_Y,
+        data_collector_name='datacollector_dailys')
 
-    pie_chart_cumulatives = PieChartModule([{"Label": "Infected Agents",
-                                             "Color": "RED"},
-                                            {"Label": "Recovered Agents",
-                                             "Color": BROWN},
-                                            {"Label": "Dead Agents",
-                                             "Color": "black"},
-                                            {"Label": "Healthy Agents",
-                                             "Color": GREEN},
-                                            {"Label": "Quarantine Agents",
-                                             "Color": DARK_BLUE}
-                                            ],
-                                           data_collector_name='datacollector_dailys_prcntg')
+    pie_chart_cumulatives = PieChartModule([
+        {"Label": "Recovered Agents",
+         "Color": DARK_BLUE},
+        {"Label": "Dead Agents",
+         "Color": "black"},
+        {"Label": "Healthy Agents",
+         "Color": GREEN}
+    ],
+        data_collector_name='datacollector_cumulatives_prcntg')
 
     build_server_sim(grid, chart_cumulatives,
                      chart_dailys, pie_chart_cumulatives)
@@ -137,7 +136,7 @@ def build_server_sim(*params) -> None:
     global NUMBER_OF_AGENTS
     if NUMBER_OF_AGENTS > MAX_NUMBER_AGENTS:
         NUMBER_OF_AGENTS = MAX_NUMBER_AGENTS
-        
+
     model_params = {
         "N": UserSettableParameter(
             "slider",
