@@ -63,7 +63,8 @@ SOCIAL_DISTANCE = agent['SOCIAL_DISTANCE']
 SOCIAL_DISTANCE_STEP = agent['SOCIAL_DISTANCE_STEP']
 # distance that triggers a possible contagious if one of the agents is infected
 CONTAGIOUS_DISTANCE = agent['CONTAGIOUS_DISTANCE']
-
+# number of times the agent tries to keep the social distance until quit
+SOCIAL_DISTANCE_TRIES = agent['SOCIAL_DISTANCE_TRIES']
 
 # after X days agents recover
 INFECTED_DAYS_THRESHOLD_FOR_INFECTED = agent['INFECTED_DAYS_THRESHOLD_FOR_INFECTED']
