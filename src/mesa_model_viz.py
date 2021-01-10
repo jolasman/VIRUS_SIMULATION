@@ -130,7 +130,7 @@ def run_simulation() -> None:
                      chart_dailys, pie_chart_cumulatives)
 
 
-def build_server_sim(*params) -> None:
+def build_server_sim(*visualizations) -> None:
     """Builds and runs the server to visualize the simulation and charts.
     """
     global NUMBER_OF_AGENTS
@@ -138,6 +138,25 @@ def build_server_sim(*params) -> None:
         NUMBER_OF_AGENTS = MAX_NUMBER_AGENTS
 
     model_params = {
+        
+        "width": UserSettableParameter(
+            "slider",
+            "Simulation Width",
+            SIZE_X,  # default
+            50,  # min
+            150,  # max
+            1,  # step
+            description="Choose the simulation's Width",
+        ),
+        "height": UserSettableParameter(
+            "slider",
+            "Simulation Height",
+            SIZE_Y,  # default
+            50,  # min
+            150,  # max
+            1,  # step
+            description="Choose the simulation's Height",
+        ),
         "N": UserSettableParameter(
             "slider",
             "Number of agents",
@@ -147,9 +166,15 @@ def build_server_sim(*params) -> None:
             1,  # step
             description="Choose how many agents to include in the model",
         ),
-        "width": SIZE_X,
-        "height": SIZE_Y,
-        "static": True,
+         "text": UserSettableParameter(
+            'static_text',
+            value="Setting the simulation to use the static beginning. If it is `ON`, you can adjust the remaining parameters and press `Reset`"
+        ),       
+        "static": UserSettableParameter('checkbox', 'Simulation with static beginning', value=True),
+         "text": UserSettableParameter( # can be used only once
+            'static_text',
+            value="Setting the simulation to use the static beginning. If it is `ON`, you can adjust the remaining parameters and press `Reset`"
+        ),
         "sick_p": UserSettableParameter(
             "slider",
             "Percentage of infected (Sick) agents",
@@ -170,7 +195,7 @@ def build_server_sim(*params) -> None:
         ),
         "imr_immune_p": UserSettableParameter(
             "slider",
-            "Percentage of immune agents",
+            "(IMR) Percentage of immune agents",
             constants.IMMMUNE_IMR_PRCNTG,
             0,
             1,
@@ -179,7 +204,7 @@ def build_server_sim(*params) -> None:
         ),
         "imr_asymp_p": UserSettableParameter(
             "slider",
-            "Percentage of asymptomatic agents",
+            "(IMR) Percentage of asymptomatic agents",
             constants.ASYMP_IMR_PRCNTG,
             0,
             1,
@@ -188,7 +213,7 @@ def build_server_sim(*params) -> None:
         ),
         "imr_mod_p": UserSettableParameter(
             "slider",
-            "Percentage of moderately infected agents",
+            "(IMR) Percentage of moderately infected agents",
             constants.MOD_IMR_PRCNTG,
             0,
             1,
@@ -197,7 +222,7 @@ def build_server_sim(*params) -> None:
         ),
         "imr_severe_p": UserSettableParameter(
             "slider",
-            "Percentage of severe infected agents",
+            "(IMR) Percentage of severe infected agents",
             constants.SEVERE_IMR_PRCNTG,
             0,
             1,
@@ -206,7 +231,7 @@ def build_server_sim(*params) -> None:
         ),
         "imr_dead_p": UserSettableParameter(
             "slider",
-            "Percentage of dead agents",
+            "(IMR) Percentage of dead agents",
             constants.DEAD_IMR_PRCNTG,
             0,
             1,
@@ -225,7 +250,7 @@ def build_server_sim(*params) -> None:
     }
 
     server = ModularServer(mesa_model.SimulationModel,
-                           params,  # list
+                           visualizations,  # list
                            "COVID-19 Simulation",
                            model_params)  # model parameters
 

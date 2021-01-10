@@ -1,6 +1,7 @@
 import json
 import yaml
 import sys
+import math
 
 with open('../config.yaml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -90,7 +91,7 @@ ASYMP_IMR_PRCNTG = static['ASYMP_IMR_PRCNTG']
 MOD_IMR_PRCNTG = static['MOD_IMR_PRCNTG']
 SEVERE_IMR_PRCNTG = static['SEVERE_IMR_PRCNTG']
 DEAD_IMR_PRCNTG = static['DEAD_IMR_PRCNTG']
-if sum([IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG]) != 1:
+if math.ceil(sum([IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG])) != 1:
     sys.exit(f"IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG must sum to 1")
 
 AGENTS_WEARING_MASK_PRCNTG = static['AGENTS_WEARING_MASK_PRCNTG']
