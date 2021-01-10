@@ -70,6 +70,68 @@ class SimulationAgent(Agent):
         new_position = self.random.choice(possible_steps)
         self.model.grid.move_agent(self, new_position)
 
+    def move_social_distance(self) -> None:
+        """This methods allows the agent to move into a new grid cell.
+        """
+        possible_new_pos = self.model.grid.get_neighborhood(
+            self.pos,
+            moore=True,
+            include_center=False)
+
+        new_position = None
+        tries = 0  # number of times the agent tries to keep the social distance until quit
+        random.shuffle(possible_new_pos)
+
+        # start while
+        # checking if agent can move to a cell in the neighborhood based on the social distance value for each cell
+        while new_position is None and tries < constants.SOCIAL_DISTANCE_TRIES:
+            tries += 1
+            logger.debug(
+                f'Agent {self.unique_id} try number {tries}!')
+            for pos in possible_new_pos:
+                cells_in_neighborhood = self.model.grid.get_neighborhood(
+                    pos,
+                    # If True, may move in all 8 directions.Otherwise, only up, down, left, right.
+                    moore=True,
+                    include_center=False,
+                    radius=constants.SOCIAL_DISTANCE_STEP)
+                logger.debug(
+                    f'Agent {self.unique_id} cells_in_neighborhood: {cells_in_neighborhood}!')
+
+                # if no cell with agents in the neighborhood (empty cell), the current agents cell is not empty for all neighborhood checks
+                if [self.model.grid.is_cell_empty(cell) for cell in cells_in_neighborhood].count(False) == 1:
+                    new_position = self.random.choice(cells_in_neighborhood)
+
+            # trying another cell
+            if new_position is None:
+                possible_new_pos = self.model.grid.get_neighborhood(
+                    # getting random empty cell
+                    self.random.choice(
+                        sorted(self.model.grid.empties, reverse=True)),
+                    moore=True,
+                    include_center=False)
+                logger.debug(
+                    f'Agent {self.unique_id} new possible cells: {possible_new_pos}!')
+        # end while
+
+        # moves agent if there is no agents in the social distance radius
+        if new_position:
+            logger.debug(
+                f'Agent {self.unique_id} got a new cell keeping the social distance: {new_position}')
+            self.model.grid.move_agent(self, new_position)
+        else:  # the agent can stay or move to a random empty cell, like i quit this sh!t!
+            value = random.random()
+            if value <= 0.5:
+                new_position = self.random.choice(
+                    sorted(self.model.grid.empties))
+
+                self.model.grid.move_agent(self, new_position)
+                logger.debug(
+                    f'Agent {self.unique_id} gave up on applying the social distance: {new_position} {self.model.grid.is_cell_empty(new_position)}')
+            else:
+                logger.debug(
+                    f'Agent {self.unique_id} will not move because he is concerned to keep the social distance!')
+
     def agents_in_contact(self) -> None:
         """Updates the status for each agent when in contact with other agents.
         """
@@ -78,6 +140,7 @@ class SimulationAgent(Agent):
             self.pos,
             # If True, may move in all 8 directions.Otherwise, only up, down, left, right.
             moore=True,
+            # still using multigrid , so more than one agent cann be in the same cell
             include_center=True,
             radius=constants.CONTAGIOUS_DISTANCE)
 
@@ -87,10 +150,8 @@ class SimulationAgent(Agent):
             tmp_cellmates = self.model.grid.get_cell_list_contents([cell])
             for mate in tmp_cellmates:
                 cellmates.append(mate)
-        if len(cellmates) > 2:
-            logger.info(
-                f"More than 2 agents can be infected. Current: {self.pos} --> {[agent.pos for agent in cellmates]}")
-       
+
+        # if there is agents in contact
         if len(cellmates) > 1:
             for agent in cellmates:
                 # excluding the day 0, when the agents get the infection, where we change from None to 0
@@ -110,7 +171,11 @@ class SimulationAgent(Agent):
         First it moves the agent, then evaluates the other agents in contact with it. 
         Finally, the "clinic" situation of the agent is updated, based on the number days with the virus and the agents parameters.
         """
-        self.move()
+        if constants.SOCIAL_DISTANCE_STEP == 0:
+            self.move()
+        else:
+            self.move_social_distance()
+            
         self.agents_in_contact()
         self.update_infected_agents_env()
 

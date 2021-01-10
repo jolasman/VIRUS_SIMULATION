@@ -1,6 +1,7 @@
 import json
 import yaml
 import sys
+import math
 
 with open('../config.yaml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -63,7 +64,8 @@ SOCIAL_DISTANCE = agent['SOCIAL_DISTANCE']
 SOCIAL_DISTANCE_STEP = agent['SOCIAL_DISTANCE_STEP']
 # distance that triggers a possible contagious if one of the agents is infected
 CONTAGIOUS_DISTANCE = agent['CONTAGIOUS_DISTANCE']
-
+# number of times the agent tries to keep the social distance until quit
+SOCIAL_DISTANCE_TRIES = agent['SOCIAL_DISTANCE_TRIES']
 
 # after X days agents recover
 INFECTED_DAYS_THRESHOLD_FOR_INFECTED = agent['INFECTED_DAYS_THRESHOLD_FOR_INFECTED']
@@ -89,7 +91,7 @@ ASYMP_IMR_PRCNTG = static['ASYMP_IMR_PRCNTG']
 MOD_IMR_PRCNTG = static['MOD_IMR_PRCNTG']
 SEVERE_IMR_PRCNTG = static['SEVERE_IMR_PRCNTG']
 DEAD_IMR_PRCNTG = static['DEAD_IMR_PRCNTG']
-if sum([IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG]) != 1:
+if math.ceil(sum([IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG])) != 1:
     sys.exit(f"IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG must sum to 1")
 
 AGENTS_WEARING_MASK_PRCNTG = static['AGENTS_WEARING_MASK_PRCNTG']

@@ -19,11 +19,11 @@ SIMULATION:
     PARAMS:
       SICK_PRCNTG: 0.2 # number of sick agents when starting the simulation
       ASYMP_PRCNTG: 0.1 # number of asymptomatic agents when starting the simulation
-      IMMMUNE_IMR_PRCNTG: 0.05 # number of agents with immune system resposnse as Immune when starting the simulation, only healthy agents can be immune
-      ASYMP_IMR_PRCNTG: 0.2 # number of agents with immune system resposnse as Asymptomatic when starting the simulation
-      MOD_IMR_PRCNTG: 0.15 # number of agents with immune system resposnse as Moderately Infected when starting the simulation
-      SEVERE_IMR_PRCNTG: 0.1 # number of agents with immune system resposnse as severe infected when starting the simulation
-      DEAD_IMR_PRCNTG: 0.5 # number of agents with immune system resposnse as Deadly infected when starting the simulation
+      IMMMUNE_IMR_PRCNTG: 0.1 # number of agents with immune system resposnse as Immune when starting the simulation, only healthy agents can be immune
+      ASYMP_IMR_PRCNTG: 0.3 # number of agents with immune system resposnse as Asymptomatic when starting the simulation
+      MOD_IMR_PRCNTG: 0.3 # number of agents with immune system resposnse as Moderately Infected when starting the simulation
+      SEVERE_IMR_PRCNTG: 0.2 # number of agents with immune system resposnse as severe infected when starting the simulation
+      DEAD_IMR_PRCNTG: 0.1 # number of agents with immune system resposnse as Deadly infected when starting the simulation
       AGENTS_WEARING_MASK_PRCNTG: 0.1 # number of agents wearing a mask when starting the simulation
   AGENT:
     PARAMS:
@@ -35,11 +35,13 @@ SIMULATION:
       SICK_P: 0.8
       ASYMPTOMATIC_P: 0.1
       HEALTHY_P: 0.1
-      SOCIAL_DISTANCE: 0 # initial minimal distance between agents
+      SOCIAL_DISTANCE: 2 # initial minimal distance between agents
       # can move to a position x y +SOCIAL_DISTANCE_STEP and -SOCIAL_DISTANCE_STEP
       SOCIAL_DISTANCE_STEP: 0
       # distance that triggers a possible contagious if one of the agents is infected
       CONTAGIOUS_DISTANCE: 2
+      # number of times the agent tries to keep the social distance until quit. Note: It slows down the simulation speed
+      SOCIAL_DISTANCE_TRIES: 1
       INFECTED_DAYS_THRESHOLD_FOR_INFECTED: 15 # after X days agents recover
       INFECTED_DAYS_THRESHOLD_FOR_DEAD: 5  # agents die after X days if immune system type IMR_DEADLY_INFECTED
       INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS: 10 # stop the virus propagation

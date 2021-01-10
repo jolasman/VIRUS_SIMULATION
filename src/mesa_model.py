@@ -246,9 +246,9 @@ class SimulationModel(Model):
         Returns:
             (tuple): hs_data, imr_data, mask_data.
         """
-        if sum([self.imr_immune_p, self.imr_asymp_p, self.imr_mod_p, self.imr_severe_p, self.imr_dead_p]) != 1:
+        if math.ceil(sum([self.imr_immune_p, self.imr_asymp_p, self.imr_mod_p, self.imr_severe_p, self.imr_dead_p])) != 1:
             sys.exit(
-                f"IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG must sum to 1")
+                f"IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG must sum to 1, got {sum([self.imr_immune_p, self.imr_asymp_p, self.imr_mod_p, self.imr_severe_p, self.imr_dead_p])}")
 
         healty_agents = self.num_agents - \
             ((self.num_agents * self.sick_p) +
