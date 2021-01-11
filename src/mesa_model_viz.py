@@ -166,6 +166,15 @@ def build_server_sim(*visualizations) -> None:
             1,  # step
             description="Choose how many agents to include in the model",
         ),
+        "travelling_agents": UserSettableParameter(
+            "slider",
+            "Max number of travelling agents by day",
+            constants.TRAVELLING_NUMBER_OF_AGENTS,  # default
+            0,  # min
+            20,  # max
+            1,  # step
+            description="Choose how many agents can travel into the simulation in each day",
+        ),
          "text": UserSettableParameter(
             'static_text',
             value="Setting the simulation to use the static beginning. If it is `ON`, you can adjust the remaining parameters and press `Reset`"

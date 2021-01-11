@@ -37,6 +37,7 @@ class SimulationModel(Model):
             imr_severe_p=0.2,
             imr_dead_p=0.2,
             wearing_mask=0.2,
+            travelling_agents=10,
             static=False
     ) -> None:
         """Simulation constructor.
@@ -53,6 +54,7 @@ class SimulationModel(Model):
             imr_severe_p (float, optional): Percentage of agents for severe infected IMR. Defaults to 0.2.
             imr_dead_p (float, optional): Percentage of agents for deadly IMR. Defaults to 0.2.
             wearing_mask (float, optional): Percentage of agents wearing a mask. Defaults to 0.2.
+            travelling_agents (Integer, optional): Max number of agents Travelling in each day. Defaults to 10.
             static (bool, optional): If the simulation will have a static beginning. Defaults to False.
         """
         self.num_agents = N
@@ -74,6 +76,7 @@ class SimulationModel(Model):
         self.imr_severe_p = imr_severe_p
         self.imr_dead_p = imr_dead_p
         self.wearing_mask = wearing_mask
+        self.travelling_agents = travelling_agents
         self.totals_dict = {
             "Recovered Agents": 0,
             "Dead Agents": 0,
@@ -152,8 +155,25 @@ class SimulationModel(Model):
         self.datacollector_currents_prcntg.collect(self)
         self.datacollector_cumulatives_prcntg.collect(self)
         self.datacollector_dailys.collect(self)
+
         # reset daily counters
         self.reset_daily_data()
+
+        # adding travelling agents
+        self.add_travelling_agents()
+
+    def add_travelling_agents(self) -> None:
+        """Adds new agents into the model, simulating the travelling behaviour.
+        """
+        for i in range(random.randint(0, self.travelling_agents)):
+            agent = SimulationAgent(model=self)
+            self.schedule.add(agent)
+            # Add the agent to a random grid cell
+            x = self.random.randrange(self.grid.width)
+            y = self.random.randrange(self.grid.height)
+            self.grid.place_agent(agent, (x, y))
+            logger.debug(
+                f'Agent {agent.unique_id} arrived! He is {constants.HEALTH_STATUS_DICT[agent.health_status]} and he {"wears" if agent.wear_mask else "does not wear"} a mask')
 
     def remove_dead_agents(self) -> None:
         """Removes the dead agents from the simulation.
