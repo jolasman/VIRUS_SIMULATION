@@ -40,7 +40,12 @@ class SimulationAgent(Agent):
             name = fake.name()
 
         if health_status is None:
-            health_status = random.choice([constants.SICK, constants.HEALTHY])
+            health_status = random.choice([constants.SICK,
+                                           constants.ASYMPTOMATIC,
+                                           constants.WITH_DISEASES_SEQUELAES,
+                                           constants.TOTAL_RECOVERY,
+                                           constants.HEALTHY
+                                           ])
 
         if immune_system_response is None:
             immune_system_response = SimulationAgent.immune_response_by_age(
@@ -175,7 +180,7 @@ class SimulationAgent(Agent):
             self.move()
         else:
             self.move_social_distance()
-            
+
         self.agents_in_contact()
         self.update_infected_agents_env()
 
