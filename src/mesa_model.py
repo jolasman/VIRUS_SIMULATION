@@ -160,10 +160,16 @@ class SimulationModel(Model):
         self.reset_daily_data()
 
         # adding travelling agents
+        self.travelling()
+
+    def travelling(self) -> None:
+        """Adds an removes new agents from the model, simulating the travelling behaviour.
+        """
         self.add_travelling_agents()
+        self.removing_travelling_agents()
 
     def add_travelling_agents(self) -> None:
-        """Adds new agents into the model, simulating the travelling behaviour.
+        """Adds new agents into the model, simulating the travelling behaviour when people arrive in our city.
         """
         for i in range(random.randint(0, self.travelling_agents)):
             agent = SimulationAgent(model=self)
@@ -172,8 +178,18 @@ class SimulationModel(Model):
             x = self.random.randrange(self.grid.width)
             y = self.random.randrange(self.grid.height)
             self.grid.place_agent(agent, (x, y))
-            logger.debug(
+            logger.info(
                 f'Agent {agent.unique_id} arrived! He is {constants.HEALTH_STATUS_DICT[agent.health_status]} and he {"wears" if agent.wear_mask else "does not wear"} a mask')
+
+    def removing_travelling_agents(self) -> None:
+        """Removes agents from the model, simulating the travelling behaviour when people go to another place.
+        """
+        for i in range(random.randint(0, self.travelling_agents)):
+            agent = self.schedule.agents[random.randint(0, len(self.schedule.agents))]
+            self.grid.remove_agent(agent)
+            self.schedule.remove(agent)
+            logger.info(
+                f'Agent {agent.unique_id} left the city! He is {constants.HEALTH_STATUS_DICT[agent.health_status]} and he {"wears" if agent.wear_mask else "does not wear"} a mask')
 
     def remove_dead_agents(self) -> None:
         """Removes the dead agents from the simulation.
