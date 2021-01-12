@@ -178,7 +178,7 @@ class SimulationModel(Model):
             x = self.random.randrange(self.grid.width)
             y = self.random.randrange(self.grid.height)
             self.grid.place_agent(agent, (x, y))
-            logger.info(
+            logger.debug(
                 f'Agent {agent.unique_id} arrived! He is {constants.HEALTH_STATUS_DICT[agent.health_status]} and he {"wears" if agent.wear_mask else "does not wear"} a mask')
 
     def removing_travelling_agents(self) -> None:
@@ -188,7 +188,7 @@ class SimulationModel(Model):
             agent = self.schedule.agents[random.randint(0, len(self.schedule.agents))]
             self.grid.remove_agent(agent)
             self.schedule.remove(agent)
-            logger.info(
+            logger.debug(
                 f'Agent {agent.unique_id} left the city! He is {constants.HEALTH_STATUS_DICT[agent.health_status]} and he {"wears" if agent.wear_mask else "does not wear"} a mask')
 
     def remove_dead_agents(self) -> None:
