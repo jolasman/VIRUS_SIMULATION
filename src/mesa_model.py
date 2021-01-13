@@ -38,6 +38,7 @@ class SimulationModel(Model):
             imr_dead_p=0.2,
             wearing_mask=0.2,
             travelling_agents=10,
+            vaccination_nbr=10,
             static=False
     ) -> None:
         """Simulation constructor.
@@ -77,6 +78,7 @@ class SimulationModel(Model):
         self.imr_dead_p = imr_dead_p
         self.wearing_mask = wearing_mask
         self.travelling_agents = travelling_agents
+        self.vaccination_nbr = vaccination_nbr
         self.totals_dict = {
             "Recovered Agents": 0,
             "Dead Agents": 0,
@@ -162,6 +164,16 @@ class SimulationModel(Model):
         # adding travelling agents
         self.travelling()
 
+    def vaccination(self) -> None:
+        """Vaccinates the agents
+        """
+        for agent in SimulationModel.get_healthy_no_immune_agents()[:self.vaccination_nbr]:
+            agent.vaccinated = True
+            # update the vacination days in the agent health status update
+            
+            
+        
+        
     def travelling(self) -> None:
         """Adds an removes new agents from the model, simulating the travelling behaviour.
         """
@@ -313,6 +325,20 @@ class SimulationModel(Model):
         self.daily_recovered = 0
         self.daily_dead = 0
         self.daily_quarantine = 0
+
+    @staticmethod
+    def get_healthy_no_immune_agents(model) -> list:
+        """[summary]
+
+        Args:
+            model ([type]): [description]
+
+        Returns:
+            list: [description]
+        """
+        return [agent for agent in model.schedule.agents if agent.health_status == constants.HEALTHY and agent.immune_system_response != constants.IMR_IMMUNE]
+
+        
 
     @staticmethod
     def current_values_sick(model) -> int:
