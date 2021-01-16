@@ -38,7 +38,7 @@ class SimulationModel(Model):
             imr_dead_p=0.2,
             wearing_mask=0.2,
             travelling_agents=10,
-            vaccination_nbr=10,
+            vaccination_prcntg=0.1,
             static=False
     ) -> None:
         """Simulation constructor.
@@ -56,6 +56,7 @@ class SimulationModel(Model):
             imr_dead_p (float, optional): Percentage of agents for deadly IMR. Defaults to 0.2.
             wearing_mask (float, optional): Percentage of agents wearing a mask. Defaults to 0.2.
             travelling_agents (Integer, optional): Max number of agents Travelling in each day. Defaults to 10.
+            vaccination_prcntg (float, optional): Percentage of agents being vaccinated in each day. Defaults to 0.1.
             static (bool, optional): If the simulation will have a static beginning. Defaults to False.
         """
         self.num_agents = number_agents
@@ -84,15 +85,8 @@ class SimulationModel(Model):
                 f'Allowed number of travelling agents exceeded! Default number will be used : {travel_max} ')
             travelling_agents = travel_max
 
-        vaccine_max = int(number_agents * 0.1)
-        if vaccination_nbr > vaccine_max:
-            logger.warning(
-                f'Allowed number of vaccinated agents exceeded! Default number will be used : {vaccine_max} ')
-
-            vaccination_nbr = vaccine_max
-
         self.travelling_agents_nbr = travelling_agents
-        self.vaccination_nbr = vaccination_nbr
+        self.vaccination_nbr = int(number_agents * vaccination_prcntg)
         self.totals_dict = {
             "Recovered Agents": 0,
             "Dead Agents": 0,
@@ -194,7 +188,7 @@ class SimulationModel(Model):
         """
         for agent in SimulationModel.get_healthy_no_immune_agents(self)[:self.vaccination_nbr]:
             agent.vaccinated = 1
-            logger.debug(
+            logger.info(
                 f'Agent {agent.unique_id} got his first vaccine dose! Step: {self.schedule.steps}')
             # updates the vacination days in the agent health status update
 
@@ -218,13 +212,13 @@ class SimulationModel(Model):
             self.grid.place_agent(agent, (x, y))
             logger.info(
                 (f'Agent {agent.unique_id} arrived! He is {constants.HEALTH_STATUS_DICT[agent.health_status]} and he {"wears" if agent.wear_mask else "does not wear"}'
-                f' a mask. He have a vaccinated value of {agent.vaccinated}'))
+                 f' a mask. He have a vaccinated value of {agent.vaccinated}'))
 
     def removing_travelling_agents(self) -> None:
         """Removes agents from the model, simulating the travelling behaviour when people go to another place.
         """
         for i in range(random.randint(0, self.travelling_agents_nbr)):
-            agent=self.schedule.agents[random.randint(
+            agent = self.schedule.agents[random.randint(
                 0, len(self.schedule.agents)-1)]
             self.grid.remove_agent(agent)
             self.schedule.remove(agent)
@@ -261,7 +255,7 @@ class SimulationModel(Model):
     def update_quarantine(self) -> None:
         """Adds or removes agents from quarantine.
         """
-        infected_list=[agent for agent in self.schedule.agents if agent.health_status ==
+        infected_list = [agent for agent in self.schedule.agents if agent.health_status ==
                          constants.SICK or agent.health_status == constants.ASYMPTOMATIC]
         # only a percentage of agents go to quarantine, the others remain indetected by autorities
         for agent in infected_list[:math.ceil(len(infected_list) * constants.QUARANTINE_PERCENTAGE)]:
@@ -279,8 +273,8 @@ class SimulationModel(Model):
                 self.quarantine_list.pop(index)
                 self.schedule.add(agent)
                 # Add the agent to a random grid cell
-                x=self.random.randrange(self.grid.width)
-                y=self.random.randrange(self.grid.height)
+                x = self.random.randrange(self.grid.width)
+                y = self.random.randrange(self.grid.height)
                 self.grid.place_agent(agent, (x, y))
                 self.daily_quarantine -= 1
                 # self.daily_recovered += 1 #update_infected_agents already sets the revocered agent to the counter
@@ -294,7 +288,7 @@ class SimulationModel(Model):
         # if there is any agent in the list that is sickl or asymptomatic
         if not any(agent.health_status == constants.SICK or agent.health_status == constants.ASYMPTOMATIC for agent in self.schedule.agents) and \
                 not any(agent.health_status == constants.SICK or agent.health_status == constants.ASYMPTOMATIC for agent in self.quarantine_list):
-            self.running=False
+            self.running = False
 
     def get_totals_health_status(self) -> tuple:
         """Returns the total number of infected, healthy agents in the current step.
@@ -302,7 +296,7 @@ class SimulationModel(Model):
         Returns:
             [Pack/Tuple](Integer): infected, healthy.
         """
-        infected=healthy=0
+        infected = healthy = 0
         for agent in self.schedule.agents:
             if agent.health_status == constants.SICK or agent.health_status == constants.ASYMPTOMATIC:
                 infected += 1
@@ -317,7 +311,7 @@ class SimulationModel(Model):
         Returns:
             (Integer): Number of deadly infected.
         """
-        deadly=[1 for agent in self.schedule.agents if agent.immune_system_response ==
+        deadly = [1 for agent in self.schedule.agents if agent.immune_system_response ==
                   constants.IMR_DEADLY_INFECTED]
 
         return len(deadly)
@@ -332,7 +326,7 @@ class SimulationModel(Model):
             sys.exit(
                 f"IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG must sum to 1, got {sum([self.imr_immune_p, self.imr_asymp_p, self.imr_mod_p, self.imr_severe_p, self.imr_dead_p])}")
 
-        healty_agents=self.num_agents - \
+        healty_agents = self.num_agents - \
             ((self.num_agents * self.sick_p) +
              (self.num_agents * self.aymp_p))
         # immune people are healthy
@@ -341,7 +335,7 @@ class SimulationModel(Model):
                 f"The number of HEALTHY agents ({healty_agents}) cannot be less than the number of immune agents ({constants.IMMMUNE_IMR_PRCNTG})")
             sys.exit()
 
-        hs_data, imr_data, mask_data=utils.static_simulation(self.num_agents, self.sick_p, self.aymp_p, self.imr_immune_p,
+        hs_data, imr_data, mask_data = utils.static_simulation(self.num_agents, self.sick_p, self.aymp_p, self.imr_immune_p,
                                                                self.imr_asymp_p, self.imr_mod_p, self.imr_severe_p, self.imr_dead_p,
                                                                self.wearing_mask)
         if len(hs_data) != self.num_agents or len(imr_data) != self.num_agents:
@@ -355,10 +349,10 @@ class SimulationModel(Model):
         """Resets the daily total to "0"
 
         """
-        self.daily_infected=0
-        self.daily_recovered=0
-        self.daily_dead=0
-        self.daily_quarantine=0
+        self.daily_infected = 0
+        self.daily_recovered = 0
+        self.daily_dead = 0
+        self.daily_quarantine = 0
 
     @ staticmethod
     def get_healthy_no_immune_agents(model) -> list:
@@ -383,7 +377,7 @@ class SimulationModel(Model):
         Returns:
             (Integer): Number of Agents.
         """
-        cumulative_sick=0
+        cumulative_sick = 0
         for agent in model.schedule.agents:
             if agent.health_status == constants.SICK:
                 cumulative_sick += 1
@@ -407,14 +401,14 @@ class SimulationModel(Model):
         Returns:
             (Integer): Number of Agents.
         """
-        cumulative_recovery=0
+        cumulative_recovery = 0
         for agent in model.schedule.agents:
             if agent.health_status == constants.TOTAL_RECOVERY:
                 cumulative_recovery += 1
             if agent.health_status == constants.WITH_DISEASES_SEQUELAES:
                 cumulative_recovery += 1
 
-        model.totals_dict["Recovered Agents"]=cumulative_recovery
+        model.totals_dict["Recovered Agents"] = cumulative_recovery
 
         return cumulative_recovery
 
@@ -428,7 +422,7 @@ class SimulationModel(Model):
         Returns:
             (Integer): Number of Agents.
         """
-        cumulative_dead=0
+        cumulative_dead = 0
         for agent in model.schedule.agents:
             if agent.health_status == constants.DEAD:
                 cumulative_dead += 1
@@ -450,12 +444,12 @@ class SimulationModel(Model):
         Returns:
             (Integer): Number of Agents.
         """
-        cumulative_healthy=0
+        cumulative_healthy = 0
         for agent in model.schedule.agents:
             if agent.health_status == constants.HEALTHY:
                 cumulative_healthy += 1
 
-        model.totals_dict["Healthy Agents"]=cumulative_healthy
+        model.totals_dict["Healthy Agents"] = cumulative_healthy
 
         return cumulative_healthy
 
@@ -565,7 +559,7 @@ class SimulationModel(Model):
         Returns:
             (Integer): Number of Agents.
         """
-        IMR=[agent for agent in model.schedule.agents if agent.immune_system_response ==
+        IMR = [agent for agent in model.schedule.agents if agent.immune_system_response ==
                constants.IMR_IMMUNE]
         return len(IMR)
 

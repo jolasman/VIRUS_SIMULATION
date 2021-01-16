@@ -138,7 +138,7 @@ def build_server_sim(*visualizations) -> None:
         NUMBER_OF_AGENTS = MAX_NUMBER_AGENTS
 
     model_params = {
-        
+
         "width": UserSettableParameter(
             "slider",
             "Simulation Width",
@@ -175,21 +175,21 @@ def build_server_sim(*visualizations) -> None:
             1,  # step
             description="Choose how many agents can travel into the simulation in each day",
         ),
-        "vaccination_nbr": UserSettableParameter(
+        "vaccination_prcntg": UserSettableParameter(
             "slider",
-            "Number of agents vaccinated each day",
-            constants.VACCINATED_NUMBER_OF_AGENTS,  # default
+            "Percentage of agents vaccinated each day",
+            constants.VACCINATED_PRCNT_OF_AGENTS,  # default
             0,  # min
-            MAX_NUMBER_AGENTS * 0.1,  # max
-            1,  # step
-            description="Choose how many agents are vaccinated in each day",
+            1,  # max
+            0.05,  # step
+            description="Choose the percentage of agents are vaccinated in each day",
         ),
-         "text": UserSettableParameter(
+        "text": UserSettableParameter(
             'static_text',
             value="Setting the simulation to use the static beginning. If it is `ON`, you can adjust the remaining parameters and press `Reset`"
-        ),       
+        ),
         "static": UserSettableParameter('checkbox', 'Simulation with static beginning', value=True),
-         "text": UserSettableParameter( # can be used only once
+        "text": UserSettableParameter(  # can be used only once
             'static_text',
             value="Setting the simulation to use the static beginning. If it is `ON`, you can adjust the remaining parameters and press `Reset`"
         ),

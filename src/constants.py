@@ -17,7 +17,13 @@ APP_NAME = config['APP_NAME']
 EPISODES = simulation['EPISODES']
 TOTAL_NUMBER_OF_AGENTS = simulation['TOTAL_NUMBER_OF_AGENTS']
 TRAVELLING_NUMBER_OF_AGENTS = simulation['TRAVELLING_NUMBER_OF_AGENTS']
-VACCINATED_NUMBER_OF_AGENTS = simulation['VACCINATED_NUMBER_OF_AGENTS']
+
+vaccinated_prcnt_of_agents = simulation['VACCINATED_PRCNT_OF_AGENTS']
+if vaccinated_prcnt_of_agents > 1 or vaccinated_prcnt_of_agents < 0: # default value
+    VACCINATED_PRCNT_OF_AGENTS = 0.1
+else:
+    VACCINATED_PRCNT_OF_AGENTS = vaccinated_prcnt_of_agents
+    
 SIZE = simulation['SIZE']
 PIXELS = simulation['PIXELS']
 RANDOM_LIMIT = simulation['RANDOM_LIMIT']
