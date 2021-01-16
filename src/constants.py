@@ -19,11 +19,13 @@ TOTAL_NUMBER_OF_AGENTS = simulation['TOTAL_NUMBER_OF_AGENTS']
 TRAVELLING_NUMBER_OF_AGENTS = simulation['TRAVELLING_NUMBER_OF_AGENTS']
 
 vaccinated_prcnt_of_agents = simulation['VACCINATED_PRCNT_OF_AGENTS']
-if vaccinated_prcnt_of_agents > 1 or vaccinated_prcnt_of_agents < 0: # default value
+if vaccinated_prcnt_of_agents > 1 or vaccinated_prcnt_of_agents < 0:  # default value
     VACCINATED_PRCNT_OF_AGENTS = 0.1
 else:
     VACCINATED_PRCNT_OF_AGENTS = vaccinated_prcnt_of_agents
-    
+
+NO_MORE_SICK_AGENTS_TRAVELLING_STEP = simulation['NO_MORE_SICK_AGENTS_TRAVELLING_STEP']
+
 SIZE = simulation['SIZE']
 PIXELS = simulation['PIXELS']
 RANDOM_LIMIT = simulation['RANDOM_LIMIT']
@@ -130,10 +132,10 @@ SIMULATION_GRAPHICS_SIZE_Y = graphic_sizes['SIMULATION_GRAPHICS_SIZE_Y']
 
 # vaccine
 # https://www.npr.org/sections/health-shots/2021/01/12/956051995/why-you-should-still-wear-a-mask-and-avoid-crowds-after-getting-the-covid-19-vac?t=1610797724544
-FIRST_DOSE_IMMUNE_TIME = 12 # days
-FIRST_DOSE_IMMUNE_PRCNT = 0.52 # percentage
+FIRST_DOSE_IMMUNE_TIME = 12  # days
+FIRST_DOSE_IMMUNE_PRCNT = 0.52  # percentage
 SECOND_DOSE_IMMUNE_TIME = 21 + 7  # days, a week after the second dose
-SECOND_DOSE_IMMUNE_PRCNT = 0.95 # percentage
+SECOND_DOSE_IMMUNE_PRCNT = 0.95  # percentage
 
 # health_status
 SICK = 0

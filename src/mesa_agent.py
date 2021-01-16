@@ -165,7 +165,7 @@ class SimulationAgent(Agent):
         if len(cellmates) > 1:
             for agent in cellmates:
                 # excluding the day 0, when the agents get the infection, where we change from None to 0
-                if agent != self and agent.infected_days and not self.recovered:
+                if agent != self and agent.infected_days and not self.recovered and self.immune_system_response != constants.IMR_IMMUNE:
                     # can get the virus, neverthless he got it once before, the recovered instance variable can change
                     if self.health_status > constants.ASYMPTOMATIC:
                         hs_new_value_for_current_agent = SimulationAgent.value_based_probability(

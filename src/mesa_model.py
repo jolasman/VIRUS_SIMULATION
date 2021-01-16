@@ -177,7 +177,7 @@ class SimulationModel(Model):
 
         # adding travelling agents
         if self.travelling_agents_nbr > 0:
-            self.travelling()
+            self.travelling(self.schedule.steps)
 
         if not self.running:
             logger.info(
@@ -192,19 +192,41 @@ class SimulationModel(Model):
                 f'Agent {agent.unique_id} got his first vaccine dose! Step: {self.schedule.steps}')
             # updates the vacination days in the agent health status update
 
-    def travelling(self) -> None:
+    def travelling(self, step) -> None:
         """Adds an removes new agents from the model, simulating the travelling behaviour.
+
+        Args:
+            step (Integer): Current step
         """
         self.removing_travelling_agents()
-        self.add_travelling_agents()
+        self.add_travelling_agents(step)
 
-    def add_travelling_agents(self) -> None:
+    def add_travelling_agents(self, step) -> None:
         """Adds new agents into the model, simulating the travelling behaviour when people arrive in our city.
         The arriving agents have random status.
         So, they can be infected and infect other agents or be healthy and got infected.
+
+        Args:
+            step (Integer): Current step
         """
         for i in range(random.randint(0, self.travelling_agents_nbr)):
-            agent = SimulationAgent(model=self)
+            if step > constants.NO_MORE_SICK_AGENTS_TRAVELLING_STEP:
+                health_status = self.random.choice([constants.WITH_DISEASES_SEQUELAES,
+                                                    constants.TOTAL_RECOVERY,
+                                                    constants.HEALTHY])
+                
+                if health_status in [constants.WITH_DISEASES_SEQUELAES, constants.TOTAL_RECOVERY]:
+                    # if agent recovered the Immune system is immune or asymptomatic
+                    immune_system_response = self.random.choice(
+                        [constants.IMR_IMMUNE, constants.IMR_ASYMPTOMATIC])
+                else:
+                    immune_system_response = None
+
+                agent = SimulationAgent(
+                    model=self, health_status=health_status, immune_system_response= immune_system_response)
+            else:
+                agent = SimulationAgent(model=self)
+
             self.schedule.add(agent)
             # Add the agent to a random grid cell
             x = self.random.randrange(self.grid.width)

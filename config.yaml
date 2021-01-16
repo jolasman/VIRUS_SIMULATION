@@ -7,6 +7,7 @@ SIMULATION:
     TOTAL_NUMBER_OF_AGENTS: 1_000
     TRAVELLING_NUMBER_OF_AGENTS: 5
     VACCINATED_PRCNT_OF_AGENTS: 0.1 # between 0 and 1
+    NO_MORE_SICK_AGENTS_TRAVELLING_STEP: 365 # after x days no more sick agents got into the simulation. only recovered or healthy
     SIZE: 150 # environment size on each axis
     PIXELS: 1500 # environment size on each axis
     RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
