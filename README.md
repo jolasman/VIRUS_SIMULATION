@@ -87,8 +87,8 @@ Run the command `python ./main.py -h` or `python ./main.py --help` to see how to
 To run the simulation using the `mesa` library:
 * `python ./main.py -m` 
 
-![Simulation_v21](https://github.com/jolasman/VIRUS_SIMULATION/blob/main/data/images/version_2_1.png)
-![Simulation_v22](https://github.com/jolasman/VIRUS_SIMULATION/blob/main/data/images/version_2_2.png)
+![Simulation_v21](https://github.com/jolasman/VIRUS_SIMULATION/blob/version-2/data/images/version_2_1.png)
+![Simulation_v22](https://github.com/jolasman/VIRUS_SIMULATION/blob/version-2/data/images/version_2_2.png)
 *Mesa-based Simulation visualization*
 
 # Maintainers
