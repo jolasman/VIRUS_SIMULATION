@@ -56,7 +56,7 @@ def save_detailed_data(x, daily_infected, daily_dead, daily_healed, daily_quaran
                   f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
                   f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}")
 
-        filename = f"{folder}/Static_{constants.SICK_PRCNTG}_{constants.ASYMP_PRCNTG}_{constants.IMMMUNE_IMR_PRCNTG}_{constants.ASYMP_IMR_PRCNTG}_{constants.MOD_IMR_PRCNTGR}_{constants.SEVERE_IMR_NBR}_{constants.DEAD_IMR_PRCNTG}_{constants.AGENTS_WEARING_MASK}_{time.strftime('%Y-%m-%d_%H-%M-%S')}.pickle"
+        filename = f"{folder}/Static_{constants.SICK_PRCNTG}_{constants.ASYMP_PRCNTG}_{constants.IMMMUNE_IMR_PRCNTG}_{constants.ASYMP_IMR_PRCNTG}_{constants.MOD_IMR_PRCNTG}_{constants.SEVERE_IMR_PRCNTG}_{constants.DEAD_IMR_PRCNTG}_{constants.AGENTS_WEARING_MASK_PRCNTG}_{time.strftime('%Y-%m-%d_%H-%M-%S')}.pickle"
     else:
         folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARANTINE_PERCENTAGE}_{constants.QUARANTINE_DAYS}")
 
@@ -134,7 +134,7 @@ def load_detailed_data_average(max_files_nbr, static_beginning):
                   f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
                   f"{constants.INFECTED_DAYS_THRESHOLD_FOR_INFECTED}_{constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD}_{constants.INFECTED_DAYS_THRESHOLD_FOR_NOT_CONTAGIOUS}_{constants.CONTAGIOUS_AGENT_MASK}_{constants.HEALTHY_AGENT_MASK}_"
                   f"{constants.CONTAGIOUS_AGENT_MASK_HEALTHY_MASK}_{constants.CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK}")
-        filename = f"Static_{constants.SICK_PRCNTG}_{constants.ASYMP_PRCNTG}_{constants.IMMMUNE_IMR_PRCNTG}_{constants.ASYMP_IMR_PRCNTG}_{constants.MOD_IMR_PRCNTGR}_{constants.SEVERE_IMR_NBR}_{constants.DEAD_IMR_PRCNTG}_{constants.AGENTS_WEARING_MASK}_"
+        filename = f"Static_{constants.SICK_PRCNTG}_{constants.ASYMP_PRCNTG}_{constants.IMMMUNE_IMR_PRCNTG}_{constants.ASYMP_IMR_PRCNTG}_{constants.MOD_IMR_PRCNTG}_{constants.SEVERE_IMR_PRCNTG}_{constants.DEAD_IMR_PRCNTG}_{constants.AGENTS_WEARING_MASK_PRCNTG}_"
     else:
         folder = (f"{constants.PICKLE_DATA}Simulation_{constants.TOTAL_NUMBER_OF_AGENTS}_{constants.SIZE}_{constants.RANDOM_LIMIT}_{constants.AGENTS_MOVEMENT_PERCENTAGE}_{constants.QUARANTINE_PERCENTAGE}_{constants.QUARANTINE_DAYS}")
         filename = (f"_Agent_{constants.HEALTH_ARRAY_P}_{constants.RECOVERY_SEQUELS_P}_{constants.SICK_P}_{constants.ASYMPTOMATIC_P}_{constants.HEALTHY_P}_{constants.SOCIAL_DISTANCE}_{constants.SOCIAL_DISTANCE_STEP}_{constants.CONTAGIOUS_DISTANCE}_"
@@ -316,7 +316,7 @@ def show_graphic_simulation(simulation):
     cv2.waitKey(200)
 
 
-def static_simulation(agents_total, sick_prcntg, asymp_prcntg, immmune_imr_prcntg, asymp_imr_prcntg, mod_imr_prcntg, SEVERE_IMR_PRCNTG, dead_imr_prcntg, wear_mask_prcntg):
+def static_simulation(agents_total, sick_prcntg, asymp_prcntg, immmune_imr_prcntg, asymp_imr_prcntg, mod_imr_prcntg, severe_imr_prcntg, dead_imr_prcntg, wear_mask_prcntg):
     """ Defining number of people for sick healthy and immune people
 
     Args:
@@ -325,7 +325,7 @@ def static_simulation(agents_total, sick_prcntg, asymp_prcntg, immmune_imr_prcnt
         * immmune_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_IMMUNE from the total number of agents
         * asymp_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_ASYMPTOMATIC from the total number of agents
         * mod_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_MODERATELY_INFECTED from the total number of agents
-        * SEVERE_IMR_PRCNTG (Float): percentage of agents with immune resposnse system as IMR_SEVERE_INFECTED from the total number of agents
+        * severe_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_SEVERE_INFECTED from the total number of agents
         * dead_imr_prcntg (Float): percentage of agents with immune resposnse system as IMR_DEADLY_INFECTED from the total number of agents
 
     Returns:
@@ -344,16 +344,16 @@ def static_simulation(agents_total, sick_prcntg, asymp_prcntg, immmune_imr_prcnt
     IMMMUNE_IMR_PRCNTG = math.floor(agents_total * immmune_imr_prcntg)
     ASYMP_IMR_PRCNTG = math.floor(agents_total * asymp_imr_prcntg)
     mod_imr_nbr = math.floor(agents_total * mod_imr_prcntg)
-    SEVERE_IMR_NBR = math.floor(agents_total * SEVERE_IMR_PRCNTG)
+    severe_imr_nbr = math.floor(agents_total * severe_imr_prcntg)
     dead_imr_nbr = math.floor(agents_total * dead_imr_prcntg)
     
     imr_totals = IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + \
-        mod_imr_nbr + SEVERE_IMR_NBR + dead_imr_nbr
+        mod_imr_nbr + severe_imr_nbr + dead_imr_nbr
     
     if agents_total != imr_totals:
         diff = agents_total - \
             (IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG +
-             mod_imr_nbr + SEVERE_IMR_NBR + dead_imr_nbr)
+             mod_imr_nbr + severe_imr_nbr + dead_imr_nbr)
         # fixing approximation issues by adding the diff to the dead imr number
         dead_imr_nbr += diff
         
@@ -368,7 +368,7 @@ def static_simulation(agents_total, sick_prcntg, asymp_prcntg, immmune_imr_prcnt
     immune_array = [constants.IMR_IMMUNE for x in range(IMMMUNE_IMR_PRCNTG)]
     asymp_array = [constants.IMR_ASYMPTOMATIC for x in range(ASYMP_IMR_PRCNTG)]
     mod_array = [constants.IMR_MODERATELY_INFECTED for x in range(mod_imr_nbr)]
-    severe_array = [constants.IMR_SEVERE_INFECTED for x in range(SEVERE_IMR_NBR)]
+    severe_array = [constants.IMR_SEVERE_INFECTED for x in range(severe_imr_nbr)]
     dead_array = [constants.IMR_DEADLY_INFECTED for x in range(dead_imr_nbr)]
     
     non_imunne_array = asymp_array + mod_array + severe_array + dead_array
