@@ -6,6 +6,7 @@ SIMULATION:
     EPISODES: 500 # interpreted as days
     TOTAL_NUMBER_OF_AGENTS: 1_000
     TRAVELLING_NUMBER_OF_AGENTS: 5
+    VACCINATED_NUMBER_OF_AGENTS: 10
     SIZE: 150 # environment size on each axis
     PIXELS: 1500 # environment size on each axis
     RANDOM_LIMIT: 20 # maximum value that each agent can move from its position (+ or -)
