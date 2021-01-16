@@ -209,7 +209,7 @@ class SimulationModel(Model):
         Args:
             step (Integer): Current step
         """
-        for i in range(random.randint(0, self.travelling_agents_nbr)):
+        for i in range(random.randint(0, self.travelling_agents_nbr)): # random value with the max chosen by the user
             if step > constants.NO_MORE_SICK_AGENTS_TRAVELLING_STEP:
                 health_status = self.random.choice([constants.WITH_DISEASES_SEQUELAES,
                                                     constants.TOTAL_RECOVERY,
@@ -239,7 +239,7 @@ class SimulationModel(Model):
     def removing_travelling_agents(self) -> None:
         """Removes agents from the model, simulating the travelling behaviour when people go to another place.
         """
-        for i in range(random.randint(0, self.travelling_agents_nbr)):
+        for i in range(random.randint(0, self.travelling_agents_nbr)): # random value with the max chosen by the user
             agent = self.schedule.agents[random.randint(
                 0, len(self.schedule.agents)-1)]
             self.grid.remove_agent(agent)
