@@ -138,7 +138,7 @@ def build_server_sim(*visualizations) -> None:
         NUMBER_OF_AGENTS = MAX_NUMBER_AGENTS
 
     model_params = {
-        
+
         "width": UserSettableParameter(
             "slider",
             "Simulation Width",
@@ -157,7 +157,7 @@ def build_server_sim(*visualizations) -> None:
             1,  # step
             description="Choose the simulation's Height",
         ),
-        "N": UserSettableParameter(
+        "number_agents": UserSettableParameter(
             "slider",
             "Number of agents",
             NUMBER_OF_AGENTS,  # default
@@ -171,16 +171,25 @@ def build_server_sim(*visualizations) -> None:
             "Max number of travelling agents by day",
             constants.TRAVELLING_NUMBER_OF_AGENTS,  # default
             0,  # min
-            20,  # max
+            MAX_NUMBER_AGENTS * 0.2,  # max
             1,  # step
             description="Choose how many agents can travel into the simulation in each day",
         ),
-         "text": UserSettableParameter(
+        "vaccination_prcntg": UserSettableParameter(
+            "slider",
+            "Percentage of agents vaccinated each day",
+            constants.VACCINATED_PRCNT_OF_AGENTS,  # default
+            0,  # min
+            1,  # max
+            0.05,  # step
+            description="Choose the percentage of agents are vaccinated in each day",
+        ),
+        "text": UserSettableParameter(
             'static_text',
             value="Setting the simulation to use the static beginning. If it is `ON`, you can adjust the remaining parameters and press `Reset`"
-        ),       
+        ),
         "static": UserSettableParameter('checkbox', 'Simulation with static beginning', value=True),
-         "text": UserSettableParameter( # can be used only once
+        "text": UserSettableParameter(  # can be used only once
             'static_text',
             value="Setting the simulation to use the static beginning. If it is `ON`, you can adjust the remaining parameters and press `Reset`"
         ),

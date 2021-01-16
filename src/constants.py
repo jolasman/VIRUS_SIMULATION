@@ -17,9 +17,19 @@ APP_NAME = config['APP_NAME']
 EPISODES = simulation['EPISODES']
 TOTAL_NUMBER_OF_AGENTS = simulation['TOTAL_NUMBER_OF_AGENTS']
 TRAVELLING_NUMBER_OF_AGENTS = simulation['TRAVELLING_NUMBER_OF_AGENTS']
+
+vaccinated_prcnt_of_agents = simulation['VACCINATED_PRCNT_OF_AGENTS']
+if vaccinated_prcnt_of_agents > 1 or vaccinated_prcnt_of_agents < 0:  # default value
+    VACCINATED_PRCNT_OF_AGENTS = 0.1
+else:
+    VACCINATED_PRCNT_OF_AGENTS = vaccinated_prcnt_of_agents
+
+NO_MORE_SICK_AGENTS_TRAVELLING_STEP = simulation['NO_MORE_SICK_AGENTS_TRAVELLING_STEP']
+
 SIZE = simulation['SIZE']
 PIXELS = simulation['PIXELS']
 RANDOM_LIMIT = simulation['RANDOM_LIMIT']
+
 # percentage of the agents that moves in the step
 AGENTS_MOVEMENT_PERCENTAGE = simulation['AGENTS_MOVEMENT_PERCENTAGE']
 quarantine_x = simulation['QUARANTINE_X']
@@ -120,6 +130,13 @@ SIMULATION_GRAPHICS_SIZE_Y = graphic_sizes['SIMULATION_GRAPHICS_SIZE_Y']
 
 ######################################################################################
 
+# vaccine
+# https://www.npr.org/sections/health-shots/2021/01/12/956051995/why-you-should-still-wear-a-mask-and-avoid-crowds-after-getting-the-covid-19-vac?t=1610797724544
+FIRST_DOSE_IMMUNE_TIME = 12  # days
+FIRST_DOSE_IMMUNE_PRCNT = 0.52  # percentage
+SECOND_DOSE_IMMUNE_TIME = 21 + 7  # days, a week after the second dose
+SECOND_DOSE_IMMUNE_PRCNT = 0.95  # percentage
+
 # health_status
 SICK = 0
 ASYMPTOMATIC = 1
@@ -148,6 +165,14 @@ IMR_MODERATELY_INFECTED = 2
 IMR_SEVERE_INFECTED = 3
 IMR_DEADLY_INFECTED = 4
 
+
+IMR_DICT = {
+    0: "IMR_IMMUNE",
+    1: "IMR_ASYMPTOMATIC",
+    2: "IMR_MODERATELY_INFECTED",
+    3: "IMR_SEVERE_INFECTED",
+    4: "IMR_DEADLY_INFECTED"
+}
 
 # Check this site to see the base for the propability of being deadly infected for age. Updated date : 11/25/2020 12:00 p.m.
 # https://covid19.min-saude.pt/ponto-de-situacao-atual-em-portugal/

@@ -15,6 +15,9 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+days_list = [i for i in range(0, 21)]  # 21 as the second dose
+days_list.append(False)
+
 
 class SimulationAgent(Agent):
     """Class representing a human being (Agent).
@@ -63,6 +66,8 @@ class SimulationAgent(Agent):
         self.recovered = False
         self.wear_mask = wear_mask
         self.quarantine = False
+        self.vaccinated = random.choice(days_list) if self.immune_system_response != constants.IMR_IMMUNE \
+            and self.health_status == constants.HEALTHY else True
 
     def move(self) -> None:
         """This methods allows the agent to move into a new grid cell.
@@ -160,7 +165,7 @@ class SimulationAgent(Agent):
         if len(cellmates) > 1:
             for agent in cellmates:
                 # excluding the day 0, when the agents get the infection, where we change from None to 0
-                if agent != self and agent.infected_days and not self.recovered:
+                if agent != self and agent.infected_days and not self.recovered and self.immune_system_response != constants.IMR_IMMUNE:
                     # can get the virus, neverthless he got it once before, the recovered instance variable can change
                     if self.health_status > constants.ASYMPTOMATIC:
                         hs_new_value_for_current_agent = SimulationAgent.value_based_probability(
@@ -183,6 +188,7 @@ class SimulationAgent(Agent):
 
         self.agents_in_contact()
         self.update_infected_agents_env()
+        self.update_vaccinated_agents_env()
 
     def get_health_status(self) -> int:
         """Return the agent's healt_status.
@@ -196,6 +202,11 @@ class SimulationAgent(Agent):
         """Updates the agents health status based on the number of days with the virus.
         """
         SimulationAgent.update_infected_agents(self)
+
+    def update_vaccinated_agents_env(self) -> None:
+        """Updates the vaccination status
+        """
+        SimulationAgent.update_vaccinated_agents(self)
 
     def __str__(self) -> str:
         """Overrides how the agent is printed.
@@ -221,6 +232,34 @@ class SimulationAgent(Agent):
             (Boolean): if agents' IDs are different.
         """
         return self.unique_id != other.unique_id
+
+    @staticmethod
+    def update_vaccinated_agents(agent) -> None:
+        if agent.vaccinated and agent.immune_system_response != constants.IMR_IMMUNE:
+            # first dose
+            if agent.vaccinated > constants.FIRST_DOSE_IMMUNE_TIME  \
+                    and agent.immune_system_response != constants.IMR_ASYMPTOMATIC:
+
+                prob = agent.model.random.random()
+                if prob <= constants.FIRST_DOSE_IMMUNE_PRCNT:
+                    new_imr = agent.random.randint(
+                        constants.IMR_IMMUNE, constants.IMR_MODERATELY_INFECTED)  # can become immune or get a better response to the virus
+
+                    if agent.immune_system_response > new_imr:  # only gets a better IMR
+                        agent.immune_system_response = new_imr
+                        logger.debug(
+                            f'Agent {agent.unique_id} is now {constants.IMR_DICT[agent.immune_system_response]} after the first vaccine dose!')
+            # second dose
+            if agent.vaccinated > constants.SECOND_DOSE_IMMUNE_TIME and agent.vaccinated < constants.SECOND_DOSE_IMMUNE_TIME + 5 \
+                    and agent.immune_system_response != constants.IMR_IMMUNE:  # 5 days of interval to get immune
+
+                prob = agent.model.random.random()
+                if prob <= constants.SECOND_DOSE_IMMUNE_PRCNT:
+                    agent.immune_system_response = constants.IMR_IMMUNE  # got immune
+                    logger.info(
+                        f'Agent {agent.unique_id} is now IMR_IMMUNE after the second vaccine dose!')
+
+            agent.vaccinated += 1
 
     @staticmethod
     def update_infected_agents(agent) -> None:
@@ -259,6 +298,9 @@ class SimulationAgent(Agent):
                         f"Agent {agent.unique_id} recovered totaly. He is known as {agent.name}")
                 agent.recovered = True
                 agent.model.daily_recovered += 1
+                # if agent recovers the Immune system is updated and upgraded
+                agent.immune_system_response = agent.random.choice(
+                    [constants.IMR_IMMUNE, constants.IMR_ASYMPTOMATIC])
 
             # case of deadly infected
             elif agent.infected_days == constants.INFECTED_DAYS_THRESHOLD_FOR_DEAD:
