@@ -235,8 +235,10 @@ if __name__ == "__main__":
         description="Running a simulation for Covid-19 Simulation.")
     # parser.add_argument("-r", "--random", action="store_true",
     #                     help="runs with agents initialized at random positions and moving randomly")
-    parser.add_argument("-m", "--mesa", action="store_true",
-                        help="uses mesa library to build and visualize the simulation")
+    parser.add_argument("-o", "--old", action="store_true",
+                        help="uses version 1")
+    # parser.add_argument("-m", "--mesa", action="store_true",
+    #                     help="uses mesa library to build and visualize the simulation")
     parser.add_argument("-g", "--graphics", action="store_true",
                         help="shows graphics for the simulation")
     parser.add_argument("-s", "--static_beginning", action="store_true",
@@ -270,7 +272,7 @@ if __name__ == "__main__":
 
     logger.info(f"{constants.APP_NAME} {__version__}")
 
-    if not args.mesa:
+    if args.old:
         main(random_simulation=True, graphics_simulation=args.graphics,
              static_beginning=args.static_beginning, daily_data=args.daily_data,
              load_average_simulations=args.load_average_simulations, max_files_nbr=args.max_files_nbr,

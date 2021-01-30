@@ -7,6 +7,10 @@ SIMULATION:
     TOTAL_NUMBER_OF_AGENTS: 1_000
     TRAVELLING_NUMBER_OF_AGENTS: 5
     VACCINATED_PRCNT_OF_AGENTS: 0.1 # between 0 and 1
+    FIRST_DOSE_IMMUNE_TIME: 12  # days
+    FIRST_DOSE_IMMUNE_PRCNT: 0.52  # percentage
+    SECOND_DOSE_IMMUNE_TIME: 28 # 21 + 7 days, a week after the second dose
+    SECOND_DOSE_IMMUNE_PRCNT: 0.95  # percentage
     NO_MORE_SICK_AGENTS_TRAVELLING_STEP: 365 # after x days no more sick agents got into the simulation. only recovered or healthy
     SIZE: 150 # environment size on each axis
     PIXELS: 1500 # environment size on each axis
