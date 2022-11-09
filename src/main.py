@@ -16,16 +16,19 @@ import datetime
 import utils
 from tqdm import tqdm
 from simulation import Simulation
+import mesa_model_viz
+
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
 
 logging.basicConfig(
     level=constants.LOG_LEVEL,
-    format="%(asctime)s [%(levelname)s] %(message)s",
+    filename='logs/mesa_model.log',
+    filemode='w',
+    format="%(name)s %(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
-    handlers=[logging.StreamHandler()],
 )
-
-# TODO
-# washing hands
+logger = logging.getLogger(__name__)
 
 
 def run_simulation(random_simulation, graphics_simulation, static_beginning, daily_data, multi_simulation_nbr):
@@ -52,16 +55,19 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
 
         if static_beginning:
             healty_agents = constants.TOTAL_NUMBER_OF_AGENTS - \
-                (constants.SICK_NBR + constants.ASYMP_NBR)
-            if healty_agents < constants.IMMMUNE_IMR_NBR:  # immune people are healthy
-                logging.error(
-                    f"The number of HEALTHY agents ({healty_agents}) cannot be less than the number of immune agents ({constants.IMMMUNE_IMR_NBR})")
+                ((constants.TOTAL_NUMBER_OF_AGENTS * constants.SICK_PRCNTG) +
+                 (constants.TOTAL_NUMBER_OF_AGENTS * constants.ASYMP_PRCNTG))
+            # immune people are healthy
+            if healty_agents < (constants.TOTAL_NUMBER_OF_AGENTS * constants.IMMMUNE_IMR_PRCNTG):
+                logger.error(
+                    f"The number of HEALTHY agents ({healty_agents}) cannot be less than the number of immune agents ({constants.IMMMUNE_IMR_PRCNTG})")
                 sys.exit()
 
-            hs_data, imr_data, mask_data = utils.static_simulation(
-                constants.SICK_NBR, constants.ASYMP_NBR, constants.IMMMUNE_IMR_NBR, constants.ASYMP_IMR_NBR, constants.MOD_IMR_NBR, constants.HIGH_IMR_NBR, constants.DEAD_IMR_NBR, constants.AGENTS_WEARING_MASK)
+            hs_data, imr_data, mask_data = utils.static_simulation(constants.TOTAL_NUMBER_OF_AGENTS, constants.SICK_PRCNTG, constants.ASYMP_PRCNTG, constants.IMMMUNE_IMR_PRCNTG,
+                                                                   constants.ASYMP_IMR_PRCNTG, constants.MOD_IMR_PRCNTG, constants.SEVERE_IMR_PRCNTG, constants.DEAD_IMR_PRCNTG,
+                                                                   constants.AGENTS_WEARING_MASK_PRCNTG)
             if len(hs_data) != constants.TOTAL_NUMBER_OF_AGENTS or len(imr_data) != constants.TOTAL_NUMBER_OF_AGENTS:
-                logging.error(
+                logger.error(
                     f"The number of HEALTH STATUS ({len(hs_data)}) and IMR ({len(imr_data)}) data must be equal to the Total of AGENTS in the simulation ({constants.TOTAL_NUMBER_OF_AGENTS})")
                 sys.exit()
         # Creating agents
@@ -76,7 +82,7 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
                     new_simulation, random_tuple_list, hs_data=hs_data, imr_data=imr_data, mask_data=mask_data)
         pbar.set_description("Creating Agents in random positions")
     else:
-        logging.error(
+        logger.error(
             f"Not implemented yet. The Agents can only move in a random way")
         sys.exit()
 
@@ -87,9 +93,9 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
     initial_healed = new_simulation.get_healed_count()
     initial_quarantine = new_simulation.get_quarantine_count()
 
-    logging.info(f"Imunne people: {new_simulation.get_immune_people_count()}")
-    logging.info(f"Infected people: {initial_infected}")
-    logging.info(
+    logger.info(f"Imunne people: {new_simulation.get_immune_people_count()}")
+    logger.info(f"Infected people: {initial_infected}")
+    logger.info(
         f"People wearing a mask: {new_simulation.get_wearing_mask_count()}")
 
     # initializing the variables to build final chart
@@ -165,7 +171,7 @@ def run_simulation(random_simulation, graphics_simulation, static_beginning, dai
             f.write(line)
 
         if(infected == 0):
-            logging.info(f"Number of infected agents is now zero")
+            logger.info(f"Number of infected agents is now zero")
             break
 
     if daily_data:
@@ -208,7 +214,7 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
 
         time_array = []
         for i in range(multi_simulation_nbr):
-            logging.info(
+            logger.info(
                 f"Running Simulation number {i + 1}/{multi_simulation_nbr}")
             start = time.time()
             run_simulation(random_simulation, graphics_simulation, static_beginning,
@@ -216,10 +222,10 @@ def main(random_simulation, graphics_simulation, static_beginning, daily_data, l
             end = time.time()
             execution = end - start
             time_array.append(execution)
-            logging.info(
+            logger.info(
                 f"Simulation took: {datetime.timedelta(seconds=execution)}")
 
-        logging.info(
+        logger.info(
             f"Simulations total time: {datetime.timedelta(seconds=sum(time_array))}")
 
 
@@ -229,6 +235,10 @@ if __name__ == "__main__":
         description="Running a simulation for Covid-19 Simulation.")
     # parser.add_argument("-r", "--random", action="store_true",
     #                     help="runs with agents initialized at random positions and moving randomly")
+    parser.add_argument("-o", "--old", action="store_true",
+                        help="uses version 1")
+    # parser.add_argument("-m", "--mesa", action="store_true",
+    #                     help="uses mesa library to build and visualize the simulation")
     parser.add_argument("-g", "--graphics", action="store_true",
                         help="shows graphics for the simulation")
     parser.add_argument("-s", "--static_beginning", action="store_true",
@@ -260,8 +270,12 @@ if __name__ == "__main__":
             parser.error(
                 "--load_file is a stand alone argument.")
 
-    logging.info(f"{constants.APP_NAME} {__version__}")
-    main(random_simulation=True, graphics_simulation=args.graphics,
-         static_beginning=args.static_beginning, daily_data=args.daily_data,
-         load_average_simulations=args.load_average_simulations, max_files_nbr=args.max_files_nbr,
-         multi_simulation_nbr=args.multi_simulation_nbr, load_file=args.load_file)
+    logger.info(f"{constants.APP_NAME} {__version__}")
+
+    if args.old:
+        main(random_simulation=True, graphics_simulation=args.graphics,
+             static_beginning=args.static_beginning, daily_data=args.daily_data,
+             load_average_simulations=args.load_average_simulations, max_files_nbr=args.max_files_nbr,
+             multi_simulation_nbr=args.multi_simulation_nbr, load_file=args.load_file)
+    else:
+        mesa_model_viz.run_simulation()

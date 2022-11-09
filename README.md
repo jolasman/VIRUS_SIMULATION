@@ -16,7 +16,17 @@
 
 This "project" started with my curiosity about the covid-19 spread around the world. In my own country, and after everyone knows all health authorities' rules the virus is now attacking harder than never before. Why the virus still continues to spread: This is one of my big questions. So I did this simulation-like project to study the influences of people behaviours in the overall number of infected people. As an example, evaluating the influence of 10% of the people within an area do not wear a mask, or do not respect the social distance as we should.
 
-To build the simulation I used the python programming language and the Object-oriented programming paradigm. I did not use any python library to build the simulation environment itself. It is just two classes to represent the Agents and the Simulation.
+To build the simulation I used the python programming language and the Object-oriented programming paradigm. in the first version of it, I did not use any python library to build the simulation environment itself. It is just two classes to represent the Agents and the Simulation.
+
+# Requirements
+
+To run this project you should have `python>=3.8.3`, as it was developed using that version. 
+
+# Installation
+
+To install the necessary libraries run the command `pip install -r requirements.txt` at the project root folder.
+
+# Version 1
 
 ## Classes
 
@@ -37,20 +47,13 @@ With regard to the Agents, we have two different ways of creating them:
 Please note that only in the first case the age of each agent is used as the factor to indicate the immune system response. The second approach, defined as static begging in the simulation, do not take into account the age of the agent. Here, the immune system response type is randomly distributed by the agents, according to the specified numbers for each type.
 # The age influence
 In the random beginning approach, I use probabilities based on real data from my country when it comes to death data by age range. The data was retrieved from the response of one service from this site. After that, I stored the data to have it in a file (I chose not to call the service and avoid that implementation since it takes time). Then I handle the data so I can have, for instance, the percentage of people that die grouped by age range. You can find that logic at the end of constants.py file. In other cases, I simply defined probability values that I think are valid. Almost all values can be changed in the configuration file (config.yaml) if you want to test the Simulation. The file also includes the variables' meaning in the simulation context through code comments. 
-# Requirements
 
-To run this project you should have `python>=3.8.3`, as it was developed using that version. 
-
-# Installation
-
-To install the necessary libraries run the command `pip install -r requirements.txt` at the project root folder.
-
-# Configuration
+## Configuration
 
 To configure the simulation you can use the `config.yaml` file at the root folder.
-There you can change the parameters like the number of agents in the simulation and the probability of being infected by another sick agent.
+There you can change parameters like the number of agents in the simulation and the probability of being infected by another sick agent.
 
-# How to Run
+## How to Run
 
 After having your own configurations, you can run the simulation in a trivial graphic mode. This mode shows an image in a black background and the agents represented by pixels with different colours, also configurable in the config.yaml file. In each simulation day, the image is updated. I chose this approach as it is quite simple and quick to develop, and my focus was not in the graphical part. You can also run a parallel small script to show you, in real-time, the current simulation's cumulative values.
 
@@ -66,7 +69,27 @@ Suggested commands:
 * `python ./main.py -s -d -g -multi=10` --> for multiple runs of the same config file. Runs in graphical mode and saves the data.
 * `python ./main.py -s -l -max=10` --> for getting the average charts for old simulations with the same config file.
 
-  
+
+
+# Version 2  
+This version extends the `Agent` and `Model` classes from the `mesa` library. In this version it was added logic to simulate the vaccination proccess and the travelling between cities or countries by the agents. The visualization was also improved and now uses the visualization methods from the `mesa` library. 
+## Configuration
+
+To configure the simulation you can use the `config.yaml` file at the root folder.
+There you can change parameters like the number of agents in the simulation and the probability of being infected by another sick agent.
+
+## How to Run
+
+After having your own configurations, you can run the simulation `version 1` or `version 2`. The `version 2` run the simulation using the python `mesa` library. You can define the simulation parameters using he `config.yaml` file, as said earlier. Moreover, in this version, you can update some of the simulation paramateres after running the python program using sliders.
+
+Run the command `python ./main.py -h` or `python ./main.py --help` to see how to run the simulation at `/src` folder.
+
+To run the simulation using the `mesa` library:
+* `python ./main.py -m` 
+
+![Simulation_v21](https://github.com/jolasman/VIRUS_SIMULATION/blob/version-2/data/images/version_2_1.png)
+![Simulation_v22](https://github.com/jolasman/VIRUS_SIMULATION/blob/version-2/data/images/version_2_2.png)
+*Mesa-based Simulation visualization*
 
 # Maintainers
 

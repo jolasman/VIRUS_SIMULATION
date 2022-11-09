@@ -1,5 +1,7 @@
 import json
 import yaml
+import sys
+import math
 
 with open('../config.yaml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -14,8 +16,27 @@ LOG_LEVEL = config['LOG_LEVEL']
 APP_NAME = config['APP_NAME']
 EPISODES = simulation['EPISODES']
 TOTAL_NUMBER_OF_AGENTS = simulation['TOTAL_NUMBER_OF_AGENTS']
+TRAVELLING_NUMBER_OF_AGENTS = simulation['TRAVELLING_NUMBER_OF_AGENTS']
+
+# vaccine
+vaccinated_prcnt_of_agents = simulation['VACCINATED_PRCNT_OF_AGENTS']
+if vaccinated_prcnt_of_agents > 1 or vaccinated_prcnt_of_agents < 0:  # default value
+    VACCINATED_PRCNT_OF_AGENTS = 0.1
+else:
+    VACCINATED_PRCNT_OF_AGENTS = vaccinated_prcnt_of_agents
+    
+# https://www.npr.org/sections/health-shots/2021/01/12/956051995/why-you-should-still-wear-a-mask-and-avoid-crowds-after-getting-the-covid-19-vac?t=1610797724544
+FIRST_DOSE_IMMUNE_TIME = simulation['FIRST_DOSE_IMMUNE_TIME']  # days
+FIRST_DOSE_IMMUNE_PRCNT = simulation['FIRST_DOSE_IMMUNE_PRCNT']  # percentage
+SECOND_DOSE_IMMUNE_TIME = simulation['SECOND_DOSE_IMMUNE_TIME']  # days, a week after the second dose
+SECOND_DOSE_IMMUNE_PRCNT = simulation['SECOND_DOSE_IMMUNE_PRCNT'] # percentage
+
+NO_MORE_SICK_AGENTS_TRAVELLING_STEP = simulation['NO_MORE_SICK_AGENTS_TRAVELLING_STEP']
+
 SIZE = simulation['SIZE']
+PIXELS = simulation['PIXELS']
 RANDOM_LIMIT = simulation['RANDOM_LIMIT']
+
 # percentage of the agents that moves in the step
 AGENTS_MOVEMENT_PERCENTAGE = simulation['AGENTS_MOVEMENT_PERCENTAGE']
 quarantine_x = simulation['QUARANTINE_X']
@@ -61,7 +82,8 @@ SOCIAL_DISTANCE = agent['SOCIAL_DISTANCE']
 SOCIAL_DISTANCE_STEP = agent['SOCIAL_DISTANCE_STEP']
 # distance that triggers a possible contagious if one of the agents is infected
 CONTAGIOUS_DISTANCE = agent['CONTAGIOUS_DISTANCE']
-
+# number of times the agent tries to keep the social distance until quit
+SOCIAL_DISTANCE_TRIES = agent['SOCIAL_DISTANCE_TRIES']
 
 # after X days agents recover
 INFECTED_DAYS_THRESHOLD_FOR_INFECTED = agent['INFECTED_DAYS_THRESHOLD_FOR_INFECTED']
@@ -77,14 +99,22 @@ CONTAGIOUS_AGENT_MASK_HEALTHY_MASK = agent['CONTAGIOUS_AGENT_MASK_HEALTHY_MASK']
 CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK = agent['CONTAGIOUS_AGENT_NO_MASK_HEALTHY_NO_MASK']
 
 # Static simulation values
-SICK_NBR = static['SICK_NBR']
-ASYMP_NBR = static['ASYMP_NBR']
-IMMMUNE_IMR_NBR = static['IMMMUNE_IMR_NBR']
-ASYMP_IMR_NBR = static['ASYMP_IMR_NBR']
-MOD_IMR_NBR = static['MOD_IMR_NBR']
-HIGH_IMR_NBR = static['HIGH_IMR_NBR']
-DEAD_IMR_NBR = static['DEAD_IMR_NBR']
-AGENTS_WEARING_MASK = static['AGENTS_WEARING_MASK']
+SICK_PRCNTG = static['SICK_PRCNTG']
+ASYMP_PRCNTG = static['ASYMP_PRCNTG']
+if sum([SICK_PRCNTG + ASYMP_PRCNTG]) > 1:
+    sys.exit(f"SICK_PRCNTG + ASYMP_PRCNTG must sum to 1")
+
+IMMMUNE_IMR_PRCNTG = static['IMMMUNE_IMR_PRCNTG']
+ASYMP_IMR_PRCNTG = static['ASYMP_IMR_PRCNTG']
+MOD_IMR_PRCNTG = static['MOD_IMR_PRCNTG']
+SEVERE_IMR_PRCNTG = static['SEVERE_IMR_PRCNTG']
+DEAD_IMR_PRCNTG = static['DEAD_IMR_PRCNTG']
+if math.ceil(sum([IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG])) != 1:
+    sys.exit(f"IMMMUNE_IMR_PRCNTG + ASYMP_IMR_PRCNTG + MOD_IMR_PRCNTG + SEVERE_IMR_PRCNTG + DEAD_IMR_PRCNTG must sum to 1")
+
+AGENTS_WEARING_MASK_PRCNTG = static['AGENTS_WEARING_MASK_PRCNTG']
+if AGENTS_WEARING_MASK_PRCNTG > 1:
+    sys.exit(f"AGENTS_WEARING_MASK_PRCNTG must be less or equal to 1")
 
 # BGR
 COLORS_DICT = {0: (colors['SICK_COLOR'][0], colors['SICK_COLOR'][1], colors['SICK_COLOR'][2]),
@@ -132,9 +162,17 @@ HEALTH_ARRAY = [SICK, ASYMPTOMATIC, HEALTHY]
 IMR_IMMUNE = 0
 IMR_ASYMPTOMATIC = 1
 IMR_MODERATELY_INFECTED = 2
-IMR_HIGHLY_INFECTED = 3
+IMR_SEVERE_INFECTED = 3
 IMR_DEADLY_INFECTED = 4
 
+
+IMR_DICT = {
+    0: "IMR_IMMUNE",
+    1: "IMR_ASYMPTOMATIC",
+    2: "IMR_MODERATELY_INFECTED",
+    3: "IMR_SEVERE_INFECTED",
+    4: "IMR_DEADLY_INFECTED"
+}
 
 # Check this site to see the base for the propability of being deadly infected for age. Updated date : 11/25/2020 12:00 p.m.
 # https://covid19.min-saude.pt/ponto-de-situacao-atual-em-portugal/
@@ -190,7 +228,7 @@ TOTAL_ADMITTED_TO_HOSPITAL = sum(
     ADMITTED_TO_HOSPITAL) / (len(ADMITTED_TO_HOSPITAL) / INFECTED_DAYS_THRESHOLD_FOR_INFECTED)  # moderated symptoms
 TOTAL_ADMITTED_TO_HOSPITAL_ICU = sum(ADMITTED_TO_HOSPITAL_ICU) / \
     (len(ADMITTED_TO_HOSPITAL_ICU) / (INFECTED_DAYS_THRESHOLD_FOR_INFECTED +
-                                      INFECTED_DAYS_THRESHOLD_FOR_DEAD))  # high symptoms
+                                      INFECTED_DAYS_THRESHOLD_FOR_DEAD))  # severe symptoms
 
 ADM_HOSP_P = TOTAL_ADMITTED_TO_HOSPITAL / TOTAL_CONF_PEOP_PORTUGAL
 ADM_HOSP_ICU_P = TOTAL_ADMITTED_TO_HOSPITAL_ICU / TOTAL_CONF_PEOP_PORTUGAL

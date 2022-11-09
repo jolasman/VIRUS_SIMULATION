@@ -11,3 +11,5 @@ testing.py
 /data/wearing a mask tests/
 /data/number of agents/
 /data/vaccine/
+src/logs/
+src/output/
